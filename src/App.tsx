@@ -1,35 +1,30 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React from "react";
+import CustomButton from "./components/CustomButton";
+import BasicTextFields from "./components/BasicTextFields";
+import BasicCard from "./components/BasicCard";
+import "./styles/App.css"; // import CSS file
 
-function App() {
-  const [count, setCount] = useState(0)
+const App: React.FC = () => {
+  //declaring react functional component + {} -> define body of component
+  const handleButtonClick = () => {
+    // declare function using 'const', function is triggered when the button is clicked
+    alert("Button clicked!"); // displays browser alert dialog with the text `"Button clicked!"
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    // return block contains JSX - defines UI structure of App component
+    <div className="container">
+      <h1>Welcome to My App</h1>
+      <BasicTextFields />
+      {/* <BasicCard /> */}
+      <CustomButton label="Click Me" onClick={handleButtonClick} />
+    </div>
+  );
+};
 
-export default App
+export default App; //export app to be used in other places like main.tsx
+
+// <div style={{ textAlign: "center", marginTop: "50px" }} ... -> inline styles, can be put in css later
+// <CustomButton>: renders the custom button component
+// label="Click Me": passes prop named 'label' with the value `"Click Me"` to the `CustomButton` component, determines button's displayed text
+// onClick={handleButtonClick}: passes function prop named 'onClick' to 'CustomButton' component, when button is clicked, 'handleButtonClick' function executed
