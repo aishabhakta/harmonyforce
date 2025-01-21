@@ -48,3 +48,21 @@ export default tseslint.config({
   },
 })
 ```
+
+# Setting up PostgreSQL (Windows):
+
+- Download PostgreSQL Version 17.2 from https://www.postgresql.org/download/
+- Make sure PostgreSQL Server, pgAdmin 4, and Command Line Tools are selected
+- Once installed, launch pgAdmin and click "Add New Server"
+- In the General tab "Name" box, type "aardvarklocal"
+- In the Connection tab "Host name/address" box, type "localhost"
+- In the Connection tab, set a password in the designated box. Keep the username as "postgres"
+- Click save. The server should be registered in pgAdmin
+
+# Loading data into PostgreSQL server:
+
+- Download the "aardvarkdb.sql" file pinned in the developer channel in the discord
+- Ensure you are connected to the PostgreSQL server in pgAdmin
+- Expand the "aardvarklocal" > "Databases(1)" > "postgres" tree and click on postgres
+- Click "Tools" on the top bar, and then "Query Tool"
+- Click the folder button within the tool and load the script. The db should now be loaded in
