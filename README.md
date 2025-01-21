@@ -59,7 +59,7 @@ export default tseslint.config({
 - In the Connection tab, set a password in the designated box. Keep the username as "postgres"
 - Click save. The server should be registered in pgAdmin
 
-# Loading data into PostgreSQL server:
+## Loading data into PostgreSQL server:
 
 - Download the "aardvarkdb.sql" file pinned in the developer channel in the discord
 - Ensure you are connected to the PostgreSQL server in pgAdmin
