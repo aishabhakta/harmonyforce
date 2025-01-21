@@ -1,3 +1,30 @@
+# Getting started
+
+Create Vite Project
+```
+npm create vite@latest . -- --template react-ts
+```
+
+Next run:
+```
+npm install
+npm run dev
+```
+Go to ***http://localhost:5173/*** -> check if running correctly
+
+# Install MUI
+
+Install library
+```
+npm install @mui/material @emotion/react @emotion/styled
+```
+
+Install icons
+```
+npm install @mui/icons-material
+```
+
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
