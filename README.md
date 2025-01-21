@@ -8,9 +8,7 @@ npm create vite@latest . -- --template react-ts
 Next run:
 ```
 npm install
-npm run dev
 ```
-Go to ***http://localhost:5173/*** -> check if running correctly
 
 # Install MUI
 
@@ -23,6 +21,17 @@ Install icons
 ```
 npm install @mui/icons-material
 ```
+
+# Access localhost website
+
+Run the following:
+```
+npm run dev
+```
+
+Go to ***http://localhost:5173/*** in your browser to see website.
+
+
 
 
 # React + TypeScript + Vite
