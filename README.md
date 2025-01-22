@@ -31,8 +31,62 @@ npm run dev
 
 Go to ***http://localhost:5173/*** in your browser to see website.
 
+# Setting up Tailwind CSS for a React TypeScript + Vite Project
 
+Follow these steps to integrate Tailwind CSS into your React TypeScript project.
 
+---
+
+## 1. Install Tailwind CSS
+
+Run the following command to install Tailwind CSS and its dependencies:
+
+```bash
+npm install -D tailwindcss postcss autoprefixer
+```
+
+## 2.  Initialize Tailwind CSS
+
+Initialize the Tailwind configuration files:
+```bash
+npx tailwindcss init
+```
+
+This will create a tailwind.config.js file in the root of your project.
+
+## 3. Configure Tailwind
+
+Update tailwind.config.js to specify the paths to your source files:
+
+```bash
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
+  ],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+}
+```
+
+## 4. Add Tailwind Directives to CSS
+
+Create a new CSS file (e.g., src/index.css) if it doesn’t already exist. Add the following Tailwind directives:
+
+```bash
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+```
+
+# Installing react-router-dom
+
+```bash
+npm install react-router-dom
+```
 
 # React + TypeScript + Vite
 
