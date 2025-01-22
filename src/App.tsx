@@ -1,24 +1,16 @@
 import React from "react";
-import CustomButton from "./components/CustomButton";
-import BasicTextFields from "./components/BasicTextFields";
-import BasicCard from "./components/BasicCard";
-import "./styles/App.css"; // import CSS file
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import SignIn from "./pages/SignIn";
+import Register from "./pages/Register";
 
 const App: React.FC = () => {
-  //declaring react functional component + {} -> define body of component
-  const handleButtonClick = () => {
-    // declare function using 'const', function is triggered when the button is clicked
-    alert("Button clicked!"); // displays browser alert dialog with the text `"Button clicked!"
-  };
-
   return (
-    // return block contains JSX - defines UI structure of App component
-    <div className="container">
-      <h1>Welcome to My App</h1>
-      <BasicTextFields />
-      {/* <BasicCard /> */}
-      <CustomButton label="Click Me" onClick={handleButtonClick} />
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<SignIn />} />
+        <Route path="/register" element={<Register />}/>
+      </Routes>
+    </Router>
   );
 };
 
