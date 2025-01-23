@@ -88,6 +88,8 @@ Create a new CSS file (e.g., src/index.css) if it doesn’t already exist. Add t
 npm install react-router-dom
 ```
 
+**************************************************************
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
