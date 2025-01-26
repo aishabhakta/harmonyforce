@@ -48,14 +48,37 @@ export default function SignIn() {
         </Box>
       </Box>
 
+      {/*
+      <Box
+        sx={{
+            width: "50%",
+            backgroundImage: `url(${heroImg})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+        }}
+        />
+        */}
       <Box
         sx={{
           width: "50%",
           backgroundImage: `url(${heroImg})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
+          position: "relative",  // Ensure absolute positioning works for the hidden img
         }}
-      />
+      >
+        {/* Visually hidden <img> for accessibility */}
+        <img 
+          src={heroImg} 
+          alt="A red swirl on a black background"  // Add a description for screen readers
+          style={{ 
+            position: "absolute", 
+            width: "1px", 
+            height: "1px", 
+            opacity: 0 
+          }}
+        />
+      </Box>
     </Box>
   );
 }
