@@ -1,7 +1,6 @@
 import React from "react";
 import CustomButton from "./components/CustomButton";
 import BasicTextFields from "./components/BasicTextFields";
-import BasicCard from "./components/BasicCard";
 import "./styles/App.css"; // import CSS file
 
 const App: React.FC = () => {
