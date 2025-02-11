@@ -1,46 +1,77 @@
 import { useState } from "react";
-import { Button, TextField, Typography, Link, Box, InputLabel, FormControl, Select, MenuItem } from "@mui/material";
+import { Button, TextField, Typography, Link, Box, Snackbar, Alert } from "@mui/material";
 import heroImg from "../assets/images/hero-image.jpg";
-import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
-import { auth } from "../firebase";
 import { useNavigate } from "react-router-dom";
-import { Google } from "@mui/icons-material";
+import { auth } from "../firebase";
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth"; 
 
-export default function Register() {
+export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState("");
-  const [university, setUniversity] = useState("");
-  const [openSnackbar, setOpenSnackbar] = useState(false);
   const [error, setError] = useState("");
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
   const navigate = useNavigate();
 
-  const handleRegister = async () => {
-    // Prepare data to send
-    const data = { email, password, role, university };
+  const validateEmail = (email: string) => {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
+  };
+
+  const validateForm = () => {
+    let isValid = true;
+
+    if (!email) {
+      setEmailError("Email is required");
+      isValid = false;
+    } else if (!validateEmail(email)) {
+      setEmailError("Invalid email address");
+      isValid = false;
+    } else {
+      setEmailError("");
+    }
+
+    if (!password) {
+      setPasswordError("Password is required");
+      isValid = false;
+    } else {
+      setPasswordError("");
+    }
+
+    return isValid;
+  };
+
+  const handleLogin = async () => {
+    if (!validateForm()) {
+      return;
+    }
 
     try {
-      const response = await fetch("http://127.0.0.1:5000/register", {
+      const response = await fetch("http://127.0.0.1:5000/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify({ email, password }),
       });
 
       const result = await response.json();
+
       if (response.ok) {
-        alert(result.message);
+        setOpenSnackbar(true);
+        setError("");
+        navigate("/");
       } else {
-        alert(result.error);
+        setError(result.error || "Login failed. Please try again.");
       }
     } catch (error) {
       console.error("Error:", error);
-      alert("An error occurred during registration.");
+      setError("An error occurred. Please try again.");
     }
   };
-  
-    const handleGoogleSignIn = async () => {
+
+  const handleGoogleSignIn = async () => {
     try {
       const provider = new GoogleAuthProvider();
       const result = await signInWithPopup(auth, provider);
@@ -72,6 +103,10 @@ export default function Register() {
     }
   };
 
+  const handleCloseSnackbar = () => {
+    setOpenSnackbar(false);
+  };
+
   return (
     <Box
       sx={{
@@ -87,12 +122,11 @@ export default function Register() {
           flexDirection: "column",
           justifyContent: "center",
           alignItems: "center",
-          padding: "2rem",
           backgroundColor: "#fff",
         }}
       >
         <Box sx={{ width: "100%", maxWidth: 400 }}>
-          <Typography variant="h3">Register</Typography>
+          <Typography variant="h3">Sign In</Typography>
           <TextField
             label="Email Address"
             variant="outlined"
@@ -100,6 +134,8 @@ export default function Register() {
             margin="normal"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            error={!!emailError}
+            helperText={emailError}
           />
           <TextField
             label="Password"
@@ -109,60 +145,71 @@ export default function Register() {
             margin="normal"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            error={!!passwordError}
+            helperText={passwordError}
           />
-          <FormControl fullWidth margin="normal">
-            <InputLabel>Role</InputLabel>
-            <Select
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-            >
-              <MenuItem value="student">Student</MenuItem>
-              <MenuItem value="faculty">Faculty</MenuItem>
-            </Select>
-          </FormControl>
-          <TextField
-            label="University"
-            variant="outlined"
-            fullWidth
-            margin="normal"
-            value={university}
-            onChange={(e) => setUniversity(e.target.value)}
-          />
+          {error && (
+            <Typography color="error" variant="body2" sx={{ mt: 1 }}>
+              {error}
+            </Typography>
+          )}
           <Button
             variant="contained"
             fullWidth
             size="large"
             sx={{ mt: 3, mb: 2 }}
-            onClick={handleRegister}
+            onClick={handleLogin}
           >
-            Register
+            Sign In
           </Button>
           <Button
             variant="outlined"
             fullWidth
             size="large"
-            sx={{ mb: 2, gap: 1, textTransform: "none" }}
+            sx={{ mb: 2 }}
             onClick={handleGoogleSignIn}
           >
-            <Google sx={{ color: "#4285F4" }} />
-            Register with Google
+            Sign In with Google
           </Button>
           <Typography variant="body2">
-            Already have an account?{" "}
-            <Link href="/" underline="hover">
-              Sign In
+            Don't have an account?{" "}
+            <Link href="/register" underline="hover">
+              Register for one
             </Link>
           </Typography>
         </Box>
       </Box>
+
       <Box
         sx={{
           width: "50%",
           backgroundImage: `url(${heroImg})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
+          position: "relative",
         }}
-      />
+      >
+        <img
+          src={heroImg}
+          alt="A red swirl on a black background"
+          style={{
+            position: "absolute",
+            width: "1px",
+            height: "1px",
+            opacity: 0,
+          }}
+        />
+      </Box>
+
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+      >
+        <Alert onClose={handleCloseSnackbar} severity="success" sx={{ width: "100%" }}>
+          Login successful!
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }
