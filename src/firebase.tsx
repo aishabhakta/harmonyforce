@@ -3,16 +3,16 @@ import { getAuth } from "firebase/auth";
 import { getAnalytics } from "firebase/analytics";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAVffwVswjDUZW5xMcrB4sUXfRb-GOoOVo",
-  authDomain: "harmony-force-71e13.firebaseapp.com",
-  projectId: "harmony-force-71e13",
-  storageBucket: "harmony-force-71e13.appspot.com", 
-  messagingSenderId: "113882130706",
-  appId: "1:113882130706:web:543d4ae128806d1e8e2bcb",
-  measurementId: "G-S66FHTCMGE",
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
 };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-export const auth = getAuth(app); 
+export const auth = getAuth(app);
 const analytics = getAnalytics(app);
