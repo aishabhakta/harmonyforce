@@ -16,7 +16,7 @@ const AboutPage: React.FC = () => {
           { name: "Home", href: "/" },
           { name: "About", href: "/about" },
           { name: "Tournaments", href: "/tournaments" },
-          { name: "Team", href: "/team" },
+          { name: "Teams", href: "/teams" },
           { name: "Universities", href: "/universities" },
         ]}
       />

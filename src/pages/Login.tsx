@@ -4,6 +4,7 @@ import heroImg from "../assets/images/hero-image.jpg";
 import { useNavigate } from "react-router-dom";
 import { auth } from "../firebase";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth"; 
+import { Google } from "@mui/icons-material";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -168,7 +169,8 @@ export default function Login() {
             size="large"
             sx={{ mb: 2 }}
             onClick={handleGoogleSignIn}
-          >
+          >            
+          <Google sx={{ color: "#4285F4" }} />
             Sign In with Google
           </Button>
           <Typography variant="body2">

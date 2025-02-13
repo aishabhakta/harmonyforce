@@ -145,7 +145,7 @@ export default function Register() {
             onClick={handleGoogleSignIn}
           >
             <Google sx={{ color: "#4285F4" }} />
-            Register with Google
+             Register with Google
           </Button>
           <Typography variant="body2">
             Already have an account?{" "}
