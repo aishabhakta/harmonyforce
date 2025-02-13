@@ -2,6 +2,9 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Homepage from "./pages/Homepage"; // Import the Homepage component
 import AboutPage from "./pages/Aboutpage"; // Import the AboutPage component
+import TeamPage from "./pages/Teampage"; // Import the TeamPage component
+import Playerpage from "./pages/Playerpage";
+import TeamRegistration from "./pages/TeamRegistration";
 
 const App: React.FC = () => {
   return (
@@ -12,6 +15,15 @@ const App: React.FC = () => {
 
         {/* Route for AboutPage */}
         <Route path="/about" element={<AboutPage />} />
+
+        {/* Route for TeamPage */}
+        <Route path="/team" element={<TeamPage />} />
+
+        {/* Route for TeamRegistration */}
+        <Route path="/TeamRegistration" element={<TeamRegistration />} />
+
+        <Route path="/player/:playerId" element={<Playerpage />} /> {/* Dynamic route */}
+
       </Routes>
     </Router>
   );
