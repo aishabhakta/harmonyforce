@@ -1,4 +1,6 @@
 import React from "react";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Homepage from "./pages/Homepage"; // Import the Homepage component
 import AboutPage from "./pages/Aboutpage"; // Import the AboutPage component
@@ -13,6 +15,12 @@ const App: React.FC = () => {
         {/* Route for Homepage */}
         <Route path="/" element={<Homepage />} />
 
+        {/* Route for Login */}
+        <Route path="/login" element={<Login />} />
+        
+        {/* Route for Register */}
+        <Route path="/register" element={<Register />}/>
+        
         {/* Route for AboutPage */}
         <Route path="/about" element={<AboutPage />} />
 
@@ -23,13 +31,12 @@ const App: React.FC = () => {
         <Route path="/TeamRegistration" element={<TeamRegistration />} />
 
         <Route path="/player/:playerId" element={<Playerpage />} /> {/* Dynamic route */}
-
       </Routes>
     </Router>
   );
 };
 
-export default App;
+export default App; //export app to be used in other places like main.tsx
 
 
 
