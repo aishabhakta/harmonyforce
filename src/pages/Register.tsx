@@ -149,8 +149,8 @@ export default function Register() {
           </Button>
           <Typography variant="body2">
             Already have an account?{" "}
-            <Link href="/" underline="hover">
-              Sign In
+            <Link href="/login" underline="hover">
+              Login
             </Link>
           </Typography>
         </Box>
