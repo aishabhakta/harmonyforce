@@ -1,29 +1,41 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Homepage from "./pages/Homepage"; // Import the Homepage component
-import AboutPage from "./pages/Aboutpage"; // Import the AboutPage component
-import TeamPage from "./pages/Teampage"; // Import the TeamPage component
+import Homepage from "./pages/Homepage";
+import AboutPage from "./pages/Aboutpage";
+import TeamPage from "./pages/Teampage"; // Import Dynamic Team Page
 import Playerpage from "./pages/Playerpage";
 import TeamRegistration from "./pages/TeamRegistration";
+import TeamSearchPage from "./pages/TeamSearchpage";
+import TournamentSearchpage from "./pages/TournamentSearchpage";
+import UniversitySearchPage from "./pages/UniversitySearchPage";
 
 const App: React.FC = () => {
   return (
     <Router>
       <Routes>
-        {/* Route for Homepage */}
+        {/* Homepage */}
         <Route path="/" element={<Homepage />} />
 
-        {/* Route for AboutPage */}
+        {/* About Page */}
         <Route path="/about" element={<AboutPage />} />
 
-        {/* Route for TeamPage */}
-        <Route path="/team" element={<TeamPage />} />
+        {/* Team Search Page */}
+        <Route path="/team" element={<TeamSearchPage />} />
 
-        {/* Route for TeamRegistration */}
+        {/* Individual Team Page (Dynamic ID) */}
+        <Route path="/team/:id" element={<TeamPage />} />
+
+        {/* Tournament Search Page */}
+        <Route path="/tournaments" element={<TournamentSearchpage />} />
+
+        {/* University Search Page */}
+        <Route path="/universities" element={<UniversitySearchPage />} />
+
+        {/* Player Profile Page */}
+        <Route path="/player/:playerId" element={<Playerpage />} />
+
+        {/* Team Registration */}
         <Route path="/TeamRegistration" element={<TeamRegistration />} />
-
-        <Route path="/player/:playerId" element={<Playerpage />} /> {/* Dynamic route */}
-
       </Routes>
     </Router>
   );
