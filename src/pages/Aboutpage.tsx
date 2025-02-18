@@ -3,24 +3,9 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Grid from "@mui/material/Grid";
 
-// Import your NavigationBar and Footer components
-import NavigationBar from "../components/Navigation";
-import Footer from "../components/Footer";
-
 const AboutPage: React.FC = () => {
   return (
     <Box>
-      {/* Navigation Bar */}
-      <NavigationBar
-        links={[
-          { name: "Home", href: "/" },
-          { name: "About", href: "/about" },
-          { name: "Tournaments", href: "/tournaments" },
-          { name: "Teams", href: "/teams" },
-          { name: "Universities", href: "/universities" },
-        ]}
-      />
-
       {/* Main Content */}
       <Box
         sx={{
@@ -146,9 +131,6 @@ const AboutPage: React.FC = () => {
           </Grid>
         </Grid>
       </Box>
-
-      {/* Footer */}
-      <Footer />
     </Box>
   );
 };
