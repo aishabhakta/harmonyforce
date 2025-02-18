@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom"; // Import useNavigate for navigation
 import {
   Box,
   TextField,
@@ -12,7 +13,6 @@ import {
   MenuItem,
   Select,
   SelectChangeEvent,
-  Button,
 } from "@mui/material";
 
 // Define University interface
@@ -25,11 +25,11 @@ interface University {
 
 // Sample University Data
 const universitiesData: University[] = [
-  { id: 1, name: "Harvard University", location: "USA", logo: "https://via.placeholder.com/50" },
-  { id: 2, name: "MIT", location: "USA", logo: "https://via.placeholder.com/50" },
-  { id: 3, name: "Stanford University", location: "USA", logo: "https://via.placeholder.com/50" },
-  { id: 4, name: "Oxford University", location: "UK", logo: "https://via.placeholder.com/50" },
-  { id: 5, name: "Cambridge University", location: "UK", logo: "https://via.placeholder.com/50" },
+  { id: 1, name: "Cornell University", location: "USA", logo: "https://via.placeholder.com/50" },
+  { id: 2, name: "Harvard University", location: "USA", logo: "https://via.placeholder.com/50" },
+  { id: 3, name: "MIT", location: "USA", logo: "https://via.placeholder.com/50" },
+  { id: 4, name: "Stanford University", location: "USA", logo: "https://via.placeholder.com/50" },
+  { id: 5, name: "Oxford University", location: "UK", logo: "https://via.placeholder.com/50" },
 ];
 
 const ITEMS_PER_PAGE = 5;
@@ -38,6 +38,7 @@ const UniversityList: React.FC = () => {
   const [search, setSearch] = useState<string>("");
   const [page, setPage] = useState<number>(1);
   const [filter, setFilter] = useState<string>("All");
+  const navigate = useNavigate(); // Hook for navigation
 
   // Filter and Paginate Universities
   const filteredUniversities = universitiesData.filter(
@@ -59,9 +60,7 @@ const UniversityList: React.FC = () => {
         variant="outlined"
         fullWidth
         value={search}
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-          setSearch(e.target.value)
-        }
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearch(e.target.value)}
         sx={{ marginBottom: 2 }}
       />
 
@@ -84,8 +83,16 @@ const UniversityList: React.FC = () => {
       {/* University List */}
       <List>
         {paginatedUniversities.map((university) => (
-          <ListItem key={university.id}>
-            <Card sx={{ width: "100%" }}>
+          <ListItem key={university.id} disablePadding>
+            <Card
+              sx={{
+                width: "100%",
+                cursor: "pointer",
+                transition: "0.3s",
+                "&:hover": { boxShadow: 4 },
+              }}
+              onClick={() => navigate(`/university/${encodeURIComponent(university.name)}`)} // Navigate to UniversityPage
+            >
               <CardContent>
                 <Grid container alignItems="center" spacing={2}>
                   {/* University Logo */}

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom"; // Enables navigation
+import { useNavigate } from "react-router-dom";
 import {
   Box,
   TextField,
@@ -10,9 +10,6 @@ import {
   CardContent,
   Grid,
   Pagination,
-  MenuItem,
-  Select,
-  SelectChangeEvent,
 } from "@mui/material";
 
 // Team Interface
@@ -23,31 +20,35 @@ interface Team {
   logo?: string;
 }
 
+interface TeamListProps {
+  university?: string; // Optional filter by university
+}
+
 // Sample Team Data
 const teamsData: Team[] = [
-  { id: 1, name: "Team Alpha", university: "Harvard", logo: "https://via.placeholder.com/50" },
-  { id: 2, name: "Team Beta", university: "MIT", logo: "https://via.placeholder.com/50" },
-  { id: 3, name: "Team Gamma", university: "Stanford", logo: "https://via.placeholder.com/50" },
-  { id: 4, name: "Team Delta", university: "Oxford", logo: "https://via.placeholder.com/50" },
-  { id: 5, name: "Team Epsilon", university: "Cambridge", logo: "https://via.placeholder.com/50" },
-  { id: 6, name: "Team Zeta", university: "Yale", logo: "https://via.placeholder.com/50" },
+  { id: 1, name: "Team Alpha", university: "Cornell University", logo: "https://via.placeholder.com/50" },
+  { id: 2, name: "Team Beta", university: "Cornell University", logo: "https://via.placeholder.com/50" },
+  { id: 3, name: "Team Gamma", university: "MIT", logo: "https://via.placeholder.com/50" },
+  { id: 4, name: "Team Delta", university: "Stanford", logo: "https://via.placeholder.com/50" },
+  { id: 5, name: "Team Epsilon", university: "MIT", logo: "https://via.placeholder.com/50" },
+  { id: 6, name: "Team Zeta", university: "Cornell University", logo: "https://via.placeholder.com/50" },
 ];
 
 const ITEMS_PER_PAGE = 5;
 
-const TeamList: React.FC = () => {
+const TeamList: React.FC<TeamListProps> = ({ university }) => {
   const [search, setSearch] = useState<string>("");
   const [page, setPage] = useState<number>(1);
-  const [filter, setFilter] = useState<string>("All");
-  const navigate = useNavigate(); // Hook for navigation
+  const navigate = useNavigate();
 
-  // Filtering and Pagination
+  // Filter teams based on search and university
   const filteredTeams = teamsData.filter(
     (team) =>
       team.name.toLowerCase().includes(search.toLowerCase()) &&
-      (filter === "All" || team.university === filter)
+      (!university || team.university === university) // Filter by university if provided
   );
 
+  // Pagination
   const paginatedTeams = filteredTeams.slice(
     (page - 1) * ITEMS_PER_PAGE,
     page * ITEMS_PER_PAGE
@@ -65,24 +66,6 @@ const TeamList: React.FC = () => {
         sx={{ marginBottom: 2 }}
       />
 
-      {/* Filter Dropdown */}
-      <Select
-        value={filter}
-        onChange={(e: SelectChangeEvent<string>) => setFilter(e.target.value)}
-        displayEmpty
-        sx={{ marginBottom: 2 }}
-        fullWidth
-      >
-        <MenuItem value="All">All Universities</MenuItem>
-        {[...new Set(teamsData.map((team) => team.university))].map(
-          (univ) => (
-            <MenuItem key={univ} value={univ}>
-              {univ}
-            </MenuItem>
-          )
-        )}
-      </Select>
-
       {/* Team List */}
       <List>
         {paginatedTeams.map((team) => (
@@ -94,7 +77,7 @@ const TeamList: React.FC = () => {
                 transition: "0.3s",
                 "&:hover": { boxShadow: 4 },
               }}
-              onClick={() => navigate(`/team/${team.id}`)} // Navigate to TeamPage
+              onClick={() => navigate(`/team/${team.id}`)}
             >
               <CardContent>
                 <Grid container alignItems="center" spacing={2}>
@@ -109,13 +92,8 @@ const TeamList: React.FC = () => {
                   </Grid>
 
                   {/* Team Name */}
-                  <Grid item xs={6}>
+                  <Grid item xs={8}>
                     <ListItemText primary={team.name} />
-                  </Grid>
-
-                  {/* University Name */}
-                  <Grid item xs={4}>
-                    <ListItemText primary={team.university} />
                   </Grid>
                 </Grid>
               </CardContent>

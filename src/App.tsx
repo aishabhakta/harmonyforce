@@ -8,6 +8,7 @@ import TeamRegistration from "./pages/TeamRegistration";
 import TeamSearchPage from "./pages/TeamSearchpage";
 import TournamentSearchpage from "./pages/TournamentSearchpage";
 import UniversitySearchPage from "./pages/UniversitySearchPage";
+import UniversityPage from "./pages/Universitypage"; 
 
 const App: React.FC = () => {
   return (
@@ -30,6 +31,8 @@ const App: React.FC = () => {
 
         {/* University Search Page */}
         <Route path="/universities" element={<UniversitySearchPage />} />
+
+        <Route path="/university/:universityName" element={<UniversityPage />} />
 
         {/* Player Profile Page */}
         <Route path="/player/:playerId" element={<Playerpage />} />
