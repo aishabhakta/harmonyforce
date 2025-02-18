@@ -6,24 +6,9 @@ import Button from "@mui/material/Button";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 
-// Import your NavigationBar and Footer components
-import NavigationBar from "../components/Navigation";
-import Footer from "../components/Footer";
-
 const Homepage: React.FC = () => {
   return (
     <Box sx={{ backgroundColor: "white", color: "black" }}>
-      {/* Navigation Bar */}
-      <NavigationBar
-        links={[
-          { name: "Home", href: "/" },
-          { name: "About", href: "/about" },
-          { name: "Tournaments", href: "/tournaments" },
-          { name: "Teams", href: "/teams" },
-          { name: "Universities", href: "/universities" },
-        ]}
-      />
-
       {/* Hero Section */}
       <Box
         sx={{
@@ -164,9 +149,6 @@ const Homepage: React.FC = () => {
           </Grid>
         </Box>
       </Box>
-
-      {/* Footer */}
-      <Footer />
     </Box>
   );
 };

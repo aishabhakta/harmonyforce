@@ -1,7 +1,5 @@
 import React from "react";
 import { Box } from "@mui/material";
-import NavigationBar from "../components/Navigation";
-import Footer from "../components/Footer";
 import GeneralTeamInfo from "../components/GeneralTeamInfo";
 import TeamMembers from "../components/TeamMembers";
 import RegisterButton from "../components/RegisterButton";
@@ -19,17 +17,6 @@ const TeamRegistration: React.FC = () => {
         overflow: "hidden", 
       }}
     >
-      {/* Navigation Bar */}
-      <NavigationBar
-        links={[
-          { name: "Home", href: "/" },
-          { name: "About", href: "/about" },
-          { name: "Tournaments", href: "/tournaments" },
-          { name: "Teams", href: "/teams" },
-          { name: "Universities", href: "/universities" },
-        ]}
-      />
-
       {/* Main Content Area */}
       <Box
         sx={{
@@ -56,9 +43,6 @@ const TeamRegistration: React.FC = () => {
           <RegisterButton />
         </Box>
       </Box>
-
-      {/* Footer */}
-      <Footer />
     </Box>
   );
 };

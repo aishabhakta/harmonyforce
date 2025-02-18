@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { auth } from "../firebase";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth"; 
 import { Google } from "@mui/icons-material";
+import { useAuth } from "../AuthProvider";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -13,6 +14,7 @@ export default function Login() {
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
+  const { setUser } = useAuth();
   const navigate = useNavigate();
 
   const validateEmail = (email: string) => {
@@ -44,27 +46,36 @@ export default function Login() {
   };
 
   const handleLogin = async () => {
-    if (!validateForm()) {
+    if (!validateForm) {
       return;
     }
 
     try {
-      const response = await fetch("http://127.0.0.1:5000/login", {
+      const response = await fetch("http://localhost:5000/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ email, password }),
       });
-
-      const result = await response.json();
-
+  
+      const data = await response.json();
       if (response.ok) {
-        setOpenSnackbar(true);
-        setError("");
+        const token = data.session_token;
+        // Save token and any user details to localStorage
+        localStorage.setItem("session_token", token);
+        localStorage.setItem("user_email", data.email);
+        if (data.displayName) localStorage.setItem("user_displayName", data.displayName);
+        if (data.photoURL) localStorage.setItem("user_photoURL", data.photoURL);
+    
+        // Update context
+        setUser({
+          email: data.email,
+          displayName: data.displayName,
+          photoURL: data.photoURL,
+          token,
+        });
         navigate("/");
-      } else {
-        setError(result.error || "Login failed. Please try again.");
       }
     } catch (error) {
       console.error("Error:", error);
@@ -77,6 +88,12 @@ export default function Login() {
       const provider = new GoogleAuthProvider();
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
+
+      setUser({
+        email: user.email || "",
+        displayName: user.displayName || "",
+        photoURL: user.photoURL || ""
+      });
 
       // Send user data to your backend (optional)
       const response = await fetch("http://127.0.0.1:5000/google-login", {

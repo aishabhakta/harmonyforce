@@ -1,8 +1,6 @@
 import React from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
-import NavigationBar from "../components/Navigation";
-import Footer from "../components/Footer";
 
 const PlayerPage: React.FC = () => {
   const playerData = {
@@ -26,17 +24,6 @@ const PlayerPage: React.FC = () => {
         flexDirection: "column",
       }}
     >
-      {/* Navigation Bar */}
-      <NavigationBar
-        links={[
-          { name: "Home", href: "/" },
-          { name: "About", href: "/about" },
-          { name: "Tournaments", href: "/tournaments" },
-          { name: "Teams", href: "/teams" },
-          { name: "Universities", href: "/universities" },
-        ]}
-      />
-
       {/* Player Section */}
       <Box
         sx={{
@@ -110,9 +97,6 @@ const PlayerPage: React.FC = () => {
           ))}
         </Box>
       </Box>
-
-      {/* Footer */}
-      <Footer />
     </Box>
   );
 };
