@@ -17,7 +17,7 @@ const TeamSearchPage: React.FC = () => {
         overflowX: "hidden",
       }}
     >
-      {/* Navigation Bar */}
+      {/* Navigation Bar
       <NavigationBar
         links={[
           { name: "Home", href: "/" },
@@ -26,7 +26,7 @@ const TeamSearchPage: React.FC = () => {
           { name: "Teams", href: "/teams" },
           { name: "Universities", href: "/universities" },
         ]}
-      />
+      /> */}
 
       {/* Main Content */}
       <Container
@@ -55,8 +55,8 @@ const TeamSearchPage: React.FC = () => {
         </Box>
       </Container>
 
-      {/* Footer */}
-      <Footer />
+      {/* Footer
+      <Footer /> */}
     </Box>
   );
 };
