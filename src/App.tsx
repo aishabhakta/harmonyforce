@@ -10,6 +10,9 @@ import TeamRegistration from "./pages/TeamRegistration";
 import NavigationBar from "./components/Navigation";
 import Footer from "./components/Footer";
 import { AuthProvider } from "./AuthProvider";
+import UniversitySearchPage from "./pages/UniversitySearchPage";
+import UniversityPage from "./pages/Universitypage"; 
+
 
 const AppContent: React.FC = () => {
   const location = useLocation(); 
@@ -37,6 +40,8 @@ const AppContent: React.FC = () => {
         <Route path="/teams/:id" element={<TeamPage />} />
         <Route path="/TeamRegistration" element={<TeamRegistration />} />
         <Route path="/player/:playerId" element={<Playerpage />} />
+        <Route path="/universities" element={<UniversitySearchPage />} />
+        <Route path="/university/:universityName" element={<UniversityPage />} />
       </Routes>
 
       {/* ✅ Show Footer only if NOT on login/register pages */}
