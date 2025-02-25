@@ -42,14 +42,12 @@ const AppContent: React.FC = () => {
         <Route path="/team/:id" element={<TeamPage />} />
         <Route path="/TeamRegistration" element={<TeamRegistration />} />
         <Route path="/player/:playerId" element={<Playerpage />} />
-<<<<<<< HEAD
+
         <Route path="/team" element={<TeamSearchPage />} />
-=======
         <Route path="/universities" element={<UniversitySearchPage />} />
         <Route path="/university/:universityName" element={<UniversityPage />} />
         {/* Tournament Search Page */}
         <Route path="/tournaments" element={<TournamentSearchpage />} />
->>>>>>> feature/universitypage
       </Routes>
 
       {/* ✅ Show Footer only if NOT on login/register pages */}
