@@ -3,133 +3,147 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Grid from "@mui/material/Grid";
 
+import RolesAccordion from "../components/RolesAccordion";
+
+// Import Images
+import underseaBoardImg from "../assets/images/game board - undersea.jpg";
+import aardvarkLogo from "../assets/images/Aardvark logo clear.png";
+import gamingAardvarkImg from "../assets/images/gaming Aardvark Forests of Legend.jpg";
+import preOrderBurstImg from "../assets/images/pre-order peach burst.png";
+
 const AboutPage: React.FC = () => {
   return (
-    <Box>
-      {/* Main Content */}
+    <Box sx={{ backgroundColor: "white", color: "black" }}> 
+
+      {/* Hero Section */}
       <Box
         sx={{
-          px: 4,
-          py: 6,
-          backgroundColor: "white", // Set background color to white
-          color: "black", // Set text color to black
+          height: 550,
+          backgroundImage: `url(${underseaBoardImg})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          width: "100vw",
+          marginLeft: "calc(-50vw + 50%)",
+          position: "relative",
         }}
       >
-        {/* Section: A New World */}
-        <Grid container spacing={4} alignItems="center">
-          <Grid item xs={12} md={6}>
-            {/* Title and Description */}
-            <Typography variant="h4" sx={{ fontWeight: "bold", mb: 2 }}>
-              A New World
-            </Typography>
-            <Typography variant="body1" sx={{ mb: 2 }}>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-              eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
-              enim ad minim veniam, quis nostrud exercitation ullamco laboris
-              nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in
-              reprehenderit in voluptate velit esse cillum dolore eu.
-            </Typography>
-          </Grid>
-          <Grid item xs={12} md={6}>
-            {/* Image Placeholder */}
-            <Box
-              sx={{
-                height: 200,
-                width: "100%",
-                backgroundColor: "#ccc",
-                borderRadius: 2,
-              }}
-            >
-              <Typography
-                sx={{
-                  color: "#666",
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  height: "100%",
-                }}
-              >
-                Image Placeholder
-              </Typography>
-            </Box>
-          </Grid>
-        </Grid>
+        {/* Hidden Image for Accessibility */}
+        <img
+          src={underseaBoardImg}
+          alt="Underwater-themed game board for A New World"
+          style={{
+            position: "absolute",
+            width: 1,
+            height: 1,
+            opacity: 0,
+            pointerEvents: "none",
+          }}
+        />
+      </Box>
 
-        {/* Section: About Aardvark Games */}
-        <Grid
-          container
-          spacing={4}
-          alignItems="center"
-          sx={{ my: 6, flexDirection: { xs: "column-reverse", md: "row" } }}
-        >
+      {/* Main Content */}
+      <Box sx={{ px: { xs: 2, md: 6 }, py: 6, maxWidth: "1200px", mx: "auto" }}>
+        
+        {/* Section: About A New World (Image on Left, Text on Right) */}
+        <Grid container spacing={4} alignItems="flex-start">
+          {/* Image on the left */}
           <Grid item xs={12} md={6}>
-            {/* Logo Placeholder */}
             <Box
+              component="img"
+              src={aardvarkLogo}
+              alt="Aardvark Games Logo"
               sx={{
-                height: 150,
-                width: 150,
-                backgroundColor: "#ccc",
-                borderRadius: "50%",
+                width: "100%",
+                maxWidth: 400, // Adjusted image size
                 mx: "auto",
+                display: "block",
               }}
-            >
-              <Typography
-                sx={{
-                  color: "#666",
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  height: "100%",
-                }}
-              >
-                Logo
-              </Typography>
-            </Box>
+            />
           </Grid>
+
+          {/* Text on the right */}
           <Grid item xs={12} md={6}>
             <Typography variant="h4" sx={{ fontWeight: "bold", mb: 2 }}>
               About Aardvark Games
             </Typography>
-            <Typography variant="body1">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-              eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
-              enim ad minim veniam, quis nostrud exercitation ullamco laboris
-              nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in
-              reprehenderit in voluptate velit esse cillum dolore eu.
+            <Typography variant="body1" sx={{ mb: 2 }}>
+              Aardvark Games is a tabletop game publisher dedicated to entertaining game players worldwide with products designed
+              to engage and challenge. Our best-known games include Meeple City, Beyond the Galaxy, Continental Conquest, 
+              Forests of Legend, Between the Seas, and now, A New World. 
+              Whether you are new to gaming, an experienced player, or prefer solo play, we create games to keep you engaged!
             </Typography>
           </Grid>
         </Grid>
 
-        {/* Section: Where to Buy */}
-        <Grid container spacing={4} alignItems="center">
+        {/* Section: About Aardvark Games (Text on Left, Image on Right) */}
+        <Grid container spacing={4} alignItems="flex-start" sx={{ my: 6 }}>
+          {/* Text on the left */}
           <Grid item xs={12} md={6}>
             <Typography variant="h4" sx={{ fontWeight: "bold", mb: 2 }}>
-              Where to Buy A New World
+              About A New World
             </Typography>
-            <Typography variant="body1" sx={{ mb: 2 }}>
-              Ask your local game store for information!
+            <Typography variant="body1">
+              A New World requires a team of 4-7 players who will work together to score as many points as possible after being dropped into a new, unpopulated world.
+              The environments vary, including deserts, underwater locations, frozen mountains, or jungle landscapes full of dangers.  
+              The game is best played in a **head-to-head** competition with another team, but solo play modifications allow for a thrilling experience!
             </Typography>
           </Grid>
+
+          {/* Image on the right */}
           <Grid item xs={12} md={6}>
-            {/* Call-to-Action Placeholder */}
             <Box
+              component="img"
+              src={gamingAardvarkImg}
+              alt="Gaming Aardvark: Forests of Legend"
               sx={{
-                height: 200,
-                width: 200,
-                backgroundColor: "#007FFF",
-                color: "white",
-                borderRadius: "50%",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                fontWeight: "bold",
+                width: "100%",
+                // maxWidth: 350, // Adjusted size
+                borderRadius: 2,
+                boxShadow: 2,
                 mx: "auto",
+                display: "block",
               }}
-            >
-              PRE-ORDER NOW!
-            </Box>
+            />
           </Grid>
         </Grid>
+
+        {/* Roles Accordion Component */}
+        <RolesAccordion />
+
+        {/* Section: Where to Buy */}
+        <Box sx={{ mt: 6 }}>
+          <Grid container spacing={4} alignItems="flex-start">
+            {/* Text on the left */}
+            <Grid item xs={12} md={6}>
+              <Typography variant="h4" sx={{ fontWeight: "bold", mb: 2 }}>
+                Where to Buy A New World
+              </Typography>
+              <Typography variant="body1" sx={{ mb: 2 }}>
+                Ask your local game store for information!
+              </Typography>
+            </Grid>
+
+            {/* Image on the right */}
+            <Grid item xs={12} md={6}>
+              <Box
+                component="img"
+                src={preOrderBurstImg}
+                alt="Pre-Order Now Burst Graphic"
+                sx={{
+                  width: "100%",
+                  // maxWidth: 300, // Adjusted size
+                  mx: "auto",
+                  display: "block",
+                }}
+              />
+            </Grid>
+          </Grid>
+        </Box>
+
       </Box>
     </Box>
   );
