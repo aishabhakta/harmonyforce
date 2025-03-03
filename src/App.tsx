@@ -15,6 +15,7 @@ import TeamSearchPage from "./pages/TeamSearchpage";
 import UniversitySearchPage from "./pages/UniversitySearchPage";
 import UniversityPage from "./pages/Universitypage"; 
 import TournamentSearchpage from "./pages/TournamentSearchpage";
+import FaqPage from "./pages/faqpage";
 
 const AppContent: React.FC = () => {
   const location = useLocation(); 
@@ -48,6 +49,7 @@ const AppContent: React.FC = () => {
         <Route path="/university/:universityName" element={<UniversityPage />} />
         {/* Tournament Search Page */}
         <Route path="/tournaments" element={<TournamentSearchpage />} />
+        <Route path="/faqpage" element={<FaqPage />} />
       </Routes>
 
       {/* ✅ Show Footer only if NOT on login/register pages */}
