@@ -9,6 +9,7 @@ import MenuItem from "@mui/material/MenuItem";
 import Avatar from "@mui/material/Avatar";
 import { useNavigate } from "react-router";
 import { useAuth } from "../AuthProvider";
+import aardvarkLogo from "../assets/images/aardvark_logo_png.png";
 
 interface NavigationProps {
   links: { name: string; href: string }[];
@@ -45,12 +46,12 @@ const NavigationBar: React.FC<NavigationProps> = ({ links }) => {
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static" sx={{ backgroundColor: "#1976d2" }}>
         <Toolbar>
-          {/* Logo Section */}
-          <IconButton edge="start" color="inherit" aria-label="logo" sx={{ mr: 2 }}>
+          {/* Logo - Clickable to Navigate to Home */}
+          <IconButton edge="start" color="inherit" aria-label="logo" sx={{ mr: 2 }} onClick={() => navigate("/")}>
             <img
-              src="/placeholder-logo.png"
-              alt=""
-              style={{ height: "40px", width: "auto" }}
+              src={aardvarkLogo}
+              alt="Aardvark Games Logo"
+              style={{ height: "80px", width: "auto" }}
             />
           </IconButton>
 
