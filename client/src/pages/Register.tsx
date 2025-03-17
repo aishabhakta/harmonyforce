@@ -1,5 +1,8 @@
 import { useState } from "react";
-import { Button, TextField, Typography, Link, Box, InputLabel, FormControl, Select, MenuItem } from "@mui/material";
+import { 
+  Button, TextField, Typography, Link, Box, 
+  InputLabel, FormControl, Select, MenuItem 
+} from "@mui/material";
 import heroImg from "../assets/images/hero-image.jpg";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { auth } from "../firebase";
@@ -7,6 +10,7 @@ import { useNavigate } from "react-router-dom";
 import { Google } from "@mui/icons-material";
 
 export default function Register() {
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("");
@@ -17,10 +21,10 @@ export default function Register() {
 
   const handleRegister = async () => {
     // Prepare data to send
-    const data = { email, password, role, university };
+    const data = { username, email, password, role, university };
 
     try {
-      const response = await fetch("http://127.0.0.1:5000/register", {
+      const response = await fetch("http://127.0.0.1:5000/auth/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -31,6 +35,7 @@ export default function Register() {
       const result = await response.json();
       if (response.ok) {
         alert(result.message);
+        navigate("/login"); // Redirect to login after successful registration
       } else {
         alert(result.error);
       }
@@ -39,14 +44,14 @@ export default function Register() {
       alert("An error occurred during registration.");
     }
   };
-  
-    const handleGoogleSignIn = async () => {
+
+  const handleGoogleSignIn = async () => {
     try {
       const provider = new GoogleAuthProvider();
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
 
-      // Send user data to your backend (optional)
+      // Send user data to backend
       const response = await fetch("http://127.0.0.1:5000/google-login", {
         method: "POST",
         headers: {
@@ -80,6 +85,7 @@ export default function Register() {
         backgroundColor: "#f5f5f5",
       }}
     >
+      {/* Registration Form */}
       <Box
         sx={{
           width: "50%",
@@ -93,6 +99,19 @@ export default function Register() {
       >
         <Box sx={{ width: "100%", maxWidth: 400 }}>
           <Typography variant="h3">Register</Typography>
+
+          {/* Username Input */}
+          <TextField
+            label="Username"
+            variant="outlined"
+            fullWidth
+            margin="normal"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            required
+          />
+
+          {/* Email Input */}
           <TextField
             label="Email Address"
             variant="outlined"
@@ -100,7 +119,10 @@ export default function Register() {
             margin="normal"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            required
           />
+
+          {/* Password Input */}
           <TextField
             label="Password"
             type="password"
@@ -109,17 +131,19 @@ export default function Register() {
             margin="normal"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            required
           />
+
+          {/* Role Selection */}
           <FormControl fullWidth margin="normal">
             <InputLabel>Role</InputLabel>
-            <Select
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-            >
+            <Select value={role} onChange={(e) => setRole(e.target.value)} required>
               <MenuItem value="student">Student</MenuItem>
               <MenuItem value="faculty">Faculty</MenuItem>
             </Select>
           </FormControl>
+
+          {/* University Input */}
           <TextField
             label="University"
             variant="outlined"
@@ -127,7 +151,10 @@ export default function Register() {
             margin="normal"
             value={university}
             onChange={(e) => setUniversity(e.target.value)}
+            required
           />
+
+          {/* Register Button */}
           <Button
             variant="contained"
             fullWidth
@@ -137,7 +164,9 @@ export default function Register() {
           >
             Register
           </Button>
-          <Button
+
+          {/* Google Sign-In Button */}
+          {/* <Button
             variant="outlined"
             fullWidth
             size="large"
@@ -145,8 +174,10 @@ export default function Register() {
             onClick={handleGoogleSignIn}
           >
             <Google sx={{ color: "#4285F4" }} />
-             Register with Google
-          </Button>
+            Register with Google
+          </Button> */}
+
+          {/* Login Link */}
           <Typography variant="body2">
             Already have an account?{" "}
             <Link href="/login" underline="hover">
@@ -155,6 +186,8 @@ export default function Register() {
           </Typography>
         </Box>
       </Box>
+
+      {/* Right-side Image */}
       <Box
         sx={{
           width: "50%",

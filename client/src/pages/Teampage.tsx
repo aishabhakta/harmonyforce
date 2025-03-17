@@ -1,34 +1,56 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Box } from "@mui/material";
-import NavigationBar from "../components/Navigation";
-import Footer from "../components/Footer";
+import { Box, CircularProgress, Alert, Button } from "@mui/material";
+import { Link } from "react-router-dom";
 import TeamHeader from "../components/TeamHeader";
 import Roster from "../components/Roster";
-import { Button } from "@mui/material";
-import { Link } from "react-router-dom";
 
-// Sample Team Data (Replace with API Fetch Later)
-const teamsData = [
-  { id: 1, name: "Team Alpha", university: "Harvard" },
-  { id: 2, name: "Team Beta", university: "MIT" },
-  { id: 3, name: "Team Gamma", university: "Stanford" },
-];
+// Team and Member Interfaces
+interface Member {
+  user_id: number;
+  name: string;
+  email: string;
+}
 
-// Placeholder Roster Data
-const teamMembers = [
-  { id: "1", name: "John Smith", role: "Expedition Leader", imageUrl: "/path/to/image1.jpg" },
-  { id: "2", name: "Jane Doe", role: "Resource Specialist", imageUrl: "/path/to/image2.jpg" },
-  { id: "3", name: "Mike Johnson", role: "Technician", imageUrl: "/path/to/image3.jpg" },
-  { id: "4", name: "Sarah Brown", role: "Chronicler", imageUrl: "/path/to/image4.jpg" },
-  { id: "5", name: "David Wilson", role: "Weapons Specialist", imageUrl: "/path/to/image5.jpg" },
-  { id: "6", name: "Emma White", role: "Physician", imageUrl: "/path/to/image6.jpg" },
-  { id: "7", name: "Alex Green", role: "Scientist", imageUrl: "/path/to/image7.jpg" },
-];
+interface Team {
+  team_id: number;
+  team_name: string;
+  university_id: number;
+  profile_image?: string;
+  captain: {
+    user_id: number | null;
+    name: string | null;
+    email: string | null;
+  };
+  members: Member[];
+}
 
 const TeamPage: React.FC = () => {
-  const { id } = useParams<{ id: string }>(); // Get the team ID from URL
-  const team = teamsData.find((t) => t.id === Number(id)); // Find team by ID
+  const { id } = useParams<{ id: string }>(); // Get team ID from URL
+  const [team, setTeam] = useState<Team | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchTeam = async () => {
+      try {
+        const response = await fetch(`http://127.0.0.1:5000/teams/getTeam/${id}`);
+        const data = await response.json();
+
+        if (response.ok) {
+          setTeam(data);
+        } else {
+          setError(data.error || "Failed to fetch team details.");
+        }
+      } catch (err) {
+        setError("An error occurred while fetching team details.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTeam();
+  }, [id]);
 
   return (
     <Box
@@ -41,55 +63,56 @@ const TeamPage: React.FC = () => {
         padding: 0,
       }}
     >
-      {/* Navigation Bar
-      <NavigationBar
-        links={[
-          { name: "Home", href: "/" },
-          { name: "About", href: "/about" },
-          { name: "Tournaments", href: "/tournaments" },
-          { name: "Teams", href: "/team" },
-          { name: "Universities", href: "/universities" },
-        ]}
-      /> */}
+      {/* Loading State */}
+      {loading && (
+        <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
+          <CircularProgress />
+        </Box>
+      )}
 
-      {/* Team Header with Dynamic Data */}
-      <Box sx={{ width: "100%" }}>
-        <TeamHeader
-          teamName={team?.name || "Unknown Team"} // Show team name dynamically
-          universityName={team?.university || "Unknown University"} // Show university name dynamically
-          description="Lorem ipsum dolor sit amet consectetur. Tincidunt sodales dui tellus tortor tellus quam donec nibh."
-        />
-      </Box>
+      {/* Error Message */}
+      {error && <Alert severity="error">{error}</Alert>}
 
-      {/* Roster */}
-      <Box sx={{ width: "100%", marginBottom: "2rem" }}>
-        <Roster members={teamMembers} />
-      </Box>
+      {/* Team Details */}
+      {team && !loading && !error && (
+        <>
+          {/* Team Header */}
+          <Box sx={{ width: "100%" }}>
+            <TeamHeader
+              teamName={team.team_name}
+              universityName={`University ID: ${team.university_id}`} // Replace with actual university name if available
+              description="Lorem ipsum dolor sit amet consectetur. Tincidunt sodales dui tellus tortor tellus quam donec nibh."
+            />
+          </Box>
 
-      {/* Register Button */}
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          marginBottom: "2rem",
-        }}
-      >
-        <Link to="/TeamRegistration" style={{ textDecoration: "none" }}>
-          <Button
-            variant="contained"
-            color="primary"
-            size="large"
+          {/* Roster Section */}
+          <Box sx={{ width: "100%", marginBottom: "2rem" }}>
+            <Roster members={team.members} />
+          </Box>
+
+          {/* Register Button */}
+          <Box
             sx={{
-              textTransform: "none",
+              display: "flex",
+              justifyContent: "center",
+              marginBottom: "2rem",
             }}
           >
-            Register Team
-          </Button>
-        </Link>
-      </Box>
-
-      {/* Footer
-      <Footer /> */}
+            <Link to="/TeamRegistration" style={{ textDecoration: "none" }}>
+              <Button
+                variant="contained"
+                color="primary"
+                size="large"
+                sx={{
+                  textTransform: "none",
+                }}
+              >
+                Register Team
+              </Button>
+            </Link>
+          </Box>
+        </>
+      )}
     </Box>
   );
 };

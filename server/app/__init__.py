@@ -14,7 +14,9 @@ load_dotenv()
 
 def create_app():
     app = Flask(__name__)
-    CORS(app)
+
+    # Allow only frontend origin
+    CORS(app, resources={r"/*": {"origins": "http://localhost:5173"}})
 
     # Load configuration
     app.config.from_object('app.config.Config')

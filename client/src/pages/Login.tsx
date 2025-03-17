@@ -46,42 +46,64 @@ export default function Login() {
     }
     return isValid;
   };
-
+  
   const handleLogin = async () => {
     if (!validateForm()) return;
 
     try {
-      const response = await fetch("http://localhost:5000/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await response.json();
-      if (response.ok) {
-        const token = data.token;
-        localStorage.setItem("jwt_token", token);
-        localStorage.setItem("user_email", data.email);
-        localStorage.setItem("user_displayName", data.displayName || "");
-        localStorage.setItem("user_photoURL", data.photoURL || "");
-
-        setUser({
-          email: data.email,
-          displayName: data.displayName,
-          photoURL: data.photoURL,
-          token,
+        const response = await fetch("http://127.0.0.1:5000/auth/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password }),
         });
 
-        setOpenSnackbar(true);
-        setTimeout(() => navigate("/"), 1000);
-      } else {
-        setError(data.error || "Login failed. Please try again.");
-      }
+        const data = await response.json();
+        if (response.ok) {
+            localStorage.setItem("session_token", data.token);
+            localStorage.setItem("user_email", data.email);
+            localStorage.setItem("user_role", data.role || "general"); // Store role
+
+            setUser({
+                email: data.email,
+                token: data.token,
+                role: data.role || "general",
+            });
+
+            setOpenSnackbar(true);
+
+            // Redirect based on role
+            switch (data.role) {
+                case "superadmin":
+                    setTimeout(() => navigate("/admin"), 1000);
+                    break;
+                case "tournymod":
+                    setTimeout(() => navigate("/tournament/moderator"), 1000);
+                    break;
+                case "unimod":
+                    setTimeout(() => navigate("/university/moderator"), 1000);
+                    break;
+                case "aardvarkstaff":
+                    setTimeout(() => navigate("/support"), 1000);
+                    break;
+                case "captain":
+                    setTimeout(() => navigate("/team/captain"), 1000);
+                    break;
+                case "participant":
+                    setTimeout(() => navigate("/"), 1000);
+                    break;
+                default:
+                    setTimeout(() => navigate("/"), 1000);
+                    break;
+            }
+        } else {
+            setError(data.error || "Login failed. Please try again.");
+        }
     } catch (err) {
-      console.error("Login Error:", err);
-      setError("An error occurred. Please try again.");
+        console.error("Login Error:", err);
+        setError("An error occurred. Please try again.");
     }
-  };
+};
+
 
   const handleGoogleSignIn = async () => {
     try {
@@ -156,9 +178,9 @@ export default function Login() {
           <Button variant="contained" fullWidth size="large" sx={{ mt: 3, mb: 2 }} onClick={handleLogin}>
             Sign In
           </Button>
-          <Button variant="outlined" fullWidth size="large" sx={{ mb: 2 }} onClick={handleGoogleSignIn}>
+          {/* <Button variant="outlined" fullWidth size="large" sx={{ mb: 2 }} onClick={handleGoogleSignIn}>
             <Google sx={{ color: "#4285F4" }} /> Sign In with Google
-          </Button>
+          </Button> */}
           <Typography variant="body2">
             Don't have an account?{" "}
             <Link href="/register" underline="hover">
