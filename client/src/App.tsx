@@ -1,5 +1,10 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useLocation,
+} from "react-router-dom";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Homepage from "./pages/Homepage";
@@ -13,26 +18,31 @@ import { AuthProvider } from "./AuthProvider";
 import TeamSearchPage from "./pages/TeamSearchpage";
 
 import UniversitySearchPage from "./pages/UniversitySearchPage";
-import UniversityPage from "./pages/Universitypage"; 
+import UniversityPage from "./pages/Universitypage";
 import TournamentSearchpage from "./pages/TournamentSearchpage";
+import TournamentBracket from "./pages/TournamentBracket/TournamentBracket";
 
 const AppContent: React.FC = () => {
-  const location = useLocation(); 
+  const location = useLocation();
 
-  const hideNavigationAndFooter = ["/login", "/register"].includes(location.pathname);
+  const hideNavigationAndFooter = ["/login", "/register"].includes(
+    location.pathname
+  );
 
   return (
     <>
-    {/* Conditional rendering of the navigation and footer since we don't want the navigation and footer in the login and register page */}
-      {!hideNavigationAndFooter && <NavigationBar
-        links={[
-          { name: "Home", href: "/" },
-          { name: "About", href: "/about" },
-          { name: "Tournaments", href: "/tournaments" },
-          { name: "Teams", href: "/team" },
-          { name: "Universities", href: "/universities" },
-        ]}
-      />}
+      {/* Conditional rendering of the navigation and footer since we don't want the navigation and footer in the login and register page */}
+      {!hideNavigationAndFooter && (
+        <NavigationBar
+          links={[
+            { name: "Home", href: "/" },
+            { name: "About", href: "/about" },
+            { name: "Tournaments", href: "/tournaments" },
+            { name: "Teams", href: "/team" },
+            { name: "Universities", href: "/universities" },
+          ]}
+        />
+      )}
 
       <Routes>
         <Route path="/" element={<Homepage />} />
@@ -45,12 +55,16 @@ const AppContent: React.FC = () => {
 
         <Route path="/team" element={<TeamSearchPage />} />
         <Route path="/universities" element={<UniversitySearchPage />} />
-        <Route path="/university/:universityName" element={<UniversityPage />} />
+        <Route
+          path="/university/:universityName"
+          element={<UniversityPage />}
+        />
         {/* Tournament Search Page */}
         <Route path="/tournaments" element={<TournamentSearchpage />} />
+        <Route path="/tournaments/bracket" element={<TournamentBracket />} />
       </Routes>
 
-      {/* ✅ Show Footer only if NOT on login/register pages */}
+      {/* Show Footer only if NOT on login/register pages */}
       {!hideNavigationAndFooter && <Footer />}
     </>
   );

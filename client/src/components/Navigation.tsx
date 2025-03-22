@@ -46,7 +46,12 @@ const NavigationBar: React.FC<NavigationProps> = ({ links }) => {
       <AppBar position="static" sx={{ backgroundColor: "#1976d2" }}>
         <Toolbar>
           {/* Logo Section */}
-          <IconButton edge="start" color="inherit" aria-label="logo" sx={{ mr: 2 }}>
+          <IconButton
+            edge="start"
+            color="inherit"
+            aria-label="logo"
+            sx={{ mr: 2 }}
+          >
             <img
               src="/placeholder-logo.png"
               alt=""
