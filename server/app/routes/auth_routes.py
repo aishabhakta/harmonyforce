@@ -41,7 +41,7 @@ def register():
 
     # Create the new user
     new_user = User(
-        team_id=1,
+        team_id=None,
         username=data['username'],
         email=data['email'],
         password_hash=hashed_password,

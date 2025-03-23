@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Box, CircularProgress, Alert, Button } from "@mui/material";
+import { Box, CircularProgress, Alert, Button, Typography, Avatar, Paper } from "@mui/material";
 import { Link } from "react-router-dom";
 import TeamHeader from "../components/TeamHeader";
 import Roster from "../components/Roster";
@@ -10,6 +10,10 @@ interface Member {
   user_id: number;
   name: string;
   email: string;
+  id: number;
+  role: string;
+  team_role: string;  // New field for team role
+  imageUrl: string;
 }
 
 interface Team {
@@ -21,6 +25,8 @@ interface Team {
     user_id: number | null;
     name: string | null;
     email: string | null;
+    imageUrl?: string; // Optional image for captain
+    team_role?: string; // Optional team role for captain
   };
   members: Member[];
 }
@@ -36,6 +42,7 @@ const TeamPage: React.FC = () => {
       try {
         const response = await fetch(`http://127.0.0.1:5000/teams/getTeam/${id}`);
         const data = await response.json();
+        console.log(data);  
 
         if (response.ok) {
           setTeam(data);
@@ -87,7 +94,23 @@ const TeamPage: React.FC = () => {
 
           {/* Roster Section */}
           <Box sx={{ width: "100%", marginBottom: "2rem" }}>
-            <Roster members={team.members} />
+            <Roster
+              teamId={team.team_id}
+              members={team.members.map((member) => ({
+                id: member.user_id.toString(),
+                name: member.name,
+                role: member.role, // Participant or Captain
+                team_role: member.team_role, // Ensure team_role is fetched
+                imageUrl: member.imageUrl || "https://via.placeholder.com/150",
+              }))}
+              captain={team.captain ? {
+                id: team.captain.user_id?.toString() || "0",
+                name: team.captain.name || "Unknown Captain",
+                role: "Team Captain",
+                team_role: team.captain.team_role || "Expedition Leader", // Default if missing
+                imageUrl: team.captain.imageUrl || "https://via.placeholder.com/150",
+              } : undefined}
+            />
           </Box>
 
           {/* Register Button */}
@@ -98,7 +121,7 @@ const TeamPage: React.FC = () => {
               marginBottom: "2rem",
             }}
           >
-            <Link to="/TeamRegistration" style={{ textDecoration: "none" }}>
+            <Link to={`/team/${id}/registration`} style={{ textDecoration: "none" }}>
               <Button
                 variant="contained"
                 color="primary"

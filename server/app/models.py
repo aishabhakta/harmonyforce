@@ -30,6 +30,7 @@ class User(db.Model):
     updated_at = db.Column(db.Date, default=datetime.utcnow, onupdate=datetime.utcnow)
     status = db.Column(db.Integer, default=1)
     blacklisted = db.Column(db.Integer, default=0)
+    team_role = db.Column(db.String(255), nullable=True)
 
 class TeamRequest(db.Model):
     __tablename__ = 'team_requests'

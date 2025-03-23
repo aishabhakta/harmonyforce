@@ -16,25 +16,25 @@ import UniversityPage from "./pages/Universitypage";
 import TournamentSearchpage from "./pages/TournamentSearchpage";
 import AdminDashboard from "./pages/AdminDashboard";
 import TournamentModerator from "./pages/TournamentModerator";
-import AccessDenied from "./pages/AccessDenied";
-import { PrivateRoute } from "./PrivateRoute";
+import {PrivateRoute} from "./PrivateRoute";
+import ErrorPage from "./pages/ErrorPage";
 
 const AppContent: React.FC = () => {
   const location = useLocation();
   const { user } = useAuth();
 
-  // Only show admin dashboard if user is admin, hide everything else
-  if (user?.role === "superadmin") {
-    return (
-      <Routes>
-        <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="*" element={<Navigate to="/admin" />} /> 
-      </Routes>
-    );
-  }
+  // // Only show admin dashboard if user is admin, hide everything else
+  // if (user?.role === "superadmin") {
+  //   return (
+  //     <Routes>
+  //       <Route path="/admin" element={<AdminDashboard />} />
+  //       <Route path="*" element={<Navigate to="/admin" />} /> 
+  //     </Routes>
+  //   );
+  // }
 
   // Hide navigation and footer for login/register pages
-  const hideNavigationAndFooter = ["/login", "/register"].includes(location.pathname);
+  const hideNavigationAndFooter = ["/login", "/register", "/access-denied", "/404"].includes(location.pathname);
 
   return (
     <>
@@ -49,27 +49,36 @@ const AppContent: React.FC = () => {
       />}
 
       <Routes>
-        <Route path="/" element={<Homepage />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/about" element={<AboutPage />} />
-        <Route path="/team/:id" element={<TeamPage />} />
-        <Route path="/TeamRegistration" element={<TeamRegistration />} />
-        <Route path="/player/:playerId" element={<Playerpage />} />
-        <Route path="/team" element={<TeamSearchPage />} />
-        <Route path="/universities" element={<UniversitySearchPage />} />
-        <Route path="/university/:universityName" element={<UniversityPage />} />
-        <Route path="/tournaments" element={<TournamentSearchpage />} />
-        <Route path="/access-denied" element={<AccessDenied />} />
+          <Route path="/" element={<Homepage />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/team/:id" element={<TeamPage />} />
+          <Route path="/team/:id/registration" element={<TeamRegistration />} />
+          <Route path="/team/:id/editTeam" element={<TeamRegistration />} />
+          <Route path="/player/:playerId" element={<Playerpage />} />
+          <Route path="/team" element={<TeamSearchPage />} />
+          <Route path="/universities" element={<UniversitySearchPage />} />
+          <Route path="/university/:universityName" element={<UniversityPage />} />
+          <Route path="/tournaments" element={<TournamentSearchpage />} />
 
-        {/* Protected Routes */}
-        <Route element={<PrivateRoute allowedRoles={["superadmin"]} />}>
-            <Route path="/admin" element={<AdminDashboard />} />
-        </Route>
+          {/* Protected Admin Route */}
+          <Route element={<PrivateRoute allowedRoles={["superadmin"]} />}>
+              <Route path="/admin" element={<AdminDashboard />} />
+          </Route>
 
-        <Route element={<PrivateRoute allowedRoles={["tournymod"]} />}>
-          <Route path="/tournament/moderator" element={<TournamentModerator />} />
-        </Route>
+          {/* Dynamic Error Pages */}
+          <Route path="/404" element={<ErrorPage />} />
+          <Route path="/access-denied" element={<ErrorPage />} />
+          <Route path="/unauthorized" element={<ErrorPage />} />
+          <Route path="/forbidden" element={<ErrorPage />} />
+          <Route path="/bad-request" element={<ErrorPage />} />
+          <Route path="/internal-server-error" element={<ErrorPage />} />
+          <Route path="/service-unavailable" element={<ErrorPage />} />
+          <Route path="/gateway-timeout" element={<ErrorPage />} />
+
+          {/* Redirect all unknown routes to 404 */}
+          <Route path="*" element={<Navigate to="/404" />} />
       </Routes>
 
       {!hideNavigationAndFooter && <Footer />}

@@ -1,18 +1,68 @@
-import React from "react";
-import { Box, Typography, TextField, MenuItem, Button } from "@mui/material";
+import React, { useState } from "react";
+import { Box, Typography, TextField, MenuItem, Button, Alert } from "@mui/material";
+import { useParams } from "react-router-dom";
 
-const TeamMembers: React.FC = () => {
+interface TeamMembersProps {
+  captainId: number;
+  currentUserId: number;
+}
+
+const TeamMembers: React.FC<TeamMembersProps> = ({ captainId, currentUserId }) => {
+  const { id } = useParams<{ id: string }>();
+  const teamId = parseInt(id || "0");
+  const isCaptainOfTeam = currentUserId === captainId;
+
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [role, setRole] = useState("participant");
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+
+  const handleAddMember = async () => {
+    if (!name || !email || !role) {
+      setError("Please fill in all required fields.");
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://127.0.0.1:5000/teams/addMember/${teamId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email,
+          team_role: role,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setSuccess("Member added successfully!");
+        setError("");
+        setName("");
+        setEmail("");
+        setRole("participant");
+      } else {
+        setError(data.error || "Failed to add member.");
+        setSuccess("");
+      }
+    } catch (err) {
+      setError("An unexpected error occurred.");
+      setSuccess("");
+    }
+  };
+
   return (
     <Box
       sx={{
         marginBottom: "2rem",
-        padding: "1rem", // this si for onsistent padding
-        maxWidth: "800px", // Constrain width to match the layout
-        width: "100%", 
-        boxSizing: "border-box", // Include padding and borders in width
-        backgroundColor: "#f9f9f9", 
-        borderRadius: "8px", 
-        margin: "0 auto", // Center horizontally within the parent container
+        padding: "1rem",
+        maxWidth: "800px",
+        width: "100%",
+        boxSizing: "border-box",
+        backgroundColor: "#f9f9f9",
+        borderRadius: "8px",
+        margin: "0 auto",
       }}
     >
       <Typography variant="h6" sx={{ marginBottom: "1rem" }}>
@@ -21,30 +71,31 @@ const TeamMembers: React.FC = () => {
       <Typography variant="body2" sx={{ marginBottom: "1rem" }}>
         Each team must have between 5 – 7 members.
       </Typography>
-      <Box
-        sx={{
-          display: "grid",
-          gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
-          gap: "1rem",
-          marginBottom: "1rem",
-        }}
-      >
-        <TextField label="Name *" variant="outlined" fullWidth />
-        <TextField label="Email Address *" variant="outlined" fullWidth />
+
+      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+      {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
+
+      <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: "1rem", marginBottom: "1rem" }}>
+        <TextField label="Name *" variant="outlined" fullWidth value={name} onChange={(e) => setName(e.target.value)} />
+        <TextField label="Email Address *" variant="outlined" fullWidth value={email} onChange={(e) => setEmail(e.target.value)} />
       </Box>
+
       <TextField
         fullWidth
         select
         label="Role"
         variant="outlined"
         sx={{ marginBottom: "1rem" }}
+        value={role}
+        onChange={(e) => setRole(e.target.value)}
       >
-        {["Captain", "Player", "Substitute"].map((role) => (
-          <MenuItem key={role} value={role}>
-            {role}
+        {["Expedition Leader", "Resource Specialist", "Scientist", "Technician", "Chronicler", "Weapons Specialist", "Physician"].map((roleOption) => (
+          <MenuItem key={roleOption} value={roleOption}>
+            {roleOption.charAt(0).toUpperCase() + roleOption.slice(1)}
           </MenuItem>
         ))}
       </TextField>
+
       <Box
         sx={{
           border: "1px dashed #1976d2",
@@ -58,16 +109,12 @@ const TeamMembers: React.FC = () => {
         </Typography>
         <Typography variant="caption">SVG, PNG, JPG, or GIF (max. 3MB)</Typography>
       </Box>
-      <Button
-        variant="contained"
-        color="primary"
-        sx={{
-          marginTop: "1rem",
-          width: "100%", // Stretch button so it can match the button
-        }}
-      >
-        Add Member
-      </Button>
+
+      {isCaptainOfTeam && (
+        <Button variant="contained" color="primary" sx={{ marginTop: "1rem", width: "100%" }} onClick={handleAddMember}>
+          Add Member
+        </Button>
+      )}
     </Box>
   );
 };

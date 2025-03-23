@@ -42,3 +42,21 @@ def get_university_teams(university_id):
         "profile_image": team.profile_image
     } for team in teams]
     return jsonify(teams_data), 200
+
+@university_bp.route('/getAll', methods=['GET'])
+def get_all_universities():
+    try:
+        universities = University.query.all()
+        university_data = [
+            {
+                "university_id": uni.university_id,
+                "university_name": uni.university_name,
+                "description": uni.description,
+                "university_image": uni.university_image,
+                "created_at": uni.created_at.strftime('%Y-%m-%d') if uni.created_at else None
+            }
+            for uni in universities
+        ]
+        return jsonify(university_data), 200
+    except Exception as e:
+        return jsonify({"error": "Failed to fetch universities", "details": str(e)}), 500

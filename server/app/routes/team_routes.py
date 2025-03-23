@@ -65,7 +65,10 @@ def get_team(team_id):
         if not team:
             return jsonify({"error": "Team not found"}), 404
 
+        # Fetch the captain details
         captain = User.query.filter_by(user_id=team.captain_id).first()
+
+        # Fetch all other team members (excluding the captain)
         members = User.query.filter(User.team_id == team.team_id, User.user_type != "captain").all()
 
         team_data = {
@@ -75,6 +78,8 @@ def get_team(team_id):
                 "user_id": captain.user_id if captain else None,
                 "name": captain.username if captain else None,
                 "email": captain.email if captain else None,
+                "team_role": captain.team_role if captain else None,  # Include team_role
+                # "imageUrl": captain.profile_image if captain else None  # Include profile image
             },
             "university_id": team.university_id,
             "profile_image": team.profile_image,
@@ -85,7 +90,9 @@ def get_team(team_id):
                 {
                     "user_id": member.user_id,
                     "name": member.username,
-                    "email": member.email
+                    "email": member.email,
+                    "team_role": member.team_role,  # Include team_role
+                    # "imageUrl": member.profile_image  # Include profile image
                 }
                 for member in members
             ]
@@ -169,3 +176,44 @@ def get_player(user_id):
 
     except Exception as e:
         return jsonify({"error": "Failed to fetch player details", "details": str(e)}), 500
+
+@team_bp.route('/addMember/<int:team_id>', methods=['POST'])
+def add_member(team_id):
+    try:
+        data = request.get_json()
+
+        email = data.get('email')
+        team_role = data.get('team_role', None)
+
+        if not email:
+            return jsonify({"error": "Missing required fields"}), 400
+
+        # Check if the user exists
+        user = User.query.filter_by(email=email).first()
+        if not user:
+            return jsonify({"error": "User not registered"}), 404
+
+        # Check if user is already in a team
+        if user.team_id is not None:
+            return jsonify({
+                "error": "User is already in a team and cannot be added to another."
+            }), 403
+
+        # Assign user to the team
+        user.team_id = team_id
+        user.team_role = team_role
+        user.updated_at = datetime.utcnow()
+
+        db.session.commit()
+
+        return jsonify({
+            "message": "User successfully added to the team",
+            "user_id": user.user_id
+        }), 200
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({
+            "error": "Failed to add member",
+            "details": str(e)
+        }), 500

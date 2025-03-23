@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { Button, TextField, Typography, Link, Box, Snackbar, Alert } from "@mui/material";
 import heroImg from "../assets/images/hero-image.jpg";
 import { useNavigate } from "react-router-dom";
-import { Google } from "@mui/icons-material";
 import { useAuth } from "../AuthProvider";
 
 export default function Login() {
@@ -100,7 +99,7 @@ export default function Login() {
         console.error("Login Error:", err);
         setError("An error occurred. Please try again.");
     }
-  };
+};
 
   const handleCloseSnackbar = () => setOpenSnackbar(false);
 
