@@ -5,6 +5,8 @@ import Grid from "@mui/material/Grid";
 import Button from "@mui/material/Button";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
+import { useNavigate } from "react-router-dom";
+
 
 // Import Images
 import jungleBoardImg from "../assets/images/game pieces on jungle board.jpg";
@@ -14,6 +16,8 @@ import gameBoardMountain from "../assets/images/game board - mountain.jpg";
 
 
 const Homepage: React.FC = () => {
+  const navigate = useNavigate();
+  
   return (
     <Box sx={{ backgroundColor: "white", color: "black" }}>
 
@@ -118,7 +122,7 @@ const Homepage: React.FC = () => {
     </Typography>
 
     {/* Button properly positioned */}
-    <Button variant="contained" color="primary" sx={{ alignSelf: "flex-start" }}>
+    <Button variant="contained" color="primary" sx={{ alignSelf: "flex-start" }} onClick={() => navigate("/about")}>
       Learn More
     </Button>
   </Grid>
@@ -147,11 +151,8 @@ const Homepage: React.FC = () => {
 
     {/* Buttons properly positioned */}
     <Box sx={{ display: "flex", gap: 2 }}>
-      <Button variant="contained" color="primary">
-        Learn More
-      </Button>
-      <Button variant="outlined" color="primary">
-        Sign Up
+      <Button variant="contained" color="primary" onClick={() => navigate("/tournaments")}>
+        Sign up
       </Button>
     </Box>
   </Grid>
@@ -170,54 +171,6 @@ const Homepage: React.FC = () => {
     />
   </Grid>
 </Grid>
-
-
-  {/* Upcoming Tournaments Section */}
-  <Box>
-    <Typography
-      variant="h4"
-      sx={{ fontWeight: "bold", textAlign: "center", mb: 4 }}
-    >
-      Upcoming Tournaments
-    </Typography>
-    <Grid container spacing={4}>
-      {/* Tournament Cards */}
-      {[1, 2, 3].map((item) => (
-        <Grid item xs={12} md={4} key={item}>
-          <Card
-            sx={{
-              backgroundColor: "#1976d2",
-              color: "white",
-              height: 150,
-              borderRadius: 2,
-            }}
-          >
-            <CardContent>
-              <Typography
-                variant="h6"
-                sx={{ fontWeight: "bold", mb: 1 }}
-              >
-                Tournament Name
-              </Typography>
-              <Typography variant="body2" sx={{ mb: 2 }}>
-                Oct 5 - Oct 7, 2024
-              </Typography>
-              <Button
-                variant="contained"
-                sx={{
-                  backgroundColor: "white",
-                  color: "#1976d2",
-                  textTransform: "none",
-                }}
-              >
-                Register
-              </Button>
-            </CardContent>
-          </Card>
-        </Grid>
-      ))}
-    </Grid>
-  </Box>
 
 </Box>
 
