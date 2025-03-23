@@ -2,8 +2,6 @@ import { useState, useEffect } from "react";
 import { Button, TextField, Typography, Link, Box, Snackbar, Alert } from "@mui/material";
 import heroImg from "../assets/images/hero-image.jpg";
 import { useNavigate } from "react-router-dom";
-import { auth } from "../firebase";
-import { GoogleAuthProvider, signInWithPopup } from "firebase/auth"; 
 import { Google } from "@mui/icons-material";
 import { useAuth } from "../AuthProvider";
 
@@ -102,39 +100,6 @@ export default function Login() {
         console.error("Login Error:", err);
         setError("An error occurred. Please try again.");
     }
-};
-
-
-  const handleGoogleSignIn = async () => {
-    try {
-      const provider = new GoogleAuthProvider();
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
-
-      setUser({
-        email: user.email || "",
-        displayName: user.displayName || "",
-        photoURL: user.photoURL || ""
-      });
-
-      const response = await fetch("http://127.0.0.1:5000/google-login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: user.email, name: user.displayName, googleId: user.uid }),
-      });
-
-      const data = await response.json();
-      if (response.ok) {
-        localStorage.setItem("jwt_token", data.token);
-        setOpenSnackbar(true);
-        setTimeout(() => navigate("/"), 1000);
-      } else {
-        setError("Google login failed. Please try again.");
-      }
-    } catch (err) {
-      console.error("Google Sign-In Error:", err);
-      setError("An error occurred during Google Sign-In.");
-    }
   };
 
   const handleCloseSnackbar = () => setOpenSnackbar(false);
@@ -178,9 +143,6 @@ export default function Login() {
           <Button variant="contained" fullWidth size="large" sx={{ mt: 3, mb: 2 }} onClick={handleLogin}>
             Sign In
           </Button>
-          {/* <Button variant="outlined" fullWidth size="large" sx={{ mb: 2 }} onClick={handleGoogleSignIn}>
-            <Google sx={{ color: "#4285F4" }} /> Sign In with Google
-          </Button> */}
           <Typography variant="body2">
             Don't have an account?{" "}
             <Link href="/register" underline="hover">

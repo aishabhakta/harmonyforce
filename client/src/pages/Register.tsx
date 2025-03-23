@@ -4,8 +4,6 @@ import {
   InputLabel, FormControl, Select, MenuItem 
 } from "@mui/material";
 import heroImg from "../assets/images/hero-image.jpg";
-import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
-import { auth } from "../firebase";
 import { useNavigate } from "react-router-dom";
 import { Google } from "@mui/icons-material";
 
@@ -42,38 +40,6 @@ export default function Register() {
     } catch (error) {
       console.error("Error:", error);
       alert("An error occurred during registration.");
-    }
-  };
-
-  const handleGoogleSignIn = async () => {
-    try {
-      const provider = new GoogleAuthProvider();
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
-
-      // Send user data to backend
-      const response = await fetch("http://127.0.0.1:5000/google-login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: user.email,
-          name: user.displayName,
-          googleId: user.uid,
-        }),
-      });
-
-      if (response.ok) {
-        setOpenSnackbar(true);
-        setError("");
-        navigate("/");
-      } else {
-        setError("Google login failed. Please try again.");
-      }
-    } catch (error) {
-      console.error("Error during Google Sign-In:", error);
-      setError("An error occurred during Google Sign-In.");
     }
   };
 
@@ -164,20 +130,6 @@ export default function Register() {
           >
             Register
           </Button>
-
-          {/* Google Sign-In Button */}
-          {/* <Button
-            variant="outlined"
-            fullWidth
-            size="large"
-            sx={{ mb: 2, gap: 1, textTransform: "none" }}
-            onClick={handleGoogleSignIn}
-          >
-            <Google sx={{ color: "#4285F4" }} />
-            Register with Google
-          </Button> */}
-
-          {/* Login Link */}
           <Typography variant="body2">
             Already have an account?{" "}
             <Link href="/login" underline="hover">
