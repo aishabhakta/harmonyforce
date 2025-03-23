@@ -15,11 +15,18 @@ import TeamSearchPage from "./pages/TeamSearchpage";
 import UniversitySearchPage from "./pages/UniversitySearchPage";
 import UniversityPage from "./pages/Universitypage"; 
 import TournamentSearchpage from "./pages/TournamentSearchpage";
+import CheckoutForm from "./pages/CheckoutForm";
+import Success from "./pages/Success";
+import Cancel from "./pages/Cancel";
+import { Elements } from "@stripe/react-stripe-js";  
+import { loadStripe } from "@stripe/stripe-js";  
 
 const AppContent: React.FC = () => {
   const location = useLocation(); 
 
   const hideNavigationAndFooter = ["/login", "/register"].includes(location.pathname);
+
+  const stripePromise = loadStripe("pk_test_51QtzIzRs2kvuUjpRcFD95L5g9qisHKIwua7Scho2hwOfTZDVODAMxEZGDFOsu0gdPbKoN0pZhSgW0QqAZc6CqLe8003zbdmLbK"); 
 
   return (
     <>
@@ -48,6 +55,19 @@ const AppContent: React.FC = () => {
         <Route path="/university/:universityName" element={<UniversityPage />} />
         {/* Tournament Search Page */}
         <Route path="/tournaments" element={<TournamentSearchpage />} />
+
+        <Route
+          path="/checkoutform"
+          element={
+            <Elements stripe={stripePromise}>
+              <CheckoutForm />
+            </Elements>
+          }
+        />
+        <Route path="/success" element={<Success />} />
+        <Route path="/cancel" element={<Cancel />} />
+
+
       </Routes>
 
       {/* ✅ Show Footer only if NOT on login/register pages */}
