@@ -85,34 +85,19 @@ const AppContent: React.FC = () => {
           <Route path="/service-unavailable" element={<ErrorPage />} />
           <Route path="/gateway-timeout" element={<ErrorPage />} />
 
-          {/* Redirect all unknown routes to 404 */}
-          <Route path="*" element={<Navigate to="/404" />} />
-        <Route path="/" element={<Homepage />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/about" element={<AboutPage />} />
-        <Route path="/team/:id" element={<TeamPage />} />
-        <Route path="/TeamRegistration" element={<TeamRegistration />} />
-        <Route path="/player/:playerId" element={<Playerpage />} />
-        <Route path="/team" element={<TeamSearchPage />} />
-        <Route path="/universities" element={<UniversitySearchPage />} />
-        <Route path="/university/:universityName" element={<UniversityPage />} />
-        <Route path="/tournaments" element={<TournamentSearchpage />} />
-        <Route path="/faqpage" element={<FaqPage />} />
+          <Route path="/faqpage" element={<FaqPage />} />
 
-        <Route
-          path="/checkoutform"
-          element={
-            <Elements stripe={stripePromise}>
-              <CheckoutForm />
-            </Elements>
-          }
-        />
-        <Route path="/success" element={<Success />} />
-        <Route path="/cancel" element={<Cancel />} />
-
-
-      </Routes>
+          <Route
+            path="/checkoutform"
+            element={
+              <Elements stripe={stripePromise}>
+                <CheckoutForm />
+              </Elements>
+            }
+          />
+          <Route path="/success" element={<Success />} />
+          <Route path="/cancel" element={<Cancel />} />
+        </Routes>
 
       {!hideNavigationAndFooter && <Footer />}
     </>
