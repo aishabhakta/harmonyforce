@@ -51,7 +51,7 @@ import React from "react";
            Contact Us
          </Typography>
          <Typography variant="subtitle1" sx={{ mb: 4, color: "gray" }}>
-         Couldn’t find the answer to your question? Reach out to us at Aardvark@gmail.com
+         Couldn’t find the answer to your question? Reach out to us at Aardvark@gmail.com or call us at 7475550123
          </Typography>
 
        </Container>

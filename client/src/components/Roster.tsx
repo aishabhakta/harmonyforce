@@ -27,9 +27,14 @@ const Roster: React.FC<RosterProps> = ({ members }) => {
         style={{
           fontSize: "2rem",
           fontWeight: "bold",
-          textAlign: "center",
+          // textAlign: "center",
           color: "#333",
           marginBottom: "2rem",
+          textAlign: "left",
+          marginLeft: "auto",
+          marginRight: "auto",
+          maxWidth: "1200px",
+
         }}
       >
         Roster
