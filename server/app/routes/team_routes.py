@@ -1,13 +1,23 @@
-from flask import Blueprint, request, jsonify
+from flask import Flask, Blueprint, request, jsonify, session, current_app
+from flask_cors import CORS # luke add
+import psycopg2 # luke add
+from flask_sqlalchemy import SQLAlchemy
 from app.database import db
 from app.models import Team, User
 from datetime import datetime
+import os # luke add
+from werkzeug.utils import secure_filename # luke add
+from PIL import Image    # luke add
+
 
 team_bp = Blueprint('team', __name__)
 
+
+# Route to register a new team
 @team_bp.route('/registerTeam', methods=['POST'])
 def register_team():
     data = request.get_json()
+
 
     team_name = data.get('team_name')
     captain_name = data.get('captain_name')
@@ -15,10 +25,13 @@ def register_team():
     university_id = data.get('university_id')
     members = data.get('members', [])
 
+
     if not team_name or not captain_name or not captain_email or not university_id:
         return jsonify({"error": "Missing required fields"}), 400
 
+
     profile_image = data.get('profile_image', None)
+
 
     try:
         new_team = Team(
@@ -29,11 +42,12 @@ def register_team():
             created_at=datetime.utcnow(),
             updated_at=datetime.utcnow(),
             status=1,        
-            blacklisted=0,   
+            blacklisted=0,  
             registration_date=datetime.utcnow().date()
         )
         db.session.add(new_team)
         db.session.flush()
+
 
         captain_user = User(
             team_id=new_team.team_id,
@@ -49,15 +63,20 @@ def register_team():
         db.session.add(captain_user)
         db.session.flush()
 
+
         new_team.captain_id = captain_user.user_id
         db.session.commit()
+
 
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": "Failed to register team", "details": str(e)}), 500
 
+
     return jsonify({"message": "Team registered successfully!", "team_id": new_team.team_id}), 201
 
+
+# Route to get team details
 @team_bp.route('/getTeam/<int:team_id>', methods=['GET'])
 def get_team(team_id):
     try:
@@ -66,10 +85,12 @@ def get_team(team_id):
             return jsonify({"error": "Team not found"}), 404
 
         # Fetch the captain details
+
         captain = User.query.filter_by(user_id=team.captain_id).first()
 
         # Fetch all other team members (excluding the captain)
         members = User.query.filter(User.team_id == team.team_id, User.user_type != "captain").all()
+
 
         team_data = {
             "team_id": team.team_id,
@@ -78,7 +99,7 @@ def get_team(team_id):
                 "user_id": captain.user_id if captain else None,
                 "name": captain.username if captain else None,
                 "email": captain.email if captain else None,
-                "team_role": captain.team_role if captain else None,  # Include team_role
+                "game_role": captain.game_role if captain else None,  # Include game_role
                 # "imageUrl": captain.profile_image if captain else None  # Include profile image
             },
             "university_id": team.university_id,
@@ -91,14 +112,16 @@ def get_team(team_id):
                     "user_id": member.user_id,
                     "name": member.username,
                     "email": member.email,
-                    "team_role": member.team_role,  # Include team_role
+                    "game_role": member.game_role,  # Include game_role
                     # "imageUrl": member.profile_image  # Include profile image
                 }
                 for member in members
             ]
         }
 
+
         return jsonify(team_data), 200
+
 
     except Exception as e:
         return jsonify({"error": "Failed to fetch team details", "details": str(e)}), 500
@@ -183,7 +206,7 @@ def add_member(team_id):
         data = request.get_json()
 
         email = data.get('email')
-        team_role = data.get('team_role', None)
+        game_role = data.get('game_role', None)
 
         if not email:
             return jsonify({"error": "Missing required fields"}), 400
@@ -201,7 +224,7 @@ def add_member(team_id):
 
         # Assign user to the team
         user.team_id = team_id
-        user.team_role = team_role
+        user.game_role = game_role
         user.updated_at = datetime.utcnow()
 
         db.session.commit()
@@ -217,3 +240,52 @@ def add_member(team_id):
             "error": "Failed to add member",
             "details": str(e)
         }), 500
+
+# Route to get details of a specific team member
+@team_bp.route('/member/<int:user_id>', methods=['GET'])
+def get_member(user_id):
+    member = User.query.get(user_id)
+    if not member:
+        return jsonify({"error": "User not found"}), 404
+   
+    return jsonify({
+        "user_id": member.user_id,
+        "username": member.username,
+        "email": member.email,
+        "profile_image": member.profile_image,
+        "game_role": member.game_role
+    })
+
+
+# Route to upload a profile image
+@team_bp.route('/upload_profile_image', methods=['POST'])
+def upload_profile_image():
+    if 'user_id' not in session:
+        return jsonify({"error": "User not logged in"}), 401  # Ensure user is logged in
+   
+    if 'image' not in request.files:
+        return jsonify({"error": "No file uploaded"}), 400
+   
+    file = request.files['image']
+    filename = secure_filename(file.filename)  # Sanitize filename
+   
+    if len(filename) > 100:
+        return jsonify({"error": "Filename too long"}), 400
+   
+    filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+    file.save(filepath)  # Save file to upload folder
+   
+    # Validate image dimensions
+    with Image.open(filepath) as img:
+        if img.width != img.height:  # Ensure image is a perfect square
+            os.remove(filepath)
+            return jsonify({"error": "Image must be a perfect square"}), 400
+   
+    user = User.query.get(session['user_id'])
+    user.profile_image = filepath  # Store file path in database
+    db.session.commit()
+   
+    return jsonify({"message": "Profile image uploaded successfully!"}), 200
+
+
+

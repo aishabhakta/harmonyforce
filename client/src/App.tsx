@@ -67,7 +67,7 @@ const AppContent: React.FC = () => {
           <Route path="/player/:playerId" element={<Playerpage />} />
           <Route path="/team" element={<TeamSearchPage />} />
           <Route path="/universities" element={<UniversitySearchPage />} />
-          <Route path="/university/:universityName" element={<UniversityPage />} />
+          <Route path="/university/:universityId" element={<UniversityPage />} />
           <Route path="/tournaments" element={<TournamentSearchpage />} />
 
           {/* Protected Admin Route */}

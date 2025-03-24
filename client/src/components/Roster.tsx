@@ -6,7 +6,7 @@ interface TeamMember {
   id: string;
   name: string;
   role: string;
-  team_role: string;
+  game_role: string;
   imageUrl: string;
   isCaptain?: boolean;
 }
@@ -110,7 +110,7 @@ const Roster: React.FC<RosterProps> = ({ members, captain, teamId }) => {
                     marginTop: "0.2rem",
                   }}
                 >
-                  {member.team_role}
+                  {member.game_role}
                 </p>
               </div>
             </div>

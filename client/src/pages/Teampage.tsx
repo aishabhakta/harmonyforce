@@ -12,7 +12,7 @@ interface Member {
   email: string;
   id: number;
   role: string;
-  team_role: string;  // New field for team role
+  game_role: string;  // New field for team role
   imageUrl: string;
 }
 
@@ -26,7 +26,7 @@ interface Team {
     name: string | null;
     email: string | null;
     imageUrl?: string; // Optional image for captain
-    team_role?: string; // Optional team role for captain
+    game_role?: string; // Optional team role for captain
   };
   members: Member[];
 }
@@ -100,14 +100,14 @@ const TeamPage: React.FC = () => {
                 id: member.user_id.toString(),
                 name: member.name,
                 role: member.role, // Participant or Captain
-                team_role: member.team_role, // Ensure team_role is fetched
+                game_role: member.game_role, // Ensure game_role is fetched
                 imageUrl: member.imageUrl || "https://via.placeholder.com/150",
               }))}
               captain={team.captain ? {
                 id: team.captain.user_id?.toString() || "0",
                 name: team.captain.name || "Unknown Captain",
                 role: "Team Captain",
-                team_role: team.captain.team_role || "Expedition Leader", // Default if missing
+                game_role: team.captain.game_role || "Expedition Leader", // Default if missing
                 imageUrl: team.captain.imageUrl || "https://via.placeholder.com/150",
               } : undefined}
             />

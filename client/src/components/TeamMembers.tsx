@@ -30,7 +30,7 @@ const TeamMembers: React.FC<TeamMembersProps> = ({ captainId, currentUserId }) =
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email,
-          team_role: role,
+          game_role: role,
         }),
       });
 
