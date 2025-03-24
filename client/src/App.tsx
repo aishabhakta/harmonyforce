@@ -14,6 +14,12 @@ import TeamSearchPage from "./pages/TeamSearchpage";
 import UniversitySearchPage from "./pages/UniversitySearchPage";
 import UniversityPage from "./pages/Universitypage"; 
 import TournamentSearchpage from "./pages/TournamentSearchpage";
+import CheckoutForm from "./pages/CheckoutForm";
+import Success from "./pages/Success";
+import Cancel from "./pages/Cancel";
+import { Elements } from "@stripe/react-stripe-js";  
+import { loadStripe } from "@stripe/stripe-js"; 
+import FaqPage from "./pages/faqpage"; 
 import AdminDashboard from "./pages/AdminDashboard";
 import TournamentModerator from "./pages/TournamentModerator";
 import {PrivateRoute} from "./PrivateRoute";
@@ -35,6 +41,8 @@ const AppContent: React.FC = () => {
 
   // Hide navigation and footer for login/register pages
   const hideNavigationAndFooter = ["/login", "/register", "/access-denied", "/404"].includes(location.pathname);
+
+  const stripePromise = loadStripe("pk_test_51QtzIzRs2kvuUjpRcFD95L5g9qisHKIwua7Scho2hwOfTZDVODAMxEZGDFOsu0gdPbKoN0pZhSgW0QqAZc6CqLe8003zbdmLbK"); 
 
   return (
     <>
@@ -79,6 +87,31 @@ const AppContent: React.FC = () => {
 
           {/* Redirect all unknown routes to 404 */}
           <Route path="*" element={<Navigate to="/404" />} />
+        <Route path="/" element={<Homepage />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/about" element={<AboutPage />} />
+        <Route path="/team/:id" element={<TeamPage />} />
+        <Route path="/TeamRegistration" element={<TeamRegistration />} />
+        <Route path="/player/:playerId" element={<Playerpage />} />
+        <Route path="/team" element={<TeamSearchPage />} />
+        <Route path="/universities" element={<UniversitySearchPage />} />
+        <Route path="/university/:universityName" element={<UniversityPage />} />
+        <Route path="/tournaments" element={<TournamentSearchpage />} />
+        <Route path="/faqpage" element={<FaqPage />} />
+
+        <Route
+          path="/checkoutform"
+          element={
+            <Elements stripe={stripePromise}>
+              <CheckoutForm />
+            </Elements>
+          }
+        />
+        <Route path="/success" element={<Success />} />
+        <Route path="/cancel" element={<Cancel />} />
+
+
       </Routes>
 
       {!hideNavigationAndFooter && <Footer />}

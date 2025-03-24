@@ -60,3 +60,19 @@ class BlacklistedToken(db.Model):
 
     def __repr__(self):
         return f"<BlacklistedToken {self.token}>"
+
+
+class Payment(db.Model):
+    __tablename__ = 'payments'
+    __table_args__ = {'schema': 'aardvark'}
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    email = db.Column(db.String(120), nullable=False)  # Stores user email
+    amount = db.Column(db.Integer, nullable=False)  # Amount in cents
+    currency = db.Column(db.String(10), default="usd", nullable=False)
+    status = db.Column(db.String(50), nullable=False)  # "succeeded", "requires_payment_method"
+    payment_intent_id = db.Column(db.String(120), unique=True, nullable=False)  # Stripe Payment Intent ID
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def __repr__(self):
+        return f"<Payment {self.email} - {self.status}>"
