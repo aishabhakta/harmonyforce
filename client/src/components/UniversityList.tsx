@@ -13,6 +13,7 @@ import {
   MenuItem,
   Select,
   SelectChangeEvent,
+  Button,
 } from "@mui/material";
 
 // Define University interface
@@ -122,12 +123,23 @@ const UniversityList: React.FC = () => {
       </List>
 
       {/* Pagination */}
-      <Pagination
-        count={Math.ceil(filteredUniversities.length / ITEMS_PER_PAGE)}
-        page={page}
-        onChange={(_, value: number) => setPage(value)}
-        sx={{ marginTop: 2, display: "flex", justifyContent: "center" }}
-      />
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mt: 4 }}>
+        <Button
+          variant="contained"
+          color="primary"
+          sx={{ textTransform: "none", ml: 1 }}
+          onClick={() => navigate("/create-university")}
+        >
+          Create University
+        </Button>
+
+        <Pagination
+          count={Math.ceil(filteredUniversities.length / ITEMS_PER_PAGE)}
+          page={page}
+          onChange={(_, value) => setPage(value)}
+          sx={{ mr: 1 }}
+        />
+      </Box>
     </Box>
   );
 };

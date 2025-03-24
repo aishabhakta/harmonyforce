@@ -125,13 +125,37 @@ const TournamentList: React.FC = () => {
         ))}
       </List>
 
-      {/* Pagination */}
-      <Pagination
-        count={Math.ceil(filteredTournaments.length / ITEMS_PER_PAGE)}
-        page={page}
-        onChange={(_, value: number) => setPage(value)}
-        sx={{ marginTop: 2, display: "flex", justifyContent: "center" }}
-      />
+{/* Bottom row: Create Button (left) and Pagination (right) */}
+<Box
+  sx={{
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    mt: 4,
+  }}
+>
+  {/* Left-aligned Create Button */}
+  <Button
+    variant="contained"
+    color="primary"
+    sx={{ textTransform: "none", ml: 1 }}
+    onClick={() => {
+      // Replace with your actual route if needed
+      console.log("Navigate to create tournament form");
+    }}
+  >
+    Create Tournament
+  </Button>
+
+  {/* Right-aligned Pagination */}
+  <Pagination
+    count={Math.ceil(filteredTournaments.length / ITEMS_PER_PAGE)}
+    page={page}
+    onChange={(_, value: number) => setPage(value)}
+    sx={{ mr: 1 }}
+  />
+</Box>
+
     </Box>
   );
 };

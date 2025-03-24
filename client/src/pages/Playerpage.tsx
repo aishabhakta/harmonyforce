@@ -3,7 +3,7 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
-import { Avatar } from "@mui/material";
+import { Avatar, Button } from "@mui/material";
 import Grid from "@mui/material/Grid";
 import NavigationBar from "../components/Navigation";
 import Footer from "../components/Footer";
@@ -13,9 +13,12 @@ import Footer from "../components/Footer";
 const playerData = {
   name: "John Smith",
   profileImage: "https://via.placeholder.com/150", // Update image later
-  about:
-    "Lorem ipsum dolor sit amet consectetur. Pulvinar ornare nisl quam ut ullamcorper nisl. Metus sed neque diam ut arcu mauris pellentesque auctor. Gravida odio platea pellentesque arcu.",
-  primaryRoles: "Scientist, Physician, Weapons Specialists",
+  about: "Lorem ipsum dolor sit amet consectetur. Pulvinar ornare nisl quam ut ullamcorper nisl. Metus sed neque diam ut arcu mauris pellentesque auctor. Gravida odio platea pellentesque arcu.",
+
+  // Aisha if you're seeing this this is where you would need to update the permission to see if the 
+  // the button is visible bases on role
+  primaryRoles: ["Scientist", "Physician", "Weapons Specialists", "Aardvark Support Staff"],
+
   university: "Cornell University",
   universityLogo:
     "https://upload.wikimedia.org/wikipedia/en/thumb/4/48/Cornell_University_seal.svg/1200px-Cornell_University_seal.svg.png",
@@ -110,6 +113,17 @@ const PlayerPage: React.FC = () => {
                 <Typography sx={{ display: "inline" }}>{playerData.primaryRoles}</Typography>
                 <Typography sx={{ mt: 2 }}>{playerData.about}</Typography>
                 <Typography sx={{ fontWeight: "bold", mt: 3 }}>Date Joined: {playerData.dateJoined}</Typography>
+
+
+              {/* Validation Button (conditionally visible) */}
+              {playerData.primaryRoles.some(role => ["Aardvark Support Staff", "Super Admins", "University Tournament Moderator"].includes(role)) && (
+                <Box sx={{ mt: 2 }}>
+                  <Button variant="contained" href="/validation">
+                  Go to Validation Page
+                  </Button>
+                </Box>
+              )}
+
               </CardContent>
             </Card>
 
@@ -183,10 +197,6 @@ const PlayerPage: React.FC = () => {
           </Grid>
         </Grid>
       </Box>
-
-{/* 
-        <Footer/> */}
-
     </Box>
   );
 };

@@ -21,6 +21,8 @@ import Cancel from "./pages/Cancel";
 import { Elements } from "@stripe/react-stripe-js";  
 import { loadStripe } from "@stripe/stripe-js"; 
 import FaqPage from "./pages/faqpage"; 
+import ValidationPage from "./pages/ValidationPage";
+
 
 const AppContent: React.FC = () => {
   const location = useLocation(); 
@@ -55,6 +57,8 @@ const AppContent: React.FC = () => {
         <Route path="/university/:universityName" element={<UniversityPage />} />
         <Route path="/tournaments" element={<TournamentSearchpage />} />
         <Route path="/faqpage" element={<FaqPage />} />
+        <Route path="/validation" element={<ValidationPage />} />
+
 
         <Route
           path="/checkoutform"
