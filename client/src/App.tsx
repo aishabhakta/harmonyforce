@@ -19,7 +19,8 @@ import CheckoutForm from "./pages/CheckoutForm";
 import Success from "./pages/Success";
 import Cancel from "./pages/Cancel";
 import { Elements } from "@stripe/react-stripe-js";  
-import { loadStripe } from "@stripe/stripe-js";  
+import { loadStripe } from "@stripe/stripe-js"; 
+import FaqPage from "./pages/faqpage"; 
 
 const AppContent: React.FC = () => {
   const location = useLocation(); 
@@ -49,12 +50,11 @@ const AppContent: React.FC = () => {
         <Route path="/team/:id" element={<TeamPage />} />
         <Route path="/TeamRegistration" element={<TeamRegistration />} />
         <Route path="/player/:playerId" element={<Playerpage />} />
-
         <Route path="/team" element={<TeamSearchPage />} />
         <Route path="/universities" element={<UniversitySearchPage />} />
         <Route path="/university/:universityName" element={<UniversityPage />} />
-        {/* Tournament Search Page */}
         <Route path="/tournaments" element={<TournamentSearchpage />} />
+        <Route path="/faqpage" element={<FaqPage />} />
 
         <Route
           path="/checkoutform"
