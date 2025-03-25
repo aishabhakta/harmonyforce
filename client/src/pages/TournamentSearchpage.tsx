@@ -42,11 +42,11 @@ const TournamentSearchPage: React.FC = () => {
         </Box>
       </Container>
       {/* Temporary Button to Bracket Page */}
-      <Link to="/tournaments/bracket" style={{ textDecoration: "none" }}>
+      {/* <Link to="/tournaments/bracket" style={{ textDecoration: "none" }}>
         <Button variant="contained" color="primary" sx={{ marginTop: "2rem" }}>
           Go to Tournament Bracket
         </Button>
-      </Link>
+      </Link> */}
     </Box>
   );
 };
