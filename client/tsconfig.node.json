@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "incremental": true, // Enables incremental builds for tsBuildInfoFile
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
+    "target": "ES2022", // Sets ECMAScript target version
+    "lib": ["ES2023"], // Adds ES2023 as a library
+    "module": "ESNext", // Uses ESNext module system
+    "skipLibCheck": true, // Skips library type checking
+
+    /* Bundler mode */
+    "moduleResolution": "bundler", // Resolves modules for bundlers
+    "allowImportingTsExtensions": true, // Allows importing `.ts` extensions
+    "isolatedModules": true, // Ensures each file is treated as an isolated module
+    "moduleDetection": "force", // Forces module detection
+    "noEmit": true, // Disables emitting compiled JavaScript
+
+    /* Linting */
+    "strict": true, // Enables all strict type-checking options
+    "noUnusedLocals": true, // Warns on unused local variables
+    "noUnusedParameters": true, // Warns on unused function parameters
+    "noFallthroughCasesInSwitch": true // Prevents fallthrough cases in switch
+  },
+  "include": ["vite.config.ts"] // Specifies files to include in the compilation
+}

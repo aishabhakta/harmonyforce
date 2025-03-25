@@ -1,0 +1,336 @@
+body,
+html {
+  overflow-x: auto !important;
+}
+
+.bracket-title {
+  margin-top: 40px !important;
+  margin-bottom: 10px !important;
+}
+
+.bracket-subtitle {
+  color: #808080;
+  font-size: 18px;
+  margin-bottom: 40px !important;
+}
+
+/* General Bracket Styling */
+.bracket-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 0;
+  white-space: nowrap;
+  /* max-width: 100vw; */
+  width: max-content;
+  overflow-x: auto !important;
+  margin-bottom: 40px;
+  position: relative;
+}
+
+.bracket-side {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  /* justify-content: space-evenly; */
+  /* padding: 0 30px; */
+}
+
+/* Bracket Grid Layout */
+.bracket-grid {
+  display: flex;
+  justify-content: center;
+  /* width: 100%;
+ overflow-x: auto; */
+  padding: 10px;
+  flex-wrap: nowrap;
+  /* justify-content: space-between; */
+  width: 1790px;
+  min-width: fit-content;
+  /* margin-top: 20px; */
+  position: relative;
+}
+
+/* Each column */
+.column {
+  display: flex;
+  flex-direction: column;
+  align-items: center !important;
+  width: 160px;
+  min-width: 160px;
+  /* height: 100vh; */
+  /* padding: 10px; */
+  /* background-color: rgba(128, 128, 128, 0.2); */
+}
+
+/* Round-specific spacing */
+.round1 .matchup {
+  margin: 10px 0;
+}
+
+.round2 .matchup {
+  margin: 84px 0;
+}
+
+.round3 .matchup {
+  margin: 232px 0;
+}
+
+.round4 .matchup {
+  margin: 528px 0;
+}
+
+.round5 .matchup {
+  margin: 513px 0;
+}
+
+.round5 .matchup .match-card {
+  height: 40px;
+  width: 165px;
+}
+
+.round5 .matchup .match-card .match-card-content .team-image {
+  margin-left: 5px;
+  width: 35px;
+  height: 35px;
+}
+
+.round5 .matchup .match-card .match-card-content .team-name {
+  font-size: 14px !important;
+}
+
+.round5 .matchup .match-card .match-card-content .school-name {
+  font-size: 12px !important;
+}
+
+.round5 {
+  margin: 0 15px;
+}
+
+.matchup {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100% !important;
+  margin: 20px 0;
+}
+
+.matchup::before,
+.matchup::after {
+  z-index: -1;
+}
+
+.match-card {
+  position: relative;
+  z-index: 2;
+}
+
+/* Creates the horizontal line to the next round (LEFT SIDE) */
+.round1 .matchup::before {
+  content: "";
+  position: absolute;
+  width: 110px; /* Length of the horizontal line */
+  height: 2px; /* Thickness */
+  background-color: black;
+  left: 102%; /* Moves to the right */
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.round2 .matchup::before {
+  content: "";
+  position: absolute;
+  width: 110px; /* Length of the horizontal line */
+  height: 2px; /* Thickness */
+  background-color: black;
+  left: 102%; /* Moves to the right */
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.round3 .matchup::before {
+  content: "";
+  position: absolute;
+  width: 110px;
+  height: 2px;
+  background-color: black;
+  left: 102%;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.round4 .matchup::before {
+  content: "";
+  position: absolute;
+  width: 50px;
+  height: 2px;
+  background-color: black;
+  left: 102%;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* Creates the horizontal line to the next round (RIGHT SIDE) */
+.bracket-side:last-child .round1 .matchup::before,
+.bracket-side:last-child .round2 .matchup::before,
+.bracket-side:last-child .round3 .matchup::before,
+.bracket-side:last-child .round4 .matchup::before {
+  left: auto;
+  right: 100%; /* Moves line to the left */
+}
+
+/* Creates the vertical connection between two matchups */
+.round2 .matchup::after {
+  content: "";
+  position: absolute;
+  width: 2px;
+  height: 150px; /* Adjust to match spacing */
+  background-color: black;
+  left: 50%;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.round3 .matchup::after {
+  content: "";
+  position: absolute;
+  width: 2px;
+  height: 298px; /* Adjust to match spacing */
+  background-color: black;
+  left: 50%;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.round4 .matchup::after {
+  content: "";
+  position: absolute;
+  width: 2px;
+  height: 594px; /* Adjust to match spacing */
+  background-color: black;
+  left: 50%;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* Right side adjustments */
+.bracket-side:last-child .round2 .matchup::after,
+.bracket-side:last-child .round3 .matchup::after,
+.bracket-side:last-child .round4 .matchup::after {
+  left: auto;
+  right: 48%;
+}
+
+/* Ensure the final match in the center has no lines */
+.round5 .matchup::before,
+.round5 .matchup::after {
+  display: none;
+}
+
+.MuiCardContent-root {
+  padding: 4px !important;
+  /* padding-left: 15px !important; */
+}
+
+/* Match Card */
+.match-card {
+  display: flex;
+  /* align-items: left; */
+  justify-content: space-between;
+  width: 150px;
+  /* width: 100%; */
+  height: 25px;
+  border: 2px solid black;
+  background-color: white;
+  padding: 10px;
+  margin: 0px;
+  border-radius: 0px !important;
+  box-shadow: none !important;
+}
+
+/* Match Card Content */
+.match-card-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding-top: 10px !important;
+  padding-bottom: 10px !important;
+  padding-left: 0px !important;
+}
+
+.match-card-bottom {
+  border-top: none !important;
+}
+
+/* Team Info */
+.team-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-grow: 1;
+  margin-right: 0;
+}
+
+/* Team Name */
+.team-name {
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* School Name */
+.school-name {
+  font-size: 10px !important;
+  font-weight: 400 !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #555;
+}
+
+.score {
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  /* min-width: 30px; */
+  max-width: 40px;
+  text-align: right;
+  /* display: flex;
+ align-items: center !important;
+ justify-content: flex-end;
+ white-space: nowrap;
+ overflow: hidden;
+ position: absolute;
+ right: 10px;  */
+}
+
+.team-image {
+  width: 30px;
+  height: 30px;
+  background-color: #888;
+  margin-right: 5px;
+  flex-shrink: 0;
+}
+
+/* Winner: purple text */
+.match-card.winner .team-name,
+.match-card.winner .school-name,
+.match-card.winner .score {
+  color: #800080; /* deep purple */
+  font-weight: bold;
+}
+
+/* Loser: grey text and light background */
+.match-card.loser {
+  background-color: #f0f0f0;
+}
+
+.match-card.loser .team-name,
+.match-card.loser .school-name,
+.match-card.loser .score {
+  color: #888;
+}
