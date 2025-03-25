@@ -1,76 +1,49 @@
 import React, { useState } from "react";
-import { useStripe, useElements, CardElement } from "@stripe/react-stripe-js";
+import { useStripe, useElements, PaymentElement } from "@stripe/react-stripe-js";
 import { useNavigate } from "react-router-dom";
 
 const CheckoutForm: React.FC = () => {
   const stripe = useStripe();
   const elements = useElements();
-  const navigate = useNavigate(); //  Used for navigation
+  const navigate = useNavigate();
 
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!stripe || !elements) return;
+
     setLoading(true);
-    setError(null);
+    const { error } = await stripe.confirmPayment({
+      elements,
+      confirmParams: {
+        return_url: `${window.location.origin}/success`
+        // return_url: "https://yourdomain.com/success"
 
-    if (!stripe || !elements) {
-      setError("Stripe has not loaded");
-      setLoading(false);
-      return;
-    }
-
-    // 🔹 Step 1: Request Payment Intent from Flask
-    const response = await fetch("http://127.0.0.1:5000/stripe/create-payment-intent", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        amount: 5000, // Adjust based on the purchase amount
-        currency: "usd",
-        email: "testuser@gmail.com"
-      }),
-    });
-
-    const { client_secret } = await response.json();
-
-    if (!client_secret) {
-      setError("Failed to fetch payment intent.");
-      setLoading(false);
-      return;
-    }
-
-    // 🔹 Step 2: Confirm Payment with Stripe
-    const cardElement = elements.getElement(CardElement);
-    if (!cardElement) {
-      setError("No card details provided");
-      setLoading(false);
-      return;
-    }
-
-    const { paymentIntent, error } = await stripe.confirmCardPayment(client_secret, {
-      payment_method: { card: cardElement }
+      },
     });
 
     if (error) {
-      setError(error.message || "Payment failed");
-      setLoading(false);
-    } else if (paymentIntent?.status === "succeeded") {
-      console.log("✅ Payment successful!", paymentIntent);
-      setError(null);
-      navigate("/success"); // ✅ Redirect to success page
+      setError(error.message ?? "An unexpected error occurred.");
     }
 
     setLoading(false);
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <CardElement />
-      <button type="submit" disabled={!stripe || loading}>
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="bg-white border border-gray-300 p-4 rounded">
+        <PaymentElement />
+      </div>
+      <button
+        type="submit"
+        disabled={!stripe || loading}
+        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded"
+      >
         {loading ? "Processing..." : "Pay"}
       </button>
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
     </form>
   );
 };

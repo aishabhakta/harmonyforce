@@ -29,7 +29,7 @@ interface TeamListProps {
 }
 
 // Toggle this to `true` to use dummy data if using the backend switch true to false 
-const USE_DUMMY_DATA = false;
+const USE_DUMMY_DATA = true;
 
 const dummyTeams: Team[] = [
   { team_id: 1, team_name: "Team Alpha", university_id: 101, profile_image: "https://via.placeholder.com/50" },
