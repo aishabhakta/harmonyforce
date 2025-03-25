@@ -12,6 +12,7 @@ import {
   Pagination,
   CircularProgress,
   Alert,
+  Button,
 } from "@mui/material";
 
 // Team Interface
@@ -124,6 +125,44 @@ const TeamList: React.FC<TeamListProps> = ({ universityId }) => {
                         />
                       </Grid>
 
+                  {/* Team Name */}
+                  <Grid item xs={8}>
+                    <ListItemText primary={team.name} />
+                  </Grid>
+                </Grid>
+              </CardContent>
+            </Card>
+          </ListItem>
+        ))}
+      </List>
+      {/* Bottom row: Create Button (left) and Pagination (right) */}
+      <Box
+      sx={{
+         display: "flex",
+         justifyContent: "space-between",
+         alignItems: "center",
+         mt: 4,
+         }}
+      >
+        
+        {/* Left-aligned Create Button */}
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => navigate("/TeamRegistration")}
+          sx={{ textTransform: "none", ml: 1 }}
+        >
+          Create Team
+        </Button>
+        
+        {/* Right-aligned Pagination */}
+        <Pagination
+          count={Math.ceil(filteredTeams.length / ITEMS_PER_PAGE)}
+          page={page}
+          onChange={(_, value) => setPage(value)}
+          sx={{ mr: 1 }}
+        />
+        </Box>
                       {/* Team Name */}
                       <Grid item xs={8}>
                         <ListItemText primary={team.team_name} />

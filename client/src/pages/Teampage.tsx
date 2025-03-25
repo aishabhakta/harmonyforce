@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Box, CircularProgress, Alert, Button, Typography, Avatar, Paper } from "@mui/material";
 import { Link } from "react-router-dom";
+import { Box } from "@mui/material";
 import TeamHeader from "../components/TeamHeader";
 import Roster from "../components/Roster";
 
@@ -70,6 +71,55 @@ const TeamPage: React.FC = () => {
         padding: 0,
       }}
     >
+
+      {/* Team Header with Dynamic Data */}
+      <Box sx={{ width: "100%" }}>
+        <TeamHeader
+          teamName={team?.name || "Unknown Team"} // Show team name dynamically
+          universityName={team?.university || "Unknown University"} // Show university name dynamically
+          description="Lorem ipsum dolor sit amet consectetur. Tincidunt sodales dui tellus tortor tellus quam donec nibh."
+        />
+      </Box>
+
+      {/* Action Buttons Section */}
+    <Box sx={{
+        backgroundColor: "#f9f9f9",
+        padding: "2rem 2rem 0 2rem",
+        boxSizing: "border-box",
+        }}
+        >
+      <Box sx={{
+        display: "flex",
+        flexDirection: "column",
+        gap: 2,
+        maxWidth: "1200px",
+        margin: "0 auto",
+        alignItems: "flex-start",
+      }}
+      >
+      <Link to="/edit-team" style={{ textDecoration: "none" }}>
+        <Button
+          variant="contained"
+          color="primary"
+          size="large"
+          sx={{ textTransform: "none" }}
+          >
+             Edit Team
+        </Button>
+      </Link>
+
+      <Button
+        variant="contained"
+        color="primary"
+        size="large"
+        sx={{ textTransform: "none" }}
+      >
+        Request to Join
+      </Button>
+  </Box>
+</Box>
+
+
       {/* Loading State */}
       {loading && (
         <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>

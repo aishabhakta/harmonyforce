@@ -24,6 +24,8 @@ import AdminDashboard from "./pages/AdminDashboard";
 import TournamentModerator from "./pages/TournamentModerator";
 import {PrivateRoute} from "./PrivateRoute";
 import ErrorPage from "./pages/ErrorPage";
+import ValidationPage from "./pages/ValidationPage";
+
 
 const AppContent: React.FC = () => {
   const location = useLocation();
@@ -86,6 +88,8 @@ const AppContent: React.FC = () => {
           <Route path="/gateway-timeout" element={<ErrorPage />} />
 
           <Route path="/faqpage" element={<FaqPage />} />
+        <Route path="/validation" element={<ValidationPage />} />
+
 
           <Route
             path="/checkoutform"

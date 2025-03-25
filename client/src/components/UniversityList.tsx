@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import {
   Box, TextField, List, ListItem, ListItemText, Card, CardContent,
   Grid, Pagination, MenuItem, Select, SelectChangeEvent
+  Button,
 } from "@mui/material";
 
 interface University {
@@ -85,12 +86,24 @@ const UniversityList: React.FC = () => {
         ))}
       </List>
 
-      <Pagination
-        count={Math.ceil(filtered.length / ITEMS_PER_PAGE)}
-        page={page}
-        onChange={(_, value) => setPage(value)}
-        sx={{ marginTop: 2, display: "flex", justifyContent: "center" }}
-      />
+      {/* Pagination */}
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mt: 4 }}>
+        <Button
+          variant="contained"
+          color="primary"
+          sx={{ textTransform: "none", ml: 1 }}
+          onClick={() => navigate("/create-university")}
+        >
+          Create University
+        </Button>
+
+        <Pagination
+          count={Math.ceil(filteredUniversities.length / ITEMS_PER_PAGE)}
+          page={page}
+          onChange={(_, value) => setPage(value)}
+          sx={{ mr: 1 }}
+        />
+      </Box>
     </Box>
   );
 };
