@@ -1,42 +1,61 @@
+// useEffect(() => {
+//   const fetchTournaments = async () => {
+//     try {
+//       const response = await fetch(
+//         "http://localhost:5000/tournament/tournaments"
+//       );
+//       if (!response.ok) throw new Error("Failed to fetch tournaments");
+//       const data = await response.json();
+//       setTournaments(data);
+//     } catch (error) {
+//       console.error("Error loading tournaments:", error);
+//     }
+//   };
+
+//   fetchTournaments();
+// }, []);
 import React, { useState, useEffect } from "react";
 import {
-  Box, TextField, List, ListItem, ListItemText, Card, CardContent,
-  Grid, Pagination, MenuItem, Select, SelectChangeEvent, Button
+  Box,
+  TextField,
+  List,
+  ListItem,
+  ListItemText,
+  Card,
+  CardContent,
+  Grid,
+  Pagination,
+  MenuItem,
+  Select,
+  SelectChangeEvent,
+  Button,
 } from "@mui/material";
-
-import { useNavigate } from "react-router-dom"; 
-
-interface Tournament {
-  id: number;
-  name: string;
-  university: string;
-  logo: string;
-  status: "APPLY" | "VIEW";
-}
+import TournamentModal from "./TournamentModal";
+import { dummyTournaments, Tournament } from "./dummyData/dummyTournaments";
+import { useNavigate } from "react-router-dom";
 
 const ITEMS_PER_PAGE = 5;
 
 const TournamentList: React.FC = () => {
-  const [tournaments, setTournaments] = useState<Tournament[]>([]);
+  const [tournaments, setTournaments] =
+    useState<Tournament[]>(dummyTournaments);
   const [search, setSearch] = useState<string>("");
   const [page, setPage] = useState<number>(1);
   const [filter, setFilter] = useState<string>("All");
+  const [modalOpen, setModalOpen] = useState<boolean>(false);
+  const [selectedTournament, setSelectedTournament] =
+    useState<Tournament | null>(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchTournaments = async () => {
-      try {
-        const response = await fetch("http://localhost:5000/tournament/tournaments");
-        if (!response.ok) throw new Error("Failed to fetch tournaments");
-        const data = await response.json();
-        setTournaments(data);
-      } catch (error) {
-        console.error("Error loading tournaments:", error);
-      }
-    };
+  const handleOpenModal = (tournament: Tournament) => {
+    setSelectedTournament(tournament);
+    setModalOpen(true);
+  };
 
-    fetchTournaments();
-  }, []);
+  const handleCloseModal = () => {
+    setModalOpen(false);
+    setSelectedTournament(null);
+  };
 
   const filteredTournaments = tournaments.filter(
     (t) =>
@@ -68,8 +87,10 @@ const TournamentList: React.FC = () => {
         fullWidth
       >
         <MenuItem value="All">All Universities</MenuItem>
-        {[...new Set(tournaments.map((t) => t.university))].map((univ) => (
-          <MenuItem key={univ} value={univ}>{univ}</MenuItem>
+        {[...new Set(dummyTournaments.map((t) => t.university))].map((univ) => (
+          <MenuItem key={univ as string} value={univ as string}>
+            {univ}
+          </MenuItem>
         ))}
       </Select>
 
@@ -96,7 +117,14 @@ const TournamentList: React.FC = () => {
                   <Grid item xs={2}>
                     <Button
                       variant="contained"
-                      color={tournament.status === "APPLY" ? "primary" : "error"}
+                      color={
+                        tournament.status === "APPLY"
+                          ? "primary"
+                          : tournament.status === "UPCOMING"
+                          ? "secondary"
+                          : "error"
+                      }
+                      onClick={() => handleOpenModal(tournament)}
                     >
                       {tournament.status}
                     </Button>
@@ -108,34 +136,41 @@ const TournamentList: React.FC = () => {
         ))}
       </List>
 
-{/* Bottom row: Create Button (left) and Pagination (right) */}
-<Box
-  sx={{
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    mt: 4,
-  }}
->
-  {/* Left-aligned Create Button */}
-  <Button
-    variant="contained"
-    color="primary"
-    sx={{ textTransform: "none", ml: 1 }}
-    onClick={() => navigate("/TournamentRegistration")}
-  >
-    Create Tournament
-  </Button>
+      {/* Bottom row */}
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mt: 4,
+        }}
+      >
+        <Button
+          variant="contained"
+          color="primary"
+          sx={{ textTransform: "none", ml: 1 }}
+          onClick={() => navigate("/TournamentRegistration")}
+        >
+          Create Tournament
+        </Button>
 
-  {/* Right-aligned Pagination */}
-  <Pagination
-    count={Math.ceil(filteredTournaments.length / ITEMS_PER_PAGE)}
-    page={page}
-    onChange={(_, value: number) => setPage(value)}
-    sx={{ mr: 1 }}
-  />
-</Box>
+        <Pagination
+          count={Math.ceil(filteredTournaments.length / ITEMS_PER_PAGE)}
+          page={page}
+          onChange={(_, value: number) => setPage(value)}
+          sx={{ mr: 1 }}
+        />
+      </Box>
 
+      {/* Modal */}
+      {selectedTournament && (
+        <TournamentModal
+          open={modalOpen}
+          onClose={handleCloseModal}
+          tournament={selectedTournament}
+          matches={selectedTournament.matches}
+        />
+      )}
     </Box>
   );
 };
