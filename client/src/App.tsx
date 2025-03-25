@@ -28,6 +28,8 @@ import ValidationPage from "./pages/ValidationPage";
 import UniversityRegistration from "./pages/UniversityRegistration";
 import TournamentRegistration from "./pages/TournamentRegistration";
 import EditProfilePage from "./pages/EditProfilePage";
+import PaymentPage from "./pages/PaymentPage";
+
 
 
 const AppContent: React.FC = () => {
@@ -96,16 +98,18 @@ const AppContent: React.FC = () => {
           <Route path="/UniversityRegistration" element={<UniversityRegistration />} />
           <Route path="/TournamentRegistration" element={<TournamentRegistration />} />
           <Route path="/edit-profile" element={<EditProfilePage />} />
+          <Route path="/checkoutform" element={<PaymentPage />} />
 
 
-          <Route
+
+          {/* <Route
             path="/checkoutform"
             element={
               <Elements stripe={stripePromise}>
                 <CheckoutForm />
               </Elements>
             }
-          />
+          /> */}
           <Route path="/success" element={<Success />} />
           <Route path="/cancel" element={<Cancel />} />
         </Routes>
