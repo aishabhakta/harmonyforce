@@ -5,20 +5,15 @@ import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import { Avatar, Button } from "@mui/material";
 import Grid from "@mui/material/Grid";
-import NavigationBar from "../components/Navigation";
-import Footer from "../components/Footer";
+import { useNavigate } from "react-router-dom";
 
 // Sample Player Data (Replace with API Data Later)
-//when I have time tommrowo fix the // Show team name and school dynamically
 const playerData = {
   name: "John Smith",
-  profileImage: "https://via.placeholder.com/150", // Update image later
-  about: "Lorem ipsum dolor sit amet consectetur. Pulvinar ornare nisl quam ut ullamcorper nisl. Metus sed neque diam ut arcu mauris pellentesque auctor. Gravida odio platea pellentesque arcu.",
-
-  // Aisha if you're seeing this this is where you would need to update the permission to see if the 
-  // the button is visible bases on role
+  profileImage: "https://via.placeholder.com/150",
+  about:
+    "Lorem ipsum dolor sit amet consectetur. Pulvinar ornare nisl quam ut ullamcorper nisl. Metus sed neque diam ut arcu mauris pellentesque auctor. Gravida odio platea pellentesque arcu.",
   primaryRoles: ["Scientist", "Physician", "Weapons Specialists", "Aardvark Support Staff"],
-
   university: "Cornell University",
   universityLogo:
     "https://upload.wikimedia.org/wikipedia/en/thumb/4/48/Cornell_University_seal.svg/1200px-Cornell_University_seal.svg.png",
@@ -28,6 +23,8 @@ const playerData = {
 };
 
 const PlayerPage: React.FC = () => {
+  const navigate = useNavigate();
+
   return (
     <Box
       sx={{
@@ -42,18 +39,7 @@ const PlayerPage: React.FC = () => {
         overflowX: "hidden",
       }}
     >
-      {/* Navigation Bar
-      <NavigationBar
-        links={[
-          { name: "Home", href: "/" },
-          { name: "About", href: "/about" },
-          { name: "Tournaments", href: "/tournaments" },
-          { name: "Teams", href: "/teams" },
-          { name: "Universities", href: "/universities" },
-        ]}
-      /> */}
-
-      {/* Main Content Wrapper  */}
+      {/* Main Content Wrapper */}
       <Box
         sx={{
           flexGrow: 1,
@@ -67,7 +53,7 @@ const PlayerPage: React.FC = () => {
       >
         <Grid container spacing={4} alignItems="flex-start">
           {/* Profile Picture on the Left */}
-          <Grid item xs={12} md={4} sx={{ display: "flex", justifyContent: "center" }}>
+          <Grid item xs={12} md={4} sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
             <Card
               sx={{
                 boxShadow: 3,
@@ -79,6 +65,7 @@ const PlayerPage: React.FC = () => {
                 justifyContent: "center",
                 alignItems: "center",
                 padding: "1rem",
+                flexDirection: "column",
               }}
             >
               <Avatar
@@ -89,18 +76,23 @@ const PlayerPage: React.FC = () => {
                   height: 200,
                   boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
                   border: "3px solid #1976d2",
+                  marginBottom: "1rem",
                 }}
               />
             </Card>
+
+            {/* Edit Button below the card */}
+            <Button variant="contained" sx={{ mt: 2 }} onClick={() => navigate("/edit-profile")}>
+              Edit Profile
+            </Button>
           </Grid>
 
           {/* Player Info and Team/University on the Right */}
           <Grid item xs={12} md={8}>
-            {/* Player Info Card - Aligned with Bottom Cards */}
             <Card
               sx={{
                 width: "100%",
-                maxWidth: 630, // Ensuring it matches the width of the bottom cards
+                maxWidth: 630,
                 boxShadow: 2,
                 borderRadius: 2,
               }}
@@ -109,35 +101,39 @@ const PlayerPage: React.FC = () => {
                 <Typography variant="h5" sx={{ fontWeight: "bold", mb: 1 }}>
                   {playerData.name}
                 </Typography>
-                <Typography sx={{ fontWeight: "bold", display: "inline" }}>Primary Roles: </Typography>
-                <Typography sx={{ display: "inline" }}>{playerData.primaryRoles}</Typography>
+                <Typography sx={{ fontWeight: "bold", display: "inline" }}>
+                  Primary Roles:{" "}
+                </Typography>
+                <Typography sx={{ display: "inline" }}>{playerData.primaryRoles.join(", ")}</Typography>
                 <Typography sx={{ mt: 2 }}>{playerData.about}</Typography>
-                <Typography sx={{ fontWeight: "bold", mt: 3 }}>Date Joined: {playerData.dateJoined}</Typography>
+                <Typography sx={{ fontWeight: "bold", mt: 3 }}>
+                  Date Joined: {playerData.dateJoined}
+                </Typography>
 
-
-              {/* Validation Button (conditionally visible) */}
-              {playerData.primaryRoles.some(role => ["Aardvark Support Staff", "Super Admins", "University Tournament Moderator"].includes(role)) && (
-                <Box sx={{ mt: 2 }}>
-                  <Button variant="contained" href="/validation">
-                  Go to Validation Page
-                  </Button>
-                </Box>
-              )}
-
+                {/* Validation Button */}
+                {playerData.primaryRoles.some((role) =>
+                  ["Aardvark Support Staff", "Super Admins", "University Tournament Moderator"].includes(role)
+                ) && (
+                  <Box sx={{ mt: 2 }}>
+                    <Button variant="contained" href="/validation">
+                      Go to Validation Page
+                    </Button>
+                  </Box>
+                )}
               </CardContent>
             </Card>
 
-            {/* University & Team Cards  */}
+            {/* University & Team Cards */}
             <Grid
               container
               spacing={2}
               sx={{
                 marginTop: "1.5rem",
                 justifyContent: "space-between",
-                maxWidth: 580, // Ensuring both bottom cards align with the Info Card
+                maxWidth: 580,
               }}
             >
-              {/* University Card  */}
+              {/* University */}
               <Grid item xs={12} md={5.5}>
                 <Card
                   sx={{
@@ -163,7 +159,7 @@ const PlayerPage: React.FC = () => {
                 </Card>
               </Grid>
 
-              {/* Team Card */}
+              {/* Team */}
               <Grid item xs={12} md={5.5}>
                 <Card
                   sx={{

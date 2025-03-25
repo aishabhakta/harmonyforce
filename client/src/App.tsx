@@ -22,6 +22,11 @@ import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js"; 
 import FaqPage from "./pages/faqpage"; 
 import ValidationPage from "./pages/ValidationPage";
+import UniversityRegistration from "./pages/UniversityRegistration";
+import TournamentRegistration from "./pages/TournamentRegistration";
+import EditProfilePage from "./pages/EditProfilePage";
+
+
 
 
 const AppContent: React.FC = () => {
@@ -58,6 +63,9 @@ const AppContent: React.FC = () => {
         <Route path="/tournaments" element={<TournamentSearchpage />} />
         <Route path="/faqpage" element={<FaqPage />} />
         <Route path="/validation" element={<ValidationPage />} />
+        <Route path="/UniversityRegistration" element={<UniversityRegistration />} />
+        <Route path="/TournamentRegistration" element={<TournamentRegistration />} />
+        <Route path="/edit-profile" element={<EditProfilePage />} />
 
 
         <Route
