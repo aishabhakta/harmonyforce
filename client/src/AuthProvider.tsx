@@ -13,12 +13,29 @@ interface AuthContextType {
   setUser: React.Dispatch<React.SetStateAction<User | null>>;
 }
 
-export const AuthContext = createContext<AuthContextType | undefined>(undefined);  // Explicit Export
+export const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+//  Toggle dummy user on/off
+const USE_DUMMY_AUTH = false;
+
+//  Dummy user data
+const dummyUser: User = {
+  email: "jane.doe@example.com",
+  displayName: "Jane Doe",
+  photoURL: "https://via.placeholder.com/150",
+  token: "dummy-token",
+  role: "aardvarkstaff", // Change to "superadmin" or "tournymod" to test access
+};
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
+    if (USE_DUMMY_AUTH) {
+      setUser(dummyUser);
+      return;
+    }
+
     const token = localStorage.getItem("session_token");
     const email = localStorage.getItem("user_email");
     const displayName = localStorage.getItem("user_displayName");
@@ -28,7 +45,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (token && email) {
       setUser({
         token,
-        email, 
+        email,
         displayName: displayName || undefined,
         photoURL: photoURL || undefined,
         role: role || undefined,
@@ -43,7 +60,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   );
 };
 
-// Fix: Export useAuth Hook
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {

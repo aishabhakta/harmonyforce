@@ -92,7 +92,7 @@ const UniversityList: React.FC = () => {
           variant="contained"
           color="primary"
           sx={{ textTransform: "none", ml: 1 }}
-          onClick={() => navigate("/create-university")}
+          onClick={() => navigate("/UniversityRegistration")}
         >
           Create University
         </Button>

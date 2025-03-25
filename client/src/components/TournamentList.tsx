@@ -4,6 +4,8 @@ import {
   Grid, Pagination, MenuItem, Select, SelectChangeEvent, Button
 } from "@mui/material";
 
+import { useNavigate } from "react-router-dom"; 
+
 interface Tournament {
   id: number;
   name: string;
@@ -19,6 +21,7 @@ const TournamentList: React.FC = () => {
   const [search, setSearch] = useState<string>("");
   const [page, setPage] = useState<number>(1);
   const [filter, setFilter] = useState<string>("All");
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchTournaments = async () => {
@@ -119,10 +122,7 @@ const TournamentList: React.FC = () => {
     variant="contained"
     color="primary"
     sx={{ textTransform: "none", ml: 1 }}
-    onClick={() => {
-      // Replace with your actual route if needed
-      console.log("Navigate to create tournament form");
-    }}
+    onClick={() => navigate("/TournamentRegistration")}
   >
     Create Tournament
   </Button>

@@ -5,6 +5,9 @@ import TeamMembers from "../components/TeamMembers";
 import RegisterButton from "../components/RegisterButton";
 
 const TeamRegistration: React.FC = () => {
+    // Dummy props for testing
+    const dummyCaptainId = 1;
+    const dummyCurrentUserId = 1;
   return (
     <Box
       sx={{
@@ -32,7 +35,8 @@ const TeamRegistration: React.FC = () => {
       >
         {/* Components */}
         <GeneralTeamInfo />
-        <TeamMembers  />
+        {/* <TeamMembers  /> */}
+        <TeamMembers captainId={dummyCaptainId} currentUserId={dummyCurrentUserId} />
         <Box
           sx={{
             marginTop: "2rem",

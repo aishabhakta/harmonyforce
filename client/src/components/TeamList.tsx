@@ -27,14 +27,19 @@ interface Team {
 interface TeamListProps {
   universityId?: number;
 }
-// const teamsData: Team[] = [
-//   { id: 1, name: "Team Alpha", university: "Cornell University", logo: "https://via.placeholder.com/50" },
-//   { id: 2, name: "Team Beta", university: "Cornell University", logo: "https://via.placeholder.com/50" },
-//   { id: 3, name: "Team Gamma", university: "MIT", logo: "https://via.placeholder.com/50" },
-//   { id: 4, name: "Team Delta", university: "Stanford", logo: "https://via.placeholder.com/50" },
-//   { id: 5, name: "Team Epsilon", university: "MIT", logo: "https://via.placeholder.com/50" },
-//   { id: 6, name: "Team Zeta", university: "Cornell University", logo: "https://via.placeholder.com/50" },
-// ];
+
+// Toggle this to `true` to use dummy data if using the backend switch true to false 
+const USE_DUMMY_DATA = false;
+
+const dummyTeams: Team[] = [
+  { team_id: 1, team_name: "Team Alpha", university_id: 101, profile_image: "https://via.placeholder.com/50" },
+  { team_id: 2, team_name: "Team Beta", university_id: 101, profile_image: "https://via.placeholder.com/50" },
+  { team_id: 3, team_name: "Team Gamma", university_id: 102, profile_image: "https://via.placeholder.com/50" },
+  { team_id: 4, team_name: "Team Delta", university_id: 103, profile_image: "https://via.placeholder.com/50" },
+  { team_id: 5, team_name: "Team Epsilon", university_id: 102, profile_image: "https://via.placeholder.com/50" },
+  { team_id: 6, team_name: "Team Zeta", university_id: 101, profile_image: "https://via.placeholder.com/50" },
+];
+
 const ITEMS_PER_PAGE = 5;
 
 const TeamList: React.FC<TeamListProps> = ({ universityId }) => {
@@ -46,30 +51,35 @@ const TeamList: React.FC<TeamListProps> = ({ universityId }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchTeams = async () => {
+    const loadTeams = async () => {
       setLoading(true);
       setError(null);
 
       try {
-        const response = await fetch("http://127.0.0.1:5000/teams/getAllTeams");
-        const data = await response.json();
-
-        if (response.ok) {
-          setTeams(data.teams);
+        if (USE_DUMMY_DATA) {
+          // Use dummy data
+          setTeams(dummyTeams);
         } else {
-          setError(data.error || "Failed to fetch teams");
+          // Fetch from backend
+          const response = await fetch("http://127.0.0.1:5000/teams/getAllTeams");
+          const data = await response.json();
+
+          if (response.ok) {
+            setTeams(data.teams);
+          } else {
+            setError(data.error || "Failed to fetch teams");
+          }
         }
       } catch (err) {
-        setError("An error occurred while fetching teams.");
+        setError("An error occurred while loading teams.");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchTeams();
+    loadTeams();
   }, []);
 
-  // if you want to use dummy data change "teams" to "teamsData"
   const filteredTeams = teams.filter(
     (team) =>
       team.team_name.toLowerCase().includes(search.toLowerCase()) &&
