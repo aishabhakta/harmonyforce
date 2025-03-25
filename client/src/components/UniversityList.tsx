@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Box, TextField, List, ListItem, ListItemText, Card, CardContent,
-  Grid, Pagination, MenuItem, Select, SelectChangeEvent
+  Grid, Pagination, MenuItem, Select, SelectChangeEvent,
   Button,
 } from "@mui/material";
 
@@ -98,7 +98,7 @@ const UniversityList: React.FC = () => {
         </Button>
 
         <Pagination
-          count={Math.ceil(filteredUniversities.length / ITEMS_PER_PAGE)}
+          count={Math.ceil(filtered.length / ITEMS_PER_PAGE)}
           page={page}
           onChange={(_, value) => setPage(value)}
           sx={{ mr: 1 }}

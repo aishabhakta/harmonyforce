@@ -38,7 +38,6 @@ const TeamList: React.FC<TeamListProps> = ({ universityId }) => {
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  // Fetch Teams from API
   useEffect(() => {
     const fetchTeams = async () => {
       setLoading(true);
@@ -63,14 +62,12 @@ const TeamList: React.FC<TeamListProps> = ({ universityId }) => {
     fetchTeams();
   }, []);
 
-  // Filter teams based on search and university
   const filteredTeams = teams.filter(
     (team) =>
       team.team_name.toLowerCase().includes(search.toLowerCase()) &&
       (!universityId || team.university_id === universityId)
   );
 
-  // Pagination
   const paginatedTeams = filteredTeams.slice(
     (page - 1) * ITEMS_PER_PAGE,
     page * ITEMS_PER_PAGE
@@ -78,7 +75,6 @@ const TeamList: React.FC<TeamListProps> = ({ universityId }) => {
 
   return (
     <Box sx={{ width: "100%", maxWidth: "900px", margin: "auto", mt: 3 }}>
-      {/* Search Input */}
       <TextField
         label="Search Teams"
         variant="outlined"
@@ -88,17 +84,14 @@ const TeamList: React.FC<TeamListProps> = ({ universityId }) => {
         sx={{ marginBottom: 2 }}
       />
 
-      {/* Show Loader While Fetching Data */}
       {loading && (
         <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
           <CircularProgress />
         </Box>
       )}
 
-      {/* Show Error Message */}
       {error && <Alert severity="error">{error}</Alert>}
 
-      {/* Show Team List */}
       {!loading && !error && (
         <>
           <List>
@@ -115,7 +108,6 @@ const TeamList: React.FC<TeamListProps> = ({ universityId }) => {
                 >
                   <CardContent>
                     <Grid container alignItems="center" spacing={2}>
-                      {/* Team Logo */}
                       <Grid item xs={2}>
                         <Box
                           component="img"
@@ -124,47 +116,7 @@ const TeamList: React.FC<TeamListProps> = ({ universityId }) => {
                           sx={{ width: 50, height: 50 }}
                         />
                       </Grid>
-
-                  {/* Team Name */}
-                  <Grid item xs={8}>
-                    <ListItemText primary={team.name} />
-                  </Grid>
-                </Grid>
-              </CardContent>
-            </Card>
-          </ListItem>
-        ))}
-      </List>
-      {/* Bottom row: Create Button (left) and Pagination (right) */}
-      <Box
-      sx={{
-         display: "flex",
-         justifyContent: "space-between",
-         alignItems: "center",
-         mt: 4,
-         }}
-      >
-        
-        {/* Left-aligned Create Button */}
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => navigate("/TeamRegistration")}
-          sx={{ textTransform: "none", ml: 1 }}
-        >
-          Create Team
-        </Button>
-        
-        {/* Right-aligned Pagination */}
-        <Pagination
-          count={Math.ceil(filteredTeams.length / ITEMS_PER_PAGE)}
-          page={page}
-          onChange={(_, value) => setPage(value)}
-          sx={{ mr: 1 }}
-        />
-        </Box>
-                      {/* Team Name */}
-                      <Grid item xs={8}>
+                      <Grid item xs={10}>
                         <ListItemText primary={team.team_name} />
                       </Grid>
                     </Grid>
@@ -174,13 +126,30 @@ const TeamList: React.FC<TeamListProps> = ({ universityId }) => {
             ))}
           </List>
 
-          {/* Pagination */}
-          <Pagination
-            count={Math.ceil(filteredTeams.length / ITEMS_PER_PAGE)}
-            page={page}
-            onChange={(_, value) => setPage(value)}
-            sx={{ marginTop: 2, display: "flex", justifyContent: "center" }}
-          />
+          {/* Create Button & Pagination Row */}
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              mt: 4,
+            }}
+          >
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => navigate("/TeamRegistration")}
+              sx={{ textTransform: "none" }}
+            >
+              Create Team
+            </Button>
+
+            <Pagination
+              count={Math.ceil(filteredTeams.length / ITEMS_PER_PAGE)}
+              page={page}
+              onChange={(_, value) => setPage(value)}
+            />
+          </Box>
         </>
       )}
     </Box>

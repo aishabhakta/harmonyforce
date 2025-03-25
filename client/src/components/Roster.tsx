@@ -31,10 +31,16 @@ const Roster: React.FC<RosterProps> = ({ members, captain, teamId }) => {
       }}
     >
       {/* Edit Button */}
-      <div style={{ display: "flex", justifyContent: "center", marginBottom: "1.5rem" }}>
+      <div style={{ display: "flex", justifyContent: "start", marginBottom: "1.5rem" }}>
         <Link to={`/team/${teamId}/editTeam`} style={{ textDecoration: "none" }}>
-          <Button variant="outlined" color="primary">Edit Team</Button>
+          <Button variant="contained" color="primary" sx={{ textTransform: "none" }}>Edit Team</Button>
         </Link>
+      </div>
+
+      <div style={{ display: "flex", justifyContent: "start", marginBottom: "1.5rem" }}>
+        <Button variant="contained" color="primary" sx={{ textTransform: "none" }}>
+          Request to Join
+        </Button>
       </div>
 
       <h3
