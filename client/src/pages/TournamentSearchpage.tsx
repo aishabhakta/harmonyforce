@@ -1,8 +1,7 @@
 import React from "react";
-import { Box, Container, Typography } from "@mui/material";
-import NavigationBar from "../components/Navigation";
-import Footer from "../components/Footer";
+import { Box, Button, Container, Typography } from "@mui/material";
 import TournamentList from "../components/TournamentList";
+import { Link } from "react-router-dom";
 
 const TournamentSearchPage: React.FC = () => {
   return (
@@ -17,18 +16,6 @@ const TournamentSearchPage: React.FC = () => {
         overflowX: "hidden",
       }}
     >
-      {/* Navigation Bar
-      <NavigationBar
-        links={[
-          { name: "Home", href: "/" },
-          { name: "About", href: "/about" },
-          { name: "Tournaments", href: "/tournaments" },
-          { name: "Team", href: "/team" },
-          { name: "Universities", href: "/universities" },
-        ]}
-      /> */}
-
-      {/* Main Content */}
       <Container
         sx={{
           flexGrow: 1,
@@ -54,9 +41,12 @@ const TournamentSearchPage: React.FC = () => {
           <TournamentList />
         </Box>
       </Container>
-
-      {/* Footer
-      <Footer /> */}
+      {/* Temporary Button to Bracket Page */}
+      <Link to="/tournaments/bracket" style={{ textDecoration: "none" }}>
+        <Button variant="contained" color="primary" sx={{ marginTop: "2rem" }}>
+          Go to Tournament Bracket
+        </Button>
+      </Link>
     </Box>
   );
 };

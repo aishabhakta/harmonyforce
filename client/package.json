@@ -19,6 +19,7 @@
     "@mui/x-date-pickers": "^7.28.0",
     "@stripe/react-stripe-js": "^3.4.0",
     "@stripe/stripe-js": "^6.0.0",
+    "axios": "^1.8.4",
     "date-fns": "^3.3.1",
     "dotenv": "^16.4.7",
     "jwt-decode": "^4.0.0",
