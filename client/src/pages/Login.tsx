@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Button, TextField, Typography, Link, Box, Snackbar, Alert } from "@mui/material";
 import heroImg from "../assets/images/hero-image.jpg";
 import { useNavigate } from "react-router-dom";
+import { Google } from "@mui/icons-material";
 import { useAuth } from "../AuthProvider";
 
 export default function Login() {
@@ -43,63 +44,42 @@ export default function Login() {
     }
     return isValid;
   };
-  
+
   const handleLogin = async () => {
     if (!validateForm()) return;
 
     try {
-        const response = await fetch("http://127.0.0.1:5000/auth/login", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email, password }),
+      const response = await fetch("http://localhost:5000/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        const token = data.token;
+        localStorage.setItem("jwt_token", token);
+        localStorage.setItem("user_email", data.email);
+        localStorage.setItem("user_displayName", data.displayName || "");
+        localStorage.setItem("user_photoURL", data.photoURL || "");
+
+        setUser({
+          email: data.email,
+          displayName: data.displayName,
+          photoURL: data.photoURL,
+          token,
         });
 
-        const data = await response.json();
-        if (response.ok) {
-            localStorage.setItem("session_token", data.token);
-            localStorage.setItem("user_email", data.email);
-            localStorage.setItem("user_role", data.role || "general"); // Store role
-
-            setUser({
-                email: data.email,
-                token: data.token,
-                role: data.role || "general",
-            });
-
-            setOpenSnackbar(true);
-
-            // Redirect based on role
-            switch (data.role) {
-                case "superadmin":
-                    setTimeout(() => navigate("/admin"), 1000);
-                    break;
-                case "tournymod":
-                    setTimeout(() => navigate("/tournament/moderator"), 1000);
-                    break;
-                case "unimod":
-                    setTimeout(() => navigate("/university/moderator"), 1000);
-                    break;
-                case "aardvarkstaff":
-                    setTimeout(() => navigate("/support"), 1000);
-                    break;
-                case "captain":
-                    setTimeout(() => navigate("/team"), 1000);
-                    break;
-                case "participant":
-                    setTimeout(() => navigate("/"), 1000);
-                    break;
-                default:
-                    setTimeout(() => navigate("/"), 1000);
-                    break;
-            }
-        } else {
-            setError(data.error || "Login failed. Please try again.");
-        }
+        setOpenSnackbar(true);
+        setTimeout(() => navigate("/"), 1000);
+      } else {
+        setError(data.error || "Login failed. Please try again.");
+      }
     } catch (err) {
-        console.error("Login Error:", err);
-        setError("An error occurred. Please try again.");
+      console.error("Login Error:", err);
+      setError("An error occurred. Please try again.");
     }
-};
+  };
 
   const handleCloseSnackbar = () => setOpenSnackbar(false);
 

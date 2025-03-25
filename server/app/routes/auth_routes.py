@@ -1,47 +1,77 @@
 from flask import Blueprint, request, jsonify
 from app.database import db  
 from app import bcrypt 
-from app.models import User, PendingRegistration
+from app.models import User
 from datetime import datetime, timedelta
 import jwt
 import os
 from functools import wraps
-from app.utils import generate_jwt, verify_jwt, blacklisted_tokens
 
 auth_bp = Blueprint('auth', __name__)
 
 # Use a fallback secret key in case env variable is not set
-SECRET_KEY = os.getenv('SECRET_KEY')
+SECRET_KEY = os.getenv('SECRET_KEY', 'your_default_secret_key')
 
 # Store blacklisted tokens (Use Redis in production)
 blacklisted_tokens = set()
+
+def generate_jwt(user_id):
+    payload = {
+        "user_id": user_id,
+        "exp": datetime.utcnow() + timedelta(days=1),
+        "iat": datetime.utcnow()
+    }
+    return jwt.encode(payload, SECRET_KEY, algorithm="HS256")
+
+# JWT Verification Middleware
+def verify_jwt(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        token = request.headers.get("Authorization")
+        
+        if not token or not token.startswith("Bearer "):
+            return jsonify({"error": "Token is missing!"}), 401
+        
+        token = token.split(" ")[1]  # Extract token part
+        
+        if token in blacklisted_tokens:
+            return jsonify({"error": "Token has been revoked!"}), 401
+        
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
+            request.user_id = payload["user_id"]
+        except jwt.ExpiredSignatureError:
+            return jsonify({"error": "Token has expired!"}), 401
+        except jwt.InvalidTokenError:
+            return jsonify({"error": "Invalid token!"}), 401
+        
+        return f(*args, **kwargs)
+    return decorated_function
 
 # User Registration
 @auth_bp.route('/register', methods=['POST'])
 def register():
     data = request.get_json()
-    required_fields = ['username', 'email', 'password', 'role', 'university']
-    if not all(field in data for field in required_fields):
-        return jsonify({"error": "Missing required fields"}), 400
 
-    # Check if already exists
-    if User.query.filter_by(email=data['email']).first() or \
-       PendingRegistration.query.filter_by(email=data['email']).first():
-        return jsonify({"error": "Email already exists or is pending approval"}), 409
+    if User.query.filter_by(email=data['email']).first():
+        return jsonify({"error": "Email already exists"}), 400
 
     hashed_password = bcrypt.generate_password_hash(data['password']).decode('utf-8')
 
-    pending = PendingRegistration(
+    new_user = User(
+        team_id=1,
         username=data['username'],
         email=data['email'],
         password_hash=hashed_password,
-        role=data['role'],
-        university=data['university']
+        user_type=data['role'],
+        status=1,
+        blacklisted=0
     )
-    db.session.add(pending)
+
+    db.session.add(new_user)
     db.session.commit()
 
-    return jsonify({"message": "Registration submitted for validation!"}), 201
+    return jsonify({"message": "User registered successfully!"}), 201
 
 # User Login
 @auth_bp.route('/login', methods=['POST'])
@@ -49,16 +79,12 @@ def login():
     data = request.get_json()
     user = User.query.filter_by(email=data['email']).first()
 
-    if not user or not bcrypt.check_password_hash(user.password_hash, data['password']):
+    if not user or not user.password_hash or not bcrypt.check_password_hash(user.password_hash, data['password']):
         return jsonify({"error": "Invalid email or password"}), 401
 
-    token = generate_jwt(user.user_id, user.user_type)  # Include role in JWT
+    token = generate_jwt(user.user_id)
 
-    return jsonify({
-        "message": "Login successful!",
-        "token": token,
-        "role": user.user_type  # Send role to frontend
-    }), 200
+    return jsonify({"message": "Login successful!", "token": token}), 200
 
 # Protected Route
 @auth_bp.route('/protected', methods=['GET'])
@@ -77,48 +103,3 @@ def logout():
         blacklisted_tokens.add(token)  # Add token to blacklist
     
     return jsonify({"message": "Logout successful!"}), 200
-
-@auth_bp.route('/pending-registrations', methods=['GET'])
-def get_pending():
-    pendings = PendingRegistration.query.all()
-    return jsonify([{
-        "id": p.id,
-        "username": p.username,
-        "email": p.email,
-        "role": p.role,
-        "university": p.university,
-    } for p in pendings])
-
-@auth_bp.route('/approve-registration/<int:pending_id>', methods=['POST'])
-def approve_user(pending_id):
-    pending = PendingRegistration.query.get(pending_id)
-    if not pending:
-        return jsonify({"error": "Not found"}), 404
-
-    user = User(
-        username=pending.username,
-        email=pending.email,
-        password_hash=pending.password_hash,
-        user_type=pending.role,
-        university_id=None,  # Map based on name if needed
-        status=1,
-        blacklisted=0,
-        created_at=datetime.utcnow()
-    )
-    db.session.add(user)
-    db.session.delete(pending)
-    db.session.commit()
-
-    return jsonify({"message": "User approved and registered!"}), 201
-
-@auth_bp.route('/reject-registration/<int:pending_id>', methods=['POST'])
-def reject_user(pending_id):
-    pending = db.session.get(PendingRegistration, pending_id)
-    if not pending:
-        return jsonify({"error": "User not found"}), 404
-
-    db.session.delete(pending)
-    db.session.commit()
-
-    return jsonify({"message": "User registration rejected and removed."}), 200
-

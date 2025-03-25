@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+// components/ValidationComponent.tsx
+import React, { useState } from "react";
 import {
   Box,
   Typography,
@@ -6,29 +7,14 @@ import {
   Select,
   Button,
   Card,
+  CardContent,
   Avatar,
+  Grid,
 } from "@mui/material";
 
 interface ValidationComponentProps {
   userRole: string;
 }
-
-interface PendingUser {
-  id: number;
-  username: string;
-  email: string;
-  role: string;
-}
-
-interface PendingTeamMember {
-  id: number;
-  email: string;
-  team_id: number;
-  game_role: string;
-  user_id: number;
-  status: string;
-}
-
 
 const moderatorSections = [
   "Moderator Accounts",
@@ -42,195 +28,129 @@ const universitySections = [
   "Team Page Validation",
 ];
 
+const dummyUsers = [
+  {
+    name: "John Doe",
+    role: "Marketing Moderator",
+    image: "https://randomuser.me/api/portraits/women/44.jpg",
+  },
+  {
+    name: "Jane Doe",
+    role: "Tournament Moderator",
+    image: "https://randomuser.me/api/portraits/women/65.jpg",
+  },
+  {
+    name: "Markus Drop",
+    role: "Marketing Moderator",
+    image: "https://randomuser.me/api/portraits/men/32.jpg",
+  },
+  {
+    name: "Emmett Tru",
+    role: "Tournament Moderator",
+    image: "https://randomuser.me/api/portraits/men/76.jpg",
+  },
+  {
+    name: "Sal Moru",
+    role: "Tournament Moderator",
+    image: "https://randomuser.me/api/portraits/men/95.jpg",
+  },
+];
+
 const ValidationComponent: React.FC<ValidationComponentProps> = ({ userRole }) => {
   const isModerator = ["Aardvark Support Staff", "Super Admins"].includes(userRole);
   const isUniversity = userRole === "University Tournament Moderator";
 
-  const availableSections = isModerator
-    ? moderatorSections
-    : isUniversity
-    ? universitySections
-    : [];
-
+  const availableSections = isModerator ? moderatorSections : isUniversity ? universitySections : [];
   const [section, setSection] = useState(availableSections[0] || "");
-  const [pendingUsers, setPendingUsers] = useState<PendingUser[]>([]);
-  const [pendingMembers, setPendingMembers] = useState<PendingTeamMember[]>([]);
 
-
-  const fetchPendingUsers = async () => {
-    try {
-      const response = await fetch("http://127.0.0.1:5000/auth/pending-registrations");
-      const data = await response.json();
-      if (response.ok) {
-        setPendingUsers(data);
-      } else {
-        console.error("Error fetching pending users:", data.error);
-      }
-    } catch (err) {
-      console.error("Fetch error:", err);
-    }
-  };
-
-  const handleApprove = async (pending_id: number) => {
-    try {
-      const response = await fetch(`http://127.0.0.1:5000/auth/approve-registration/${pending_id}`, {
-        method: "POST",
-      });
-      const data = await response.json();
-      if (response.ok) {
-        setPendingUsers((prev) => prev.filter((user) => user.id !== pending_id));
-        alert(data.message);
-      } else {
-        alert(data.error);
-      }
-    } catch (err) {
-      alert("Approval failed.");
-    }
-  };  
-  
-  const handleReject = async (pending_id: number) => {
-    try {
-      const response = await fetch(`http://127.0.0.1:5000/auth/reject-registration/${pending_id}`, {
-        method: "POST",
-      });
-      const data = await response.json();
-      if (response.ok) {
-        setPendingUsers((prev) => prev.filter((user) => user.id !== pending_id));
-        alert(data.message);
-      } else {
-        alert(data.error);
-      }
-    } catch (err) {
-      alert("Rejection failed.");
-    }
-  };
-
-  const fetchPendingMembers = async () => {
-    try {
-      const response = await fetch("http://127.0.0.1:5000/teams/pendingMembers");
-      const data = await response.json();
-      if (response.ok) {
-        setPendingMembers(data);
-      } else {
-        console.error("Error fetching pending members:", data.error);
-      }
-    } catch (err) {
-      console.error("Fetch error:", err);
-    }
-  };
-  
-  const handleApproveMember = async (memberId: number) => {
-    try {
-      const response = await fetch(`http://127.0.0.1:5000/teams/approve-member/${memberId}`, {
-        method: "POST",
-      });
-      const data = await response.json();
-      if (response.ok) {
-        setPendingMembers((prev) => prev.filter((member) => member.id !== memberId));
-        alert(data.message);
-      } else {
-        alert(data.error);
-      }
-    } catch (err) {
-      alert("Approval failed.");
-    }
-  };
-  
-  const handleRejectMember = async (memberId: number) => {
-    try {
-      const response = await fetch(`http://127.0.0.1:5000/teams/reject-member/${memberId}`, {
-        method: "POST",
-      });
-      const data = await response.json();
-      if (response.ok) {
-        setPendingMembers((prev) => prev.filter((member) => member.id !== memberId));
-        alert(data.message);
-      } else {
-        alert(data.error);
-      }
-    } catch (err) {
-      alert("Rejection failed.");
-    }
-  };
- 
-  useEffect(() => {
-    if (section === "User Accounts") {
-      fetchPendingUsers();
-    } else if (section === "Team Member Requests") {
-      fetchPendingMembers();
-    }
-  }, [section]);
+  const renderUserCards = (actionButtons: React.ReactNode) => (
+    <Box>
+      {dummyUsers.map((user, index) => (
+        <Card key={index} sx={{ display: "flex", alignItems: "center", p: 2, mb: 2 }}>
+          <Avatar src={user.image} sx={{ width: 56, height: 56, mr: 2 }} />
+          <Box sx={{ flexGrow: 1 }}>
+            <Typography>{user.name}</Typography>
+            <Typography color="text.secondary">{user.role}</Typography>
+          </Box>
+          {actionButtons}
+        </Card>
+      ))}
+    </Box>
+  );
 
   const renderSectionData = () => {
     switch (section) {
-      case "User Accounts":
+      case "Moderator Accounts":
+        return renderUserCards(
+          <Box>
+            <Button variant="contained" color="primary" sx={{ mr: 1 }}>
+              ACCEPT
+            </Button>
+            <Button variant="contained" color="error">
+              DENY
+            </Button>
+          </Box>
+        );
+      case "Moderator Accounts Validation":
         return (
           <Box>
-            {pendingUsers.length === 0 ? (
-              <Typography>No pending registrations.</Typography>
-            ) : (
-              pendingUsers.map((user) => (
-                <Card key={user.id} sx={{ display: "flex", alignItems: "center", p: 2, mb: 2 }}>
-                  <Avatar sx={{ width: 56, height: 56, mr: 2 }} />
-                  <Box sx={{ flexGrow: 1 }}>
-                    <Typography>{user.username}</Typography>
-                    <Typography color="text.secondary">{user.email} — {user.role}</Typography>
-                  </Box>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={() => handleApprove(user.id)}
-                    sx={{ mr: 1 }}
-                  >
-                    ACCEPT
-                  </Button>
-                  <Button variant="contained"
-                    color="error"
-                    onClick={() => handleReject(user.id)}
-                    sx={{ mr: 1 }}>
-                    DENY
-                  </Button>
-                </Card>
-              ))
+            <Button variant="contained" color="primary" sx={{ mb: 2 }}>
+              CREATE MODERATOR
+            </Button>
+            {renderUserCards(
+              <Box>
+                <Button variant="contained" color="primary" sx={{ mr: 1 }}>
+                  ACCEPT
+                </Button>
+                <Button variant="contained" color="error">
+                  DENY
+                </Button>
+              </Box>
             )}
           </Box>
         );
-        case "Team Member Requests":
-          return (
-            <Box>
-              {pendingMembers.length === 0 ? (
-                <Typography>No pending member requests.</Typography>
-              ) : (
-                pendingMembers.map((member) => (
-                  <Card key={member.id} sx={{ display: "flex", alignItems: "center", p: 2, mb: 2 }}>
-                    <Avatar sx={{ width: 56, height: 56, mr: 2 }} />
-                    <Box sx={{ flexGrow: 1 }}>
-                      <Typography>{member.email}</Typography>
-                      <Typography color="text.secondary">
-                        Team ID: {member.team_id} — Role: {member.game_role}
-                      </Typography>
-                    </Box>
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      onClick={() => handleApproveMember(member.id)}
-                      sx={{ mr: 1 }}
-                    >
-                      ACCEPT
-                    </Button>
-                    <Button
-                      variant="contained"
-                      color="error"
-                      onClick={() => handleRejectMember(member.id)}
-                    >
-                      DENY
-                    </Button>
-                  </Card>
-                ))
-              )}
-            </Box>
-          );
-        
+      case "Current Moderator Accounts":
+        return renderUserCards(
+          <Button variant="outlined" color="primary">
+            EDIT
+          </Button>
+        );
+      case "User Accounts":
+        return renderUserCards(
+          <Box>
+            <Button variant="contained" color="primary" sx={{ mr: 1 }}>
+              ACCEPT
+            </Button>
+            <Button variant="contained" color="error">
+              DENY
+            </Button>
+          </Box>
+        );
+      case "Team Member Requests":
+        return renderUserCards(
+          <Box>
+            <Button variant="contained" color="primary" sx={{ mr: 1 }}>
+              ACCEPT
+            </Button>
+            <Button variant="contained" color="error">
+              DENY
+            </Button>
+          </Box>
+        );
+      case "Team Page Validation":
+        return renderUserCards(
+          <Box>
+            <Button variant="contained" color="primary" sx={{ mr: 1 }}>
+              ACCEPT
+            </Button>
+            <Button variant="contained" color="error" sx={{ mr: 1 }}>
+              DENY
+            </Button>
+            <Button variant="contained" sx={{ backgroundColor: "black", color: "white" }}>
+              BLACKLIST
+            </Button>
+          </Box>
+        );
       default:
         return <Typography>No access</Typography>;
     }
@@ -258,3 +178,4 @@ const ValidationComponent: React.FC<ValidationComponentProps> = ({ userRole }) =
 };
 
 export default ValidationComponent;
+

@@ -26,7 +26,7 @@ const NavigationBar: React.FC<NavigationProps> = ({ links }) => {
   const handleLogout = async () => {
     try {
       const token = user?.token || localStorage.getItem("session_token");
-      await fetch("http://127.0.0.1:5000/auth/logout", {
+      await fetch("http://localhost:5000/logout", {
         method: "POST",
         headers: {
           Authorization: token || "",
