@@ -32,7 +32,7 @@ const TeamRegistration: React.FC = () => {
       >
         {/* Components */}
         <GeneralTeamInfo />
-        <TeamMembers />
+        <TeamMembers  />
         <Box
           sx={{
             marginTop: "2rem",

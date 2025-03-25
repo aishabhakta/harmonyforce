@@ -1,33 +1,84 @@
-import React from "react";
-import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
-import Card from "@mui/material/Card";
-import CardContent from "@mui/material/CardContent";
-import { Avatar, Button } from "@mui/material";
-import Grid from "@mui/material/Grid";
-import NavigationBar from "../components/Navigation";
-import Footer from "../components/Footer";
+import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import {
+  Box,
+  CircularProgress,
+  Alert,
+  Typography,
+  Card,
+  CardContent,
+  Avatar,
+  Grid,
+  Button
+} from "@mui/material";
+import { useAuth } from "../AuthProvider"; // Make sure this path is correct
 
-// Sample Player Data (Replace with API Data Later)
-//when I have time tommrowo fix the // Show team name and school dynamically
-const playerData = {
-  name: "John Smith",
-  profileImage: "https://via.placeholder.com/150", // Update image later
-  about: "Lorem ipsum dolor sit amet consectetur. Pulvinar ornare nisl quam ut ullamcorper nisl. Metus sed neque diam ut arcu mauris pellentesque auctor. Gravida odio platea pellentesque arcu.",
-
-  // Aisha if you're seeing this this is where you would need to update the permission to see if the 
-  // the button is visible bases on role
-  primaryRoles: ["Scientist", "Physician", "Weapons Specialists", "Aardvark Support Staff"],
-
-  university: "Cornell University",
-  universityLogo:
-    "https://upload.wikimedia.org/wikipedia/en/thumb/4/48/Cornell_University_seal.svg/1200px-Cornell_University_seal.svg.png",
-  team: "The Roaches",
-  teamLogo: "https://via.placeholder.com/50",
-  dateJoined: "1/30/2025",
-};
+interface Player {
+  user_id: number;
+  name: string;
+  email: string;
+  role: string;
+  team_name: string;
+  team_logo?: string;
+  university_name: string;
+  university_logo?: string;
+  profile_image?: string;
+  about?: string;
+  date_joined?: string;
+}
 
 const PlayerPage: React.FC = () => {
+  const { playerId } = useParams<{ playerId: string }>();
+  const [player, setPlayer] = useState<Player | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const { user } = useAuth(); // Get current logged-in user
+
+  const isPrivileged =
+    user && ["aardvarkstaff", "superadmin", "tournymod"].includes(user.role || "");
+
+  useEffect(() => {
+    if (!playerId) {
+      setError("Invalid player ID");
+      setLoading(false);
+      return;
+    }
+
+    const fetchPlayer = async () => {
+      try {
+        const response = await fetch(`http://127.0.0.1:5000/teams/getPlayer/${playerId}`);
+        const data = await response.json();
+
+        if (response.ok) {
+          setPlayer(data);
+        } else {
+          setError(data.error || "Failed to fetch player details.");
+        }
+      } catch (err) {
+        setError("An error occurred while fetching player details.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPlayer();
+  }, [playerId]);
+
+  if (loading) {
+    return (
+      <Box sx={{ display: "flex", justifyContent: "center", mt: 5 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (error) {
+    return <Alert severity="error" sx={{ mt: 5 }}>{error}</Alert>;
+  }
+
+  if (!player) return null;
+
   return (
     <Box
       sx={{
@@ -36,161 +87,98 @@ const PlayerPage: React.FC = () => {
         minHeight: "100vh",
         backgroundColor: "white",
         color: "black",
-        margin: 0,
-        padding: 0,
+        px: 2,
+        py: 4,
         width: "100vw",
-        overflowX: "hidden",
+        overflowX: "hidden"
       }}
     >
-      {/* Navigation Bar
-      <NavigationBar
-        links={[
-          { name: "Home", href: "/" },
-          { name: "About", href: "/about" },
-          { name: "Tournaments", href: "/tournaments" },
-          { name: "Teams", href: "/teams" },
-          { name: "Universities", href: "/universities" },
-        ]}
-      /> */}
-
-      {/* Main Content Wrapper  */}
-      <Box
-        sx={{
-          flexGrow: 1,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          maxWidth: "1000px",
-          margin: "auto",
-          padding: { xs: "2rem", md: "4rem" },
-        }}
-      >
-        <Grid container spacing={4} alignItems="flex-start">
-          {/* Profile Picture on the Left */}
-          <Grid item xs={12} md={4} sx={{ display: "flex", justifyContent: "center" }}>
-            <Card
-              sx={{
-                boxShadow: 3,
-                borderRadius: 2,
-                overflow: "hidden",
-                width: "100%",
-                maxWidth: 250,
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                padding: "1rem",
-              }}
-            >
-              <Avatar
-                src={playerData.profileImage}
-                alt={`${playerData.name}'s profile`}
-                sx={{
-                  width: 200,
-                  height: 200,
-                  boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
-                  border: "3px solid #1976d2",
-                }}
-              />
-            </Card>
+      <Box sx={{ maxWidth: "900px", margin: "auto" }}>
+        <Grid container spacing={4}>
+          {/* Profile Image */}
+          <Grid item xs={12} md={4}>
+            <Avatar
+              src={player.profile_image || "https://via.placeholder.com/150"}
+              alt={player.name}
+              sx={{ width: 200, height: 200, border: "3px solid #1976d2" }}
+            />
           </Grid>
 
-          {/* Player Info and Team/University on the Right */}
+          {/* Info Card */}
           <Grid item xs={12} md={8}>
-            {/* Player Info Card - Aligned with Bottom Cards */}
-            <Card
-              sx={{
-                width: "100%",
-                maxWidth: 630, // Ensuring it matches the width of the bottom cards
-                boxShadow: 2,
-                borderRadius: 2,
-              }}
-            >
+            <Card sx={{ width: "100%", boxShadow: 2, borderRadius: 2 }}>
               <CardContent>
                 <Typography variant="h5" sx={{ fontWeight: "bold", mb: 1 }}>
-                  {playerData.name}
+                  {player.name}
                 </Typography>
-                <Typography sx={{ fontWeight: "bold", display: "inline" }}>Primary Roles: </Typography>
-                <Typography sx={{ display: "inline" }}>{playerData.primaryRoles}</Typography>
-                <Typography sx={{ mt: 2 }}>{playerData.about}</Typography>
-                <Typography sx={{ fontWeight: "bold", mt: 3 }}>Date Joined: {playerData.dateJoined}</Typography>
+                <Typography sx={{ fontWeight: "bold", display: "inline" }}>
+                  Role:{" "}
+                </Typography>
+                <Typography sx={{ display: "inline" }}>{player.role}</Typography>
 
+                <Typography sx={{ mt: 2 }}>
+                  {player.about || "No bio available."}
+                </Typography>
 
-              {/* Validation Button (conditionally visible) */}
-              {playerData.primaryRoles.some(role => ["Aardvark Support Staff", "Super Admins", "University Tournament Moderator"].includes(role)) && (
-                <Box sx={{ mt: 2 }}>
-                  <Button variant="contained" href="/validation">
-                  Go to Validation Page
-                  </Button>
-                </Box>
-              )}
+                <Typography sx={{ fontWeight: "bold", mt: 3 }}>
+                  Date Joined: {player.date_joined || "Unknown"}
+                </Typography>
 
+                {isPrivileged && (
+                  <Box sx={{ mt: 2 }}>
+                    <Button variant="contained" href="/validation">
+                      Go to Validation Page
+                    </Button>
+                  </Box>
+                )}
               </CardContent>
             </Card>
 
-            {/* University & Team Cards  */}
-            <Grid
-              container
-              spacing={2}
-              sx={{
-                marginTop: "1.5rem",
-                justifyContent: "space-between",
-                maxWidth: 580, // Ensuring both bottom cards align with the Info Card
-              }}
-            >
-              {/* University Card  */}
-              <Grid item xs={12} md={5.5}>
+            {/* University & Team Cards */}
+            <Grid container spacing={2} sx={{ mt: 2 }}>
+              {/* University Card */}
+              <Grid item xs={12} md={6}>
                 <Card
                   sx={{
                     display: "flex",
                     alignItems: "center",
-                    justifyContent: "flex-start",
+                    p: 2,
                     height: 85,
-                    width: "100%",
                     boxShadow: 3,
-                    borderRadius: 2,
-                    padding: "1rem",
+                    borderRadius: 2
                   }}
                 >
                   <Box
                     component="img"
-                    src={playerData.universityLogo}
-                    alt={playerData.university}
-                    sx={{ width: 40, height: 40, marginRight: "1rem" }}
+                    src={player.university_logo || "https://via.placeholder.com/50"}
+                    alt={player.university_name}
+                    sx={{ width: 40, height: 40, mr: 2 }}
                   />
-                  <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-                    {playerData.university}
+                  <Typography variant="subtitle1">
+                    {player.university_name}
                   </Typography>
                 </Card>
               </Grid>
 
               {/* Team Card */}
-              <Grid item xs={12} md={5.5}>
+              <Grid item xs={12} md={6}>
                 <Card
                   sx={{
                     display: "flex",
                     alignItems: "center",
-                    justifyContent: "flex-start",
+                    p: 2,
                     height: 85,
-                    width: "100%",
                     boxShadow: 3,
-                    borderRadius: 2,
-                    padding: "1rem",
+                    borderRadius: 2
                   }}
                 >
                   <Box
                     component="img"
-                    src={playerData.teamLogo}
-                    alt={playerData.team}
-                    sx={{
-                      width: 40,
-                      height: 40,
-                      marginRight: "1rem",
-                      bgcolor: "grey.300",
-                    }}
+                    src={player.team_logo || "https://via.placeholder.com/50"}
+                    alt={player.team_name}
+                    sx={{ width: 40, height: 40, mr: 2 }}
                   />
-                  <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-                    {playerData.team}
-                  </Typography>
+                  <Typography variant="subtitle1">{player.team_name}</Typography>
                 </Card>
               </Grid>
             </Grid>
