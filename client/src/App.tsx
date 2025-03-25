@@ -1,5 +1,10 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useLocation,
+} from "react-router-dom";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Homepage from "./pages/Homepage";
@@ -13,34 +18,41 @@ import { AuthProvider } from "./AuthProvider";
 import TeamSearchPage from "./pages/TeamSearchpage";
 
 import UniversitySearchPage from "./pages/UniversitySearchPage";
-import UniversityPage from "./pages/Universitypage"; 
+import UniversityPage from "./pages/Universitypage";
 import TournamentSearchpage from "./pages/TournamentSearchpage";
 import CheckoutForm from "./pages/CheckoutForm";
 import Success from "./pages/Success";
 import Cancel from "./pages/Cancel";
-import { Elements } from "@stripe/react-stripe-js";  
-import { loadStripe } from "@stripe/stripe-js"; 
-import FaqPage from "./pages/faqpage"; 
+import { Elements } from "@stripe/react-stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
+import FaqPage from "./pages/faqpage";
+import TournamentBracket from "./pages/TournamentBracket/TournamentBracket";
 
 const AppContent: React.FC = () => {
-  const location = useLocation(); 
+  const location = useLocation();
 
-  const hideNavigationAndFooter = ["/login", "/register"].includes(location.pathname);
+  const hideNavigationAndFooter = ["/login", "/register"].includes(
+    location.pathname
+  );
 
-  const stripePromise = loadStripe("pk_test_51QtzIzRs2kvuUjpRcFD95L5g9qisHKIwua7Scho2hwOfTZDVODAMxEZGDFOsu0gdPbKoN0pZhSgW0QqAZc6CqLe8003zbdmLbK"); 
+  const stripePromise = loadStripe(
+    "pk_test_51QtzIzRs2kvuUjpRcFD95L5g9qisHKIwua7Scho2hwOfTZDVODAMxEZGDFOsu0gdPbKoN0pZhSgW0QqAZc6CqLe8003zbdmLbK"
+  );
 
   return (
     <>
-    {/* Conditional rendering of the navigation and footer since we don't want the navigation and footer in the login and register page */}
-      {!hideNavigationAndFooter && <NavigationBar
-        links={[
-          { name: "Home", href: "/" },
-          { name: "About", href: "/about" },
-          { name: "Tournaments", href: "/tournaments" },
-          { name: "Teams", href: "/team" },
-          { name: "Universities", href: "/universities" },
-        ]}
-      />}
+      {/* Conditional rendering of the navigation and footer since we don't want the navigation and footer in the login and register page */}
+      {!hideNavigationAndFooter && (
+        <NavigationBar
+          links={[
+            { name: "Home", href: "/" },
+            { name: "About", href: "/about" },
+            { name: "Tournaments", href: "/tournaments" },
+            { name: "Teams", href: "/team" },
+            { name: "Universities", href: "/universities" },
+          ]}
+        />
+      )}
 
       <Routes>
         <Route path="/" element={<Homepage />} />
@@ -52,8 +64,12 @@ const AppContent: React.FC = () => {
         <Route path="/player/:playerId" element={<Playerpage />} />
         <Route path="/team" element={<TeamSearchPage />} />
         <Route path="/universities" element={<UniversitySearchPage />} />
-        <Route path="/university/:universityName" element={<UniversityPage />} />
+        <Route
+          path="/university/:universityName"
+          element={<UniversityPage />}
+        />
         <Route path="/tournaments" element={<TournamentSearchpage />} />
+        <Route path="/tournaments/bracket" element={<TournamentBracket />} />
         <Route path="/faqpage" element={<FaqPage />} />
 
         <Route
@@ -66,8 +82,6 @@ const AppContent: React.FC = () => {
         />
         <Route path="/success" element={<Success />} />
         <Route path="/cancel" element={<Cancel />} />
-
-
       </Routes>
 
       {/* ✅ Show Footer only if NOT on login/register pages */}
