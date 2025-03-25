@@ -1,21 +1,3 @@
-# Virtual environment
-.venv/
-.env
-
-# Byte-compiled / optimized / DLL files
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-
-# Flask and database-related files
-instance/
-migrations/
-
-# Log files
-*.log
-logs/
-
 # Logs
 logs
 *.log

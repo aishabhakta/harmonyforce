@@ -49,7 +49,10 @@ const TournamentForm: React.FC = () => {
           borderRadius: "8px",
         }}
       >
-        <Typography variant="h4" sx={{ marginBottom: "2rem", textAlign: "center" }}>
+        <Typography
+          variant="h4"
+          sx={{ marginBottom: "2rem", textAlign: "center" }}
+        >
           Tournament Creator
         </Typography>
 
