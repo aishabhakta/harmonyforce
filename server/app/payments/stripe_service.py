@@ -10,7 +10,8 @@ def create_payment_intent(amount: int, currency: str, email: str):
         return stripe.PaymentIntent.create(
             amount=amount,
             currency=currency,
-            receipt_email=email
+            receipt_email=email,
+            automatic_payment_methods={"enabled": True}
         )
     except Exception as e:
         return {"error": str(e)}
