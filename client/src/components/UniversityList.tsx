@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom"; // Import useNavigate for navigation
 import {
   Box,
   TextField,
@@ -15,6 +14,7 @@ import {
   SelectChangeEvent,
   Button,
 } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 // Define University interface
 interface University {
@@ -39,7 +39,7 @@ const UniversityList: React.FC = () => {
   const [search, setSearch] = useState<string>("");
   const [page, setPage] = useState<number>(1);
   const [filter, setFilter] = useState<string>("All");
-  const navigate = useNavigate(); // Hook for navigation
+  const navigate = useNavigate();
 
   // Filter and Paginate Universities
   const filteredUniversities = universitiesData.filter(
@@ -128,7 +128,7 @@ const UniversityList: React.FC = () => {
           variant="contained"
           color="primary"
           sx={{ textTransform: "none", ml: 1 }}
-          onClick={() => navigate("/create-university")}
+          onClick={() => navigate("/UniversityRegistration")}
         >
           Create University
         </Button>
