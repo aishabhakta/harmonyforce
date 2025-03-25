@@ -42,26 +42,72 @@ const TeamPage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchTeam = async () => {
-      try {
-        const response = await fetch(`http://127.0.0.1:5000/teams/getTeam/${id}`);
-        const data = await response.json();
+  const USE_DUMMY_DATA = false;
 
-        if (response.ok) {
-          setTeam(data);
-        } else {
-          setError(data.error || "Failed to fetch team details.");
-        }
-      } catch (err) {
-        setError("An error occurred while fetching team details.");
-      } finally {
-        setLoading(false);
+const dummyTeam: Team = {
+  team_id: 1,
+  team_name: "Team Alpha",
+  university_id: 101,
+  university_name: "Cornell University",
+  profile_image: "https://via.placeholder.com/150",
+  description: "A team of explorers and scientists.",
+  captain: {
+    user_id: 1,
+    name: "Alice Smith",
+    email: "alice@example.com",
+    imageUrl: "https://via.placeholder.com/150",
+    game_role: "Expedition Leader",
+  },
+  members: [
+    {
+      user_id: 2,
+      id: 2,
+      name: "Bob Johnson",
+      email: "bob@example.com",
+      role: "Member",
+      game_role: "Technician",
+      imageUrl: "https://via.placeholder.com/150",
+    },
+    {
+      user_id: 3,
+      id: 3,
+      name: "Carol Lee",
+      email: "carol@example.com",
+      role: "Member",
+      game_role: "Scientist",
+      imageUrl: "https://via.placeholder.com/150",
+    },
+  ],
+};
+
+
+useEffect(() => {
+  const fetchTeam = async () => {
+    if (USE_DUMMY_DATA) {
+      setTeam(dummyTeam);
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://127.0.0.1:5000/teams/getTeam/${id}`);
+      const data = await response.json();
+
+      if (response.ok) {
+        setTeam(data);
+      } else {
+        setError(data.error || "Failed to fetch team details.");
       }
-    };
+    } catch (err) {
+      setError("An error occurred while fetching team details.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    fetchTeam();
-  }, [id]);
+  fetchTeam();
+}, [id]);
+
 
   if (loading) {
     return (
