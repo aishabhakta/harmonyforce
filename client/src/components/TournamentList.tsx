@@ -1,22 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
-  Box,
-  TextField,
-  List,
-  ListItem,
-  ListItemText,
-  Card,
-  CardContent,
-  Grid,
-  Pagination,
-  MenuItem,
-  Select,
-  SelectChangeEvent,
-  Button,
+  Box, TextField, List, ListItem, ListItemText, Card, CardContent,
+  Grid, Pagination, MenuItem, Select, SelectChangeEvent, Button
 } from "@mui/material";
-import { useNavigate } from "react-router-dom";
 
-// Define Tournament interface
 interface Tournament {
   id: number;
   name: string;
@@ -25,28 +12,33 @@ interface Tournament {
   status: "APPLY" | "VIEW";
 }
 
-// Sample Tournament Data
-const tournamentsData: Tournament[] = [
-  { id: 1, name: "Tournament A", university: "Harvard", logo: "https://via.placeholder.com/50", status: "APPLY" },
-  { id: 2, name: "Tournament B", university: "MIT", logo: "https://via.placeholder.com/50", status: "VIEW" },
-  { id: 3, name: "Tournament C", university: "Stanford", logo: "https://via.placeholder.com/50", status: "VIEW" },
-  { id: 4, name: "Tournament D", university: "Oxford", logo: "https://via.placeholder.com/50", status: "APPLY" },
-  { id: 5, name: "Tournament E", university: "Cambridge", logo: "https://via.placeholder.com/50", status: "APPLY" },
-];
-
 const ITEMS_PER_PAGE = 5;
 
 const TournamentList: React.FC = () => {
-  const navigate = useNavigate();
+  const [tournaments, setTournaments] = useState<Tournament[]>([]);
   const [search, setSearch] = useState<string>("");
   const [page, setPage] = useState<number>(1);
   const [filter, setFilter] = useState<string>("All");
 
-  // Filter and Paginate Tournaments
-  const filteredTournaments = tournamentsData.filter(
-    (tournament) =>
-      tournament.name.toLowerCase().includes(search.toLowerCase()) &&
-      (filter === "All" || tournament.university === filter)
+  useEffect(() => {
+    const fetchTournaments = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/tournament/tournaments");
+        if (!response.ok) throw new Error("Failed to fetch tournaments");
+        const data = await response.json();
+        setTournaments(data);
+      } catch (error) {
+        console.error("Error loading tournaments:", error);
+      }
+    };
+
+    fetchTournaments();
+  }, []);
+
+  const filteredTournaments = tournaments.filter(
+    (t) =>
+      t.name.toLowerCase().includes(search.toLowerCase()) &&
+      (filter === "All" || t.university === filter)
   );
 
   const paginatedTournaments = filteredTournaments.slice(
@@ -56,19 +48,15 @@ const TournamentList: React.FC = () => {
 
   return (
     <Box sx={{ width: "100%", maxWidth: "900px", margin: "auto" }}>
-      {/* Search Input */}
       <TextField
         label="Search Tournaments"
         variant="outlined"
         fullWidth
         value={search}
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-          setSearch(e.target.value)
-        }
+        onChange={(e) => setSearch(e.target.value)}
         sx={{ marginBottom: 2 }}
       />
 
-      {/* Filter Dropdown */}
       <Select
         value={filter}
         onChange={(e: SelectChangeEvent<string>) => setFilter(e.target.value)}
@@ -77,21 +65,17 @@ const TournamentList: React.FC = () => {
         fullWidth
       >
         <MenuItem value="All">All Universities</MenuItem>
-        {[...new Set(tournamentsData.map((t) => t.university))].map((univ) => (
-          <MenuItem key={univ} value={univ}>
-            {univ}
-          </MenuItem>
+        {[...new Set(tournaments.map((t) => t.university))].map((univ) => (
+          <MenuItem key={univ} value={univ}>{univ}</MenuItem>
         ))}
       </Select>
 
-      {/* Tournament List */}
       <List>
         {paginatedTournaments.map((tournament) => (
           <ListItem key={tournament.id}>
             <Card sx={{ width: "100%" }}>
               <CardContent>
                 <Grid container alignItems="center" spacing={2}>
-                  {/* Tournament Logo */}
                   <Grid item xs={2}>
                     <Box
                       component="img"
@@ -100,18 +84,12 @@ const TournamentList: React.FC = () => {
                       sx={{ width: 50, height: 50 }}
                     />
                   </Grid>
-
-                  {/* Tournament Name */}
                   <Grid item xs={6}>
                     <ListItemText primary={tournament.name} />
                   </Grid>
-
-                  {/* University */}
                   <Grid item xs={2}>
                     <ListItemText primary={tournament.university} />
                   </Grid>
-
-                  {/* Status Button */}
                   <Grid item xs={2}>
                     <Button
                       variant="contained"
@@ -141,7 +119,10 @@ const TournamentList: React.FC = () => {
     variant="contained"
     color="primary"
     sx={{ textTransform: "none", ml: 1 }}
-    onClick={() => navigate("/TournamentRegistration")}
+    onClick={() => {
+      // Replace with your actual route if needed
+      console.log("Navigate to create tournament form");
+    }}
   >
     Create Tournament
   </Button>
