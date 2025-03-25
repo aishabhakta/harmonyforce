@@ -25,6 +25,9 @@ import TournamentModerator from "./pages/TournamentModerator";
 import {PrivateRoute} from "./PrivateRoute";
 import ErrorPage from "./pages/ErrorPage";
 import ValidationPage from "./pages/ValidationPage";
+import UniversityRegistration from "./pages/UniversityRegistration";
+import TournamentRegistration from "./pages/TournamentRegistration";
+import EditProfilePage from "./pages/EditProfilePage";
 
 
 const AppContent: React.FC = () => {
@@ -88,7 +91,10 @@ const AppContent: React.FC = () => {
           <Route path="/gateway-timeout" element={<ErrorPage />} />
 
           <Route path="/faqpage" element={<FaqPage />} />
-        <Route path="/validation" element={<ValidationPage />} />
+          <Route path="/validation" element={<ValidationPage />} />
+          <Route path="/UniversityRegistration" element={<UniversityRegistration />} />
+          <Route path="/TournamentRegistration" element={<TournamentRegistration />} />
+          <Route path="/edit-profile" element={<EditProfilePage />} />
 
 
           <Route
