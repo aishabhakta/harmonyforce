@@ -19,38 +19,40 @@ const TeamMembers: React.FC<TeamMembersProps> = ({ captainId, currentUserId }) =
   const [success, setSuccess] = useState("");
 
   const handleAddMember = async () => {
-    if (!name || !email || !role) {
-      setError("Please fill in all required fields.");
-      return;
-    }
+  if (!name || !email || !role) {
+    setError("Please fill in all required fields.");
+    return;
+  }
 
-    try {
-      const response = await fetch(`http://127.0.0.1:5000/teams/addMember/${teamId}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email,
-          game_role: role,
-        }),
-      });
+  try {
+    const response = await fetch(`http://127.0.0.1:5000/teams/requestAddMember`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email,
+        team_id: teamId,
+        game_role: role,
+      }),
+    });
 
-      const data = await response.json();
+    const data = await response.json();
 
-      if (response.ok) {
-        setSuccess("Member added successfully!");
-        setError("");
-        setName("");
-        setEmail("");
-        setRole("participant");
-      } else {
-        setError(data.error || "Failed to add member.");
-        setSuccess("");
-      }
-    } catch (err) {
-      setError("An unexpected error occurred.");
+    if (response.ok) {
+      setSuccess("Member request sent for approval!");
+      setError("");
+      setName("");
+      setEmail("");
+      setRole("participant");
+    } else {
+      setError(data.error || "Failed to submit request.");
       setSuccess("");
     }
-  };
+  } catch (err) {
+    setError("An unexpected error occurred.");
+    setSuccess("");
+  }
+};
+
 
   return (
     <Box

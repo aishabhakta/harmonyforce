@@ -3,7 +3,7 @@ from flask_cors import CORS # luke add
 import psycopg2 # luke add
 from flask_sqlalchemy import SQLAlchemy
 from app.database import db
-from app.models import Team, User
+from app.models import Team, User, PendingTeamMember
 from datetime import datetime
 import os # luke add
 from werkzeug.utils import secure_filename # luke add
@@ -287,5 +287,93 @@ def upload_profile_image():
    
     return jsonify({"message": "Profile image uploaded successfully!"}), 200
 
+@team_bp.route('/requestAddMember', methods=['POST'])
+def request_add_member():
+    data = request.get_json()
+    email = data.get('email')
+    team_id = data.get('team_id')
+    game_role = data.get('game_role')
 
+    user = User.query.filter_by(email=email).first()
+    if not user:
+        return jsonify({"error": "User not registered"}), 404
 
+    if user.team_id:
+        return jsonify({"error": "User already in a team"}), 400
+
+    # Add to a pending table
+    new_request = PendingTeamMember(
+        user_id=user.user_id,
+        team_id=team_id,
+        game_role=game_role,
+        status="pending",
+        created_at=datetime.utcnow()
+    )
+    db.session.add(new_request)
+    db.session.commit()
+
+    return jsonify({"message": "Member request submitted for approval"}), 200
+
+@team_bp.route('/pendingMembers', methods=['GET'])
+def get_pending_team_members():
+    try:
+        pending_members = PendingTeamMember.query.all()
+
+        result = []
+        for member in pending_members:
+            result.append({
+                "id": member.id,
+                "email": member.email,
+                "team_id": member.team_id,
+                "game_role": member.game_role,
+                "user_id": member.user_id,
+                "status": member.status,
+                "created_at": member.created_at,
+                "updated_at": member.updated_at
+            })
+
+        return jsonify(result), 200
+
+    except Exception as e:
+        return jsonify({"error": "Failed to fetch pending members", "details": str(e)}), 500
+
+@team_bp.route('/approve-member/<int:member_id>', methods=['POST'])
+def approve_member(member_id):
+    try:
+        pending = PendingTeamMember.query.get(member_id)
+        if not pending:
+            return jsonify({"error": "Pending member not found"}), 404
+
+        user = User.query.get(pending.user_id)
+        if not user:
+            return jsonify({"error": "User not found"}), 404
+
+        # Assign the team and role
+        user.team_id = pending.team_id
+        user.game_role = pending.game_role
+        user.updated_at = datetime.utcnow()
+
+        db.session.delete(pending)
+        db.session.commit()
+
+        return jsonify({"message": "Member approved and added to team"}), 200
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": "Failed to approve member", "details": str(e)}), 500
+
+@team_bp.route('/reject-member/<int:member_id>', methods=['POST'])
+def reject_member(member_id):
+    try:
+        pending = PendingTeamMember.query.get(member_id)
+        if not pending:
+            return jsonify({"error": "Pending member not found"}), 404
+
+        db.session.delete(pending)
+        db.session.commit()
+
+        return jsonify({"message": "Member request rejected"}), 200
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": "Failed to reject member", "details": str(e)}), 500

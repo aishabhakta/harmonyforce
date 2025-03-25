@@ -11,6 +11,7 @@ import {
   Grid,
   Button
 } from "@mui/material";
+import { useAuth } from "../AuthProvider"; // Make sure this path is correct
 
 interface Player {
   user_id: number;
@@ -31,6 +32,11 @@ const PlayerPage: React.FC = () => {
   const [player, setPlayer] = useState<Player | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+
+  const { user } = useAuth(); // Get current logged-in user
+
+  const isPrivileged =
+    user && ["aardvarkstaff", "superadmin", "tournymod"].includes(user.role || "");
 
   useEffect(() => {
     if (!playerId) {
@@ -72,9 +78,6 @@ const PlayerPage: React.FC = () => {
   }
 
   if (!player) return null;
-
-  const isPrivileged =
-    ["Aardvark Support Staff", "superadmin", "University Tournament Moderator"].includes(player.role);
 
   return (
     <Box
@@ -121,13 +124,13 @@ const PlayerPage: React.FC = () => {
                   Date Joined: {player.date_joined || "Unknown"}
                 </Typography>
 
-                {/* {isPrivileged && ( */}
+                {isPrivileged && (
                   <Box sx={{ mt: 2 }}>
                     <Button variant="contained" href="/validation">
                       Go to Validation Page
                     </Button>
                   </Box>
-                {/* )} */}
+                )}
               </CardContent>
             </Card>
 

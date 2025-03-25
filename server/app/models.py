@@ -33,6 +33,7 @@ class User(db.Model):
     updated_at = db.Column(db.Date, default=datetime.utcnow, onupdate=datetime.utcnow)
     status = db.Column(db.Integer, default=1)
     blacklisted = db.Column(db.Integer, default=0)
+    university_id = db.Column(db.Integer, db.ForeignKey('aardvark.universities.university_id'), nullable=True)
 
 class TeamRequest(db.Model):
     __tablename__ = 'team_requests'
@@ -111,3 +112,30 @@ class Payment(db.Model):
 
     def __repr__(self):
         return f"<Payment {self.email} - {self.status}>"
+
+# models.py
+class PendingRegistration(db.Model):
+    __tablename__ = 'pending_registrations'
+    __table_args__ = {'schema': 'aardvark'}
+
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(45))
+    email = db.Column(db.String(45), unique=True)
+    password_hash = db.Column(db.String(255))
+    role = db.Column(db.String(45))
+    university = db.Column(db.String(255))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+# models.py
+class PendingTeamMember(db.Model):
+    __tablename__ = 'pending_team_members'
+    __table_args__ = {'schema': 'aardvark'}
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    email = db.Column(db.String(100), nullable=False)
+    team_id = db.Column(db.Integer, nullable=False)
+    game_role = db.Column(db.String(100), nullable=True)
+    user_id = db.Column(db.Integer, nullable=True)  # ✅ Add this line
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow) 
+    status = db.Column(db.Integer, default='pending')  # 0 = Pending, 1 = Approved, 2 = Rejected

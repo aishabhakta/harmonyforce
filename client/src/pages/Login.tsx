@@ -83,7 +83,7 @@ export default function Login() {
                     setTimeout(() => navigate("/support"), 1000);
                     break;
                 case "captain":
-                    setTimeout(() => navigate("/team/captain"), 1000);
+                    setTimeout(() => navigate("/team"), 1000);
                     break;
                 case "participant":
                     setTimeout(() => navigate("/"), 1000);

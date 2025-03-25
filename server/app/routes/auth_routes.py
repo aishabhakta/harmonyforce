@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from app.database import db  
 from app import bcrypt 
-from app.models import User
+from app.models import User, PendingRegistration
 from datetime import datetime, timedelta
 import jwt
 import os
@@ -20,40 +20,28 @@ blacklisted_tokens = set()
 @auth_bp.route('/register', methods=['POST'])
 def register():
     data = request.get_json()
+    required_fields = ['username', 'email', 'password', 'role', 'university']
+    if not all(field in data for field in required_fields):
+        return jsonify({"error": "Missing required fields"}), 400
 
-    # logging.info(f"Received data: {data}")  # Debugging: Log received data
+    # Check if already exists
+    if User.query.filter_by(email=data['email']).first() or \
+       PendingRegistration.query.filter_by(email=data['email']).first():
+        return jsonify({"error": "Email already exists or is pending approval"}), 409
 
-    if not data:
-        return jsonify({"error": "Invalid or missing JSON payload"}), 400
-
-    required_fields = ['username', 'email', 'password', 'role']
-    missing_fields = [field for field in required_fields if field not in data]
-
-    if missing_fields:
-        return jsonify({"error": f"Missing fields: {', '.join(missing_fields)}"}), 400
-
-    # Check if the email already exists
-    if User.query.filter_by(email=data['email']).first():
-        return jsonify({"error": "Email already exists"}), 400
-
-    # Hash the password
     hashed_password = bcrypt.generate_password_hash(data['password']).decode('utf-8')
 
-    # Create the new user
-    new_user = User(
-        team_id=None,
+    pending = PendingRegistration(
         username=data['username'],
         email=data['email'],
         password_hash=hashed_password,
-        user_type=data['role'],
-        status=1,
-        blacklisted=0
+        role=data['role'],
+        university=data['university']
     )
-
-    db.session.add(new_user)
+    db.session.add(pending)
     db.session.commit()
 
-    return jsonify({"message": "User registered successfully!"}), 201
+    return jsonify({"message": "Registration submitted for validation!"}), 201
 
 # User Login
 @auth_bp.route('/login', methods=['POST'])
@@ -89,3 +77,48 @@ def logout():
         blacklisted_tokens.add(token)  # Add token to blacklist
     
     return jsonify({"message": "Logout successful!"}), 200
+
+@auth_bp.route('/pending-registrations', methods=['GET'])
+def get_pending():
+    pendings = PendingRegistration.query.all()
+    return jsonify([{
+        "id": p.id,
+        "username": p.username,
+        "email": p.email,
+        "role": p.role,
+        "university": p.university,
+    } for p in pendings])
+
+@auth_bp.route('/approve-registration/<int:pending_id>', methods=['POST'])
+def approve_user(pending_id):
+    pending = PendingRegistration.query.get(pending_id)
+    if not pending:
+        return jsonify({"error": "Not found"}), 404
+
+    user = User(
+        username=pending.username,
+        email=pending.email,
+        password_hash=pending.password_hash,
+        user_type=pending.role,
+        university_id=None,  # Map based on name if needed
+        status=1,
+        blacklisted=0,
+        created_at=datetime.utcnow()
+    )
+    db.session.add(user)
+    db.session.delete(pending)
+    db.session.commit()
+
+    return jsonify({"message": "User approved and registered!"}), 201
+
+@auth_bp.route('/reject-registration/<int:pending_id>', methods=['POST'])
+def reject_user(pending_id):
+    pending = db.session.get(PendingRegistration, pending_id)
+    if not pending:
+        return jsonify({"error": "User not found"}), 404
+
+    db.session.delete(pending)
+    db.session.commit()
+
+    return jsonify({"message": "User registration rejected and removed."}), 200
+
