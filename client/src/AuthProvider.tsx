@@ -5,6 +5,7 @@ interface User {
   displayName?: string;
   photoURL?: string;
   token?: string;
+  role?: string;
 }
 
 interface AuthContextType {
@@ -12,20 +13,17 @@ interface AuthContextType {
   setUser: React.Dispatch<React.SetStateAction<User | null>>;
 }
 
-const AuthContext = createContext<AuthContextType>({
-  user: null,
-  setUser: () => {},
-});
+export const AuthContext = createContext<AuthContextType | undefined>(undefined);  // Explicit Export
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
 
-  // On initial load, rehydrate user state from localStorage
   useEffect(() => {
     const token = localStorage.getItem("session_token");
     const email = localStorage.getItem("user_email");
     const displayName = localStorage.getItem("user_displayName");
     const photoURL = localStorage.getItem("user_photoURL");
+    const role = localStorage.getItem("user_role");
 
     if (token && email) {
       setUser({
@@ -33,6 +31,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         email, 
         displayName: displayName || undefined,
         photoURL: photoURL || undefined,
+        role: role || undefined,
       });
     }
   }, []);
@@ -44,4 +43,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   );
 };
 
-export const useAuth = () => useContext(AuthContext);
+// Fix: Export useAuth Hook
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("useAuth must be used within an AuthProvider");
+  }
+  return context;
+};

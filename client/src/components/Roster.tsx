@@ -1,18 +1,25 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { Button } from "@mui/material";
 
 interface TeamMember {
-  id: string; // Unique ID for the player
+  id: string;
   name: string;
   role: string;
+  game_role: string;
   imageUrl: string;
+  isCaptain?: boolean;
 }
 
 interface RosterProps {
   members: TeamMember[];
+  captain?: TeamMember;
+  teamId?: number; // Add this if you want dynamic routing for Edit button
 }
 
-const Roster: React.FC<RosterProps> = ({ members }) => {
+const Roster: React.FC<RosterProps> = ({ members, captain, teamId }) => {
+  const allMembers = captain ? [captain, ...members] : members;
+
   return (
     <div
       style={{
@@ -23,6 +30,19 @@ const Roster: React.FC<RosterProps> = ({ members }) => {
         margin: 0,
       }}
     >
+      {/* Edit Button */}
+      <div style={{ display: "flex", justifyContent: "start", marginBottom: "1.5rem" }}>
+        <Link to={`/team/${teamId}/editTeam`} style={{ textDecoration: "none" }}>
+          <Button variant="contained" color="primary" sx={{ textTransform: "none" }}>Edit Team</Button>
+        </Link>
+      </div>
+
+      <div style={{ display: "flex", justifyContent: "start", marginBottom: "1.5rem" }}>
+        <Button variant="contained" color="primary" sx={{ textTransform: "none" }}>
+          Request to Join
+        </Button>
+      </div>
+
       <h3
         style={{
           fontSize: "2rem",
@@ -39,6 +59,7 @@ const Roster: React.FC<RosterProps> = ({ members }) => {
       >
         Roster
       </h3>
+
       <div
         style={{
           display: "grid",
@@ -48,14 +69,11 @@ const Roster: React.FC<RosterProps> = ({ members }) => {
           margin: "0 auto",
         }}
       >
-        {members.map((member) => (
+        {allMembers.map((member) => (
           <Link
             key={member.id}
-            to={`/player/${member.id}`} // Dynamic link to the player's profile page
-            style={{
-              textDecoration: "none", // Remove default link styling
-              color: "inherit", // Inherit text color
-            }}
+            to={`/player/${member.id}`}
+            style={{ textDecoration: "none", color: "inherit" }}
           >
             <div
               style={{
@@ -65,6 +83,7 @@ const Roster: React.FC<RosterProps> = ({ members }) => {
                 boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
                 transition: "transform 0.2s",
                 cursor: "pointer",
+                border: member.isCaptain ? "2px solid #1976d2" : "none",
               }}
             >
               <div
@@ -90,9 +109,19 @@ const Roster: React.FC<RosterProps> = ({ members }) => {
                     fontSize: "1rem",
                     color: "#666",
                     marginTop: "0.5rem",
+                    fontWeight: member.isCaptain ? "bold" : "normal",
                   }}
                 >
-                  {member.role}
+                  {member.isCaptain ? "Team Captain" : member.role}
+                </p>
+                <p
+                  style={{
+                    fontSize: "0.9rem",
+                    color: "#888",
+                    marginTop: "0.2rem",
+                  }}
+                >
+                  {member.game_role}
                 </p>
               </div>
             </div>
