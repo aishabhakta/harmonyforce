@@ -8,6 +8,7 @@ from app.database import db, migrate, bcrypt
 
 # Import blueprints registration function
 from app.routes import register_blueprints
+from app.payments.payments_init import create_payments_app
 
 # Load environment variables
 load_dotenv()
@@ -28,5 +29,6 @@ def create_app():
 
     # Register all blueprints
     register_blueprints(app)
+    create_payments_app()
 
     return app

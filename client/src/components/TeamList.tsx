@@ -31,14 +31,14 @@ interface TeamListProps {
 // Toggle this to `true` to use dummy data if using the backend switch true to false 
 const USE_DUMMY_DATA = true;
 
-const dummyTeams: Team[] = [
-  { team_id: 1, team_name: "Team Alpha", university_id: 101, profile_image: "https://via.placeholder.com/50" },
-  { team_id: 2, team_name: "Team Beta", university_id: 101, profile_image: "https://via.placeholder.com/50" },
-  { team_id: 3, team_name: "Team Gamma", university_id: 102, profile_image: "https://via.placeholder.com/50" },
-  { team_id: 4, team_name: "Team Delta", university_id: 103, profile_image: "https://via.placeholder.com/50" },
-  { team_id: 5, team_name: "Team Epsilon", university_id: 102, profile_image: "https://via.placeholder.com/50" },
-  { team_id: 6, team_name: "Team Zeta", university_id: 101, profile_image: "https://via.placeholder.com/50" },
-];
+// const dummyTeams: Team[] = [
+//   { team_id: 1, team_name: "Team Alpha", university_id: 101, profile_image: "https://via.placeholder.com/50" },
+//   { team_id: 2, team_name: "Team Beta", university_id: 101, profile_image: "https://via.placeholder.com/50" },
+//   { team_id: 3, team_name: "Team Gamma", university_id: 102, profile_image: "https://via.placeholder.com/50" },
+//   { team_id: 4, team_name: "Team Delta", university_id: 103, profile_image: "https://via.placeholder.com/50" },
+//   { team_id: 5, team_name: "Team Epsilon", university_id: 102, profile_image: "https://via.placeholder.com/50" },
+//   { team_id: 6, team_name: "Team Zeta", university_id: 101, profile_image: "https://via.placeholder.com/50" },
+// ];
 
 const ITEMS_PER_PAGE = 5;
 
@@ -56,19 +56,14 @@ const TeamList: React.FC<TeamListProps> = ({ universityId }) => {
       setError(null);
 
       try {
-        if (USE_DUMMY_DATA) {
-          // Use dummy data
-          setTeams(dummyTeams);
-        } else {
-          // Fetch from backend
-          const response = await fetch("http://127.0.0.1:5000/teams/getAllTeams");
-          const data = await response.json();
+        // Fetch from backend
+        const response = await fetch("http://127.0.0.1:5000/teams/getAllTeams");
+        const data = await response.json();
 
-          if (response.ok) {
-            setTeams(data.teams);
-          } else {
-            setError(data.error || "Failed to fetch teams");
-          }
+        if (response.ok) {
+          setTeams(data.teams);
+        } else {
+          setError(data.error || "Failed to fetch teams");
         }
       } catch (err) {
         setError("An error occurred while loading teams.");

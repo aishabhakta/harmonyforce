@@ -71,7 +71,7 @@ export default function Login() {
             // Redirect based on role
             switch (data.role) {
                 case "superadmin":
-                    setTimeout(() => navigate("/admin"), 1000);
+                    setTimeout(() => navigate("/validation"), 1000);
                     break;
                 case "tournymod":
                     setTimeout(() => navigate("/tournament/moderator"), 1000);
