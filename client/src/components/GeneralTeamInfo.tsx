@@ -5,7 +5,7 @@ const GeneralTeamInfo: React.FC = () => {
   const [teamName, setTeamName] = useState("");
   const [teamLeaderName, setTeamLeaderName] = useState("");
   const [teamLeaderEmail, setTeamLeaderEmail] = useState("");
-  const [profileImage, setProfileImage] = useState(""); // Placeholder for image URL or base64 string
+  const [profileImage] = useState(""); // Placeholder for image URL or base64 string
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -16,7 +16,7 @@ const GeneralTeamInfo: React.FC = () => {
       captain_email: teamLeaderEmail,
       university_id: 1, // Adjust as necessary
       profile_image: profileImage,
-      members: [] // Leaving members empty for now
+      members: [], // Leaving members empty for now
     };
 
     try {
@@ -27,7 +27,7 @@ const GeneralTeamInfo: React.FC = () => {
         },
         body: JSON.stringify(payload),
       });
-      
+
       if (!response.ok) {
         const errorData = await response.json();
         console.error("Error registering team:", errorData);

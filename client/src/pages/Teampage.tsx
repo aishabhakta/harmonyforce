@@ -1,11 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useSearchParams, Link } from "react-router-dom";
-import {
-  Box,
-  CircularProgress,
-  Alert,
-  Typography,
-} from "@mui/material";
+import { useParams, useSearchParams } from "react-router-dom";
+import { Box, CircularProgress, Alert } from "@mui/material";
 import TeamHeader from "../components/TeamHeader";
 import Roster from "../components/Roster";
 
@@ -44,72 +39,71 @@ const TeamPage: React.FC = () => {
 
   const [searchParams] = useSearchParams();
   const USE_DUMMY_DATA = searchParams.get("dummy") === "true";
-  
 
-const dummyTeam: Team = {
-  team_id: 1,
-  team_name: "Team Alpha",
-  university_id: 101,
-  university_name: "Cornell University",
-  profile_image: "https://via.placeholder.com/150",
-  description: "A team of explorers and scientists.",
-  captain: {
-    user_id: 1,
-    name: "Alice Smith",
-    email: "alice@example.com",
-    imageUrl: "https://via.placeholder.com/150",
-    game_role: "Expedition Leader",
-  },
-  members: [
-    {
-      user_id: 2,
-      id: 2,
-      name: "Bob Johnson",
-      email: "bob@example.com",
-      role: "Member",
-      game_role: "Technician",
+  const dummyTeam: Team = {
+    team_id: 1,
+    team_name: "Team Alpha",
+    university_id: 101,
+    university_name: "Cornell University",
+    profile_image: "https://via.placeholder.com/150",
+    description: "A team of explorers and scientists.",
+    captain: {
+      user_id: 1,
+      name: "Alice Smith",
+      email: "alice@example.com",
       imageUrl: "https://via.placeholder.com/150",
+      game_role: "Expedition Leader",
     },
-    {
-      user_id: 3,
-      id: 3,
-      name: "Carol Lee",
-      email: "carol@example.com",
-      role: "Member",
-      game_role: "Scientist",
-      imageUrl: "https://via.placeholder.com/150",
-    },
-  ],
-};
-
-
-useEffect(() => {
-  const fetchTeam = async () => {
-    if (USE_DUMMY_DATA && id === "1") {
-      setTeam(dummyTeam);
-      setLoading(false);
-      return;
-    }
-
-    try {
-      const response = await fetch(`http://127.0.0.1:5000/teams/getTeam/${id}`);
-      const data = await response.json();
-
-      if (response.ok) {
-        setTeam(data);
-      } else {
-        setError(data.error || "Failed to fetch team details.");
-      }
-    } catch (err) {
-      setError("An error occurred while fetching team details.");
-    } finally {
-      setLoading(false);
-    }
+    members: [
+      {
+        user_id: 2,
+        id: 2,
+        name: "Bob Johnson",
+        email: "bob@example.com",
+        role: "Member",
+        game_role: "Technician",
+        imageUrl: "https://via.placeholder.com/150",
+      },
+      {
+        user_id: 3,
+        id: 3,
+        name: "Carol Lee",
+        email: "carol@example.com",
+        role: "Member",
+        game_role: "Scientist",
+        imageUrl: "https://via.placeholder.com/150",
+      },
+    ],
   };
 
-  fetchTeam();
-}, [id, USE_DUMMY_DATA]);
+  useEffect(() => {
+    const fetchTeam = async () => {
+      if (USE_DUMMY_DATA && id === "1") {
+        setTeam(dummyTeam);
+        setLoading(false);
+        return;
+      }
 
+      try {
+        const response = await fetch(
+          `http://127.0.0.1:5000/teams/getTeam/${id}`
+        );
+        const data = await response.json();
+
+        if (response.ok) {
+          setTeam(data);
+        } else {
+          setError(data.error || "Failed to fetch team details.");
+        }
+      } catch (err) {
+        setError("An error occurred while fetching team details.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTeam();
+  }, [id, USE_DUMMY_DATA]);
 
   if (loading) {
     return (
@@ -138,7 +132,9 @@ useEffect(() => {
       {/* Team Header */}
       <TeamHeader
         teamName={team.team_name}
-        universityName={team.university_name || `University ID: ${team.university_id}`}
+        universityName={
+          team.university_name || `University ID: ${team.university_id}`
+        }
         description={team.description || "No description available."}
       />
 
@@ -153,15 +149,18 @@ useEffect(() => {
             game_role: member.game_role,
             imageUrl: member.imageUrl || "https://via.placeholder.com/150",
           }))}
-          captain={team.captain
-            ? {
-                id: team.captain.user_id?.toString() || "0",
-                name: team.captain.name || "Unknown Captain",
-                role: "Team Captain",
-                game_role: team.captain.game_role || "Expedition Leader",
-                imageUrl: team.captain.imageUrl || "https://via.placeholder.com/150",
-              }
-            : undefined}
+          captain={
+            team.captain
+              ? {
+                  id: team.captain.user_id?.toString() || "0",
+                  name: team.captain.name || "Unknown Captain",
+                  role: "Team Captain",
+                  game_role: team.captain.game_role || "Expedition Leader",
+                  imageUrl:
+                    team.captain.imageUrl || "https://via.placeholder.com/150",
+                }
+              : undefined
+          }
         />
       </Box>
     </Box>

@@ -4,7 +4,7 @@ import {
   Routes,
   Route,
   useLocation,
-  Navigate,
+  // Navigate,
 } from "react-router-dom";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -15,19 +15,19 @@ import Playerpage from "./pages/Playerpage";
 import TeamRegistration from "./pages/TeamRegistration";
 import NavigationBar from "./components/Navigation";
 import Footer from "./components/Footer";
-import { AuthProvider, useAuth } from "./AuthProvider";
+import { AuthProvider } from "./AuthProvider";
 import TeamSearchPage from "./pages/TeamSearchpage";
 import UniversitySearchPage from "./pages/UniversitySearchPage";
 import UniversityPage from "./pages/Universitypage";
 import TournamentSearchpage from "./pages/TournamentSearchpage";
-import CheckoutForm from "./pages/CheckoutForm";
+// import CheckoutForm from "./pages/CheckoutForm";
 import Success from "./pages/Success";
 import Cancel from "./pages/Cancel";
-import { Elements } from "@stripe/react-stripe-js";
-import { loadStripe } from "@stripe/stripe-js";
+// import { Elements } from "@stripe/react-stripe-js";
+// import { loadStripe } from "@stripe/stripe-js";
 import FaqPage from "./pages/faqpage";
 import AdminDashboard from "./pages/AdminDashboard";
-import TournamentModerator from "./pages/TournamentModerator";
+// import TournamentModerator from "./pages/TournamentModerator";
 import { PrivateRoute } from "./PrivateRoute";
 import ErrorPage from "./pages/ErrorPage";
 import ValidationPage from "./pages/ValidationPage";
@@ -41,7 +41,7 @@ import ViewerSignUpPage from "./pages/ViewerSignUpPage";
 
 const AppContent: React.FC = () => {
   const location = useLocation();
-  const { user } = useAuth();
+  // const { user } = useAuth();
 
   // // Only show admin dashboard if user is admin, hide everything else
   // if (user?.role === "superadmin") {
@@ -61,9 +61,9 @@ const AppContent: React.FC = () => {
     "/404",
   ].includes(location.pathname);
 
-  const stripePromise = loadStripe(
-    "pk_test_51QtzIzRs2kvuUjpRcFD95L5g9qisHKIwua7Scho2hwOfTZDVODAMxEZGDFOsu0gdPbKoN0pZhSgW0QqAZc6CqLe8003zbdmLbK"
-  );
+  // const stripePromise = loadStripe(
+  //   "pk_test_51QtzIzRs2kvuUjpRcFD95L5g9qisHKIwua7Scho2hwOfTZDVODAMxEZGDFOsu0gdPbKoN0pZhSgW0QqAZc6CqLe8003zbdmLbK"
+  // );
 
   return (
     <>
