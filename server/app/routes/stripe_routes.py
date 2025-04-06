@@ -2,8 +2,10 @@ from flask import Blueprint, request, jsonify
 from app.payments.stripe_service import create_payment_intent
 from app.database import db
 from app.models import Payment
+from flask_cors import CORS 
 
 stripe_bp = Blueprint('stripe', __name__)
+CORS(stripe_bp, origins=["http://localhost:5173"])
 
 @stripe_bp.route('/create-payment-intent', methods=['POST'])
 def create_payment():
