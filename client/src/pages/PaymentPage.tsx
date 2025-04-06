@@ -2,8 +2,9 @@
 import React, { useEffect, useState } from "react";
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
-import CheckoutForm from "./CheckoutForm";
 import type { StripeElementsOptions } from "@stripe/stripe-js";
+import { Box, Typography, CircularProgress, Grid, Paper } from "@mui/material";
+import CheckoutForm from "./CheckoutForm";
 
 const stripePromise = loadStripe(
   import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY ||
@@ -26,34 +27,70 @@ const PaymentPage: React.FC = () => {
   const appearance = { theme: "stripe" } as const;
   const options: StripeElementsOptions = { clientSecret, appearance };
 
-  return (
-    <div className="bg-gray-100 min-h-screen flex justify-center items-center">
-      {!clientSecret ? (
-        <div className="text-gray-500 text-lg">Loading payment details...</div>
-      ) : (
-        <div className="w-full max-w-6xl h-full bg-white shadow-xl rounded-xl grid grid-cols-1 md:grid-cols-2 overflow-hidden">
-          {/* Left side - Info */}
-          <div className="bg-white p-12 flex flex-col justify-center">
-            <div className="max-w-md">
-              <h1 className="text-3xl font-bold mb-4">Register your placement in your team</h1>
-              <p className="text-4xl font-extrabold text-gray-900 mb-4">$10.00</p>
-              <p className="text-sm text-gray-600 leading-relaxed">
-                In order to participate in the upcoming tournament games, you’ll need to pay a one-time registration fee.
-              </p>
-            </div>
-          </div>
+  if (!clientSecret) {
+    return (
+      <Box
+        minHeight="100vh"
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        bgcolor="#f5f5f5"
+      >
+        <CircularProgress />
+        <Typography sx={{ ml: 2 }}>Loading payment details...</Typography>
+      </Box>
+    );
+  }
 
-          {/* Right side - Payment */}
-          <div className="bg-gray-50 flex justify-center items-center p-12">
-            <div className="w-full max-w-sm">
-              <Elements stripe={stripePromise} options={options}>
-                <CheckoutForm />
-              </Elements>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+  return (
+    <Box
+      minHeight="100vh"
+      display="flex"
+      justifyContent="center"
+      alignItems="center"
+      bgcolor="#f5f5f5"
+      px={2}
+    >
+      <Paper
+        elevation={6}
+        sx={{
+          display: "grid",
+          gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" },
+          width: "100%",
+          maxWidth: "1000px",
+          overflow: "hidden",
+          borderRadius: 3,
+        }}
+      >
+        {/* Left Side - Info */}
+        <Box p={4} display="flex" flexDirection="column" justifyContent="center">
+          <Typography variant="h4" fontWeight="bold" gutterBottom>
+            Register your placement in your team
+          </Typography>
+          <Typography variant="h3" fontWeight="bold" color="primary" gutterBottom>
+            $10.00
+          </Typography>
+          <Typography variant="body1" color="text.secondary">
+            In order to participate in the upcoming tournament games, you’ll need to pay a one-time registration fee.
+          </Typography>
+        </Box>
+
+        {/* Right Side - Stripe Payment Form */}
+        <Box
+          bgcolor="#fafafa"
+          p={4}
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+        >
+          <Box width="100%" maxWidth="400px">
+            <Elements stripe={stripePromise} options={options}>
+              <CheckoutForm />
+            </Elements>
+          </Box>
+        </Box>
+      </Paper>
+    </Box>
   );
 };
 

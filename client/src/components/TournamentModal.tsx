@@ -13,6 +13,8 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import { Match, Tournament } from "./dummyData/dummyTournaments";
 import { Link } from "react-router-dom";
+import RegisterButton from "../components/RegisterButton"; // adjust path if needed
+
 
 interface TournamentModalProps {
   open: boolean;
@@ -113,16 +115,15 @@ const TournamentModal: React.FC<TournamentModalProps> = ({
           {otherMatches.map(renderMatch)}
         </Box>
         {tournament.name === "A New World Tournament" && (
-          <Box mt={4} textAlign="center">
+          <Box mt={4} textAlign="center" display="flex" flexDirection="column" gap={2} alignItems="center">
             <Link to="/tournaments/bracket" style={{ textDecoration: "none" }}>
-              <Button
-                variant="contained"
-                color="primary"
-                sx={{ marginTop: "2rem" }}
-              >
+              <Button variant="contained" color="primary">
                 Go to Tournament Bracket
               </Button>
             </Link>
+
+            <RegisterButton />
+
           </Box>
         )}
       </DialogContent>

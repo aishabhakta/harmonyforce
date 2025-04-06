@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useStripe, useElements, PaymentElement } from "@stripe/react-stripe-js";
 import { useNavigate } from "react-router-dom";
+import { Box, Button, Typography, Paper, CircularProgress } from "@mui/material";
 
 const CheckoutForm: React.FC = () => {
   const stripe = useStripe();
@@ -18,9 +19,7 @@ const CheckoutForm: React.FC = () => {
     const { error } = await stripe.confirmPayment({
       elements,
       confirmParams: {
-        return_url: `${window.location.origin}/success`
-        // return_url: "https://yourdomain.com/success"
-
+        return_url: `${window.location.origin}/success`,
       },
     });
 
@@ -32,19 +31,35 @@ const CheckoutForm: React.FC = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="bg-white border border-gray-300 p-4 rounded">
+    <Box component="form" onSubmit={handleSubmit} sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+      <Paper variant="outlined" sx={{ padding: 2 }}>
         <PaymentElement />
-      </div>
-      <button
+      </Paper>
+
+      <Button
         type="submit"
+        variant="contained"
+        color="primary"
+        fullWidth
         disabled={!stripe || loading}
-        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded"
+        sx={{ fontWeight: "bold", textTransform: "none", py: 1.5 }}
       >
-        {loading ? "Processing..." : "Pay"}
-      </button>
-      {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
-    </form>
+        {loading ? (
+          <>
+            <CircularProgress size={20} color="inherit" sx={{ mr: 1 }} />
+            Processing...
+          </>
+        ) : (
+          "Pay"
+        )}
+      </Button>
+
+      {error && (
+        <Typography color="error" variant="body2">
+          {error}
+        </Typography>
+      )}
+    </Box>
   );
 };
 
