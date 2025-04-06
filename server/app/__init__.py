@@ -29,6 +29,6 @@ def create_app():
 
     # Register all blueprints
     register_blueprints(app)
-    create_payments_app()
+    create_payments_app(app)
 
     return app
