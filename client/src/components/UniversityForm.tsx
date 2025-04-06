@@ -5,30 +5,39 @@ const UniversityForm: React.FC = () => {
   const [name, setName] = useState("");
   const [bio, setBio] = useState("");
   const [link, setLink] = useState("");
-  const [image, setImage] = useState<File | null>(null);
+  const [, setImage] = useState<File | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    const formData = new FormData();
-    formData.append("name", name);
-    formData.append("bio", bio);
-    formData.append("link", link);
-    if (image) formData.append("image", image);
-
+  
     try {
-      const response = await fetch("http://localhost:5000/registerUniversity", {
+      const response = await fetch("http://localhost:5000/university/register", {
         method: "POST",
-        body: formData,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          university_name: name,
+          description: bio,
+          university_image: link, // You are using a URL input for the image
+        }),
       });
-
+  
       if (!response.ok) throw new Error("Failed to register university.");
       const data = await response.json();
       console.log("University registered:", data);
+      alert("University registered successfully!");
+      // Optionally clear the fields:
+      setName("");
+      setBio("");
+      setLink("");
+      setImage(null);
     } catch (error) {
       console.error("Error:", error);
+      alert("Error registering university.");
     }
   };
+  
 
   return (
     <Box

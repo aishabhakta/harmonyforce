@@ -6,7 +6,7 @@ from datetime import datetime
 tournament_bp = Blueprint('tournament', __name__)
 
 # Function to create a tournament
-@tournament_bp.route('/tournament/create', methods=['POST'])
+@tournament_bp.route('/create', methods=['POST'])
 def create_tournament():
     data = request.get_json()
 
@@ -49,7 +49,7 @@ def create_tournament():
 
 
 # Tournament getter function
-@tournament_bp.route('/tournament/<int:tournament_id>', methods=['GET'])
+@tournament_bp.route('/<int:tournament_id>', methods=['GET'])
 def get_tournament(tournament_id):
     tournament = Tournament.query.get(tournament_id)
 
@@ -68,7 +68,7 @@ def get_tournament(tournament_id):
 
 
 # Tournament update function
-@tournament_bp.route('/tournament/<int:tournament_id>', methods=['PUT'])
+@tournament_bp.route('/<int:tournament_id>', methods=['PUT'])
 def update_tournament(tournament_id):
     data = request.get_json()
     tournament = Tournament.query.get(tournament_id)
@@ -254,7 +254,7 @@ def get_total_tournament_statistics():
 
 
 # Function to get tournament statistics with optional date range filtering
-@tournament_bp.route('/tournament/statistics', methods=['GET'])
+@tournament_bp.route('/statistics', methods=['GET'])
 def get_tournament_statistics():
     start_date = request.args.get('start_date')
     end_date = request.args.get('end_date')

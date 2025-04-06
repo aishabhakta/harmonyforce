@@ -56,11 +56,13 @@ export default function Login() {
 
         const data = await response.json();
         if (response.ok) {
+            localStorage.setItem("user_id", data.user_id);
             localStorage.setItem("session_token", data.token);
             localStorage.setItem("user_email", data.email);
             localStorage.setItem("user_role", data.role || "general"); // Store role
 
             setUser({
+                // id: data.user_id,
                 email: data.email,
                 token: data.token,
                 role: data.role || "general",
