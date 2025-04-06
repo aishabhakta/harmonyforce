@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, useSearchParams, Link } from "react-router-dom";
 import {
   Box,
   CircularProgress,
@@ -42,7 +42,9 @@ const TeamPage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  const USE_DUMMY_DATA = false;
+  const [searchParams] = useSearchParams();
+  const USE_DUMMY_DATA = searchParams.get("dummy") === "true";
+  
 
 const dummyTeam: Team = {
   team_id: 1,
@@ -83,7 +85,7 @@ const dummyTeam: Team = {
 
 useEffect(() => {
   const fetchTeam = async () => {
-    if (USE_DUMMY_DATA) {
+    if (USE_DUMMY_DATA && id === "1") {
       setTeam(dummyTeam);
       setLoading(false);
       return;
@@ -106,7 +108,7 @@ useEffect(() => {
   };
 
   fetchTeam();
-}, [id]);
+}, [id, USE_DUMMY_DATA]);
 
 
   if (loading) {

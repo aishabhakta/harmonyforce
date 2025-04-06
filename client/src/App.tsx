@@ -36,6 +36,8 @@ import TournamentRegistration from "./pages/TournamentRegistration";
 import EditProfilePage from "./pages/EditProfilePage";
 import PaymentPage from "./pages/PaymentPage";
 import TournamentBracket from "./pages/TournamentBracket/TournamentBracket";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import ViewerSignUpPage from "./pages/ViewerSignUpPage";
 
 const AppContent: React.FC = () => {
   const location = useLocation();
@@ -91,6 +93,7 @@ const AppContent: React.FC = () => {
         <Route path="/universities" element={<UniversitySearchPage />} />
         <Route path="/university/:universityId" element={<UniversityPage />} />
         <Route path="/tournaments" element={<TournamentSearchpage />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
 
         {/* Protected Admin Route */}
         <Route element={<PrivateRoute allowedRoles={["superadmin"]} />}>
@@ -131,6 +134,7 @@ const AppContent: React.FC = () => {
           /> */}
         <Route path="/success" element={<Success />} />
         <Route path="/cancel" element={<Cancel />} />
+        <Route path="/viewregister" element={<ViewerSignUpPage />} />
       </Routes>
 
       {!hideNavigationAndFooter && <Footer />}

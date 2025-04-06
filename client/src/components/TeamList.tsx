@@ -29,16 +29,16 @@ interface TeamListProps {
 }
 
 // Toggle this to `true` to use dummy data if using the backend switch true to false 
-const USE_DUMMY_DATA = true;
+const USE_DUMMY_DATA = false;
 
-// const dummyTeams: Team[] = [
-//   { team_id: 1, team_name: "Team Alpha", university_id: 101, profile_image: "https://via.placeholder.com/50" },
-//   { team_id: 2, team_name: "Team Beta", university_id: 101, profile_image: "https://via.placeholder.com/50" },
-//   { team_id: 3, team_name: "Team Gamma", university_id: 102, profile_image: "https://via.placeholder.com/50" },
-//   { team_id: 4, team_name: "Team Delta", university_id: 103, profile_image: "https://via.placeholder.com/50" },
-//   { team_id: 5, team_name: "Team Epsilon", university_id: 102, profile_image: "https://via.placeholder.com/50" },
-//   { team_id: 6, team_name: "Team Zeta", university_id: 101, profile_image: "https://via.placeholder.com/50" },
-// ];
+const dummyTeams: Team[] = [
+  { team_id: 1, team_name: "Team Alpha", university_id: 101, profile_image: "https://via.placeholder.com/50" },
+  { team_id: 2, team_name: "Team Beta", university_id: 101, profile_image: "https://via.placeholder.com/50" },
+  { team_id: 3, team_name: "Team Gamma", university_id: 102, profile_image: "https://via.placeholder.com/50" },
+  { team_id: 4, team_name: "Team Delta", university_id: 103, profile_image: "https://via.placeholder.com/50" },
+  { team_id: 5, team_name: "Team Epsilon", university_id: 102, profile_image: "https://via.placeholder.com/50" },
+  { team_id: 6, team_name: "Team Zeta", university_id: 101, profile_image: "https://via.placeholder.com/50" },
+];
 
 const ITEMS_PER_PAGE = 5;
 
@@ -54,6 +54,12 @@ const TeamList: React.FC<TeamListProps> = ({ universityId }) => {
     const loadTeams = async () => {
       setLoading(true);
       setError(null);
+
+      if (USE_DUMMY_DATA) {
+        setTeams(dummyTeams);
+        setLoading(false);
+        return;
+      }
 
       try {
         // Fetch from backend
@@ -117,7 +123,11 @@ const TeamList: React.FC<TeamListProps> = ({ universityId }) => {
                     transition: "0.3s",
                     "&:hover": { boxShadow: 4 },
                   }}
-                  onClick={() => navigate(`/team/${team.team_id}`)}
+                  onClick={() => {
+                    const path = `/team/${team.team_id}${USE_DUMMY_DATA ? "?dummy=true" : ""}`;
+                    navigate(path);
+                  }}
+                  
                 >
                   <CardContent>
                     <Grid container alignItems="center" spacing={2}>

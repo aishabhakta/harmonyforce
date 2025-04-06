@@ -2,6 +2,8 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@mui/material";
 
+const USE_DUMMY_DATA = false; // change to false when using live backend
+
 interface TeamMember {
   id: string;
   name: string;
@@ -72,7 +74,7 @@ const Roster: React.FC<RosterProps> = ({ members, captain, teamId }) => {
         {allMembers.map((member) => (
           <Link
             key={member.id}
-            to={`/player/${member.id}`}
+            to={`/player/${member.id}${USE_DUMMY_DATA ? "?dummy=true" : ""}`}
             style={{ textDecoration: "none", color: "inherit" }}
           >
             <div
