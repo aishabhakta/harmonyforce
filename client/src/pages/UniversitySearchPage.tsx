@@ -1,7 +1,5 @@
 import React from "react";
 import { Box, Container, Typography } from "@mui/material";
-import NavigationBar from "../components/Navigation";
-import Footer from "../components/Footer";
 import UniversityList from "../components/UniversityList";
 
 const UniversitySearchPage: React.FC = () => {
@@ -17,17 +15,6 @@ const UniversitySearchPage: React.FC = () => {
         overflowX: "hidden",
       }}
     >
-      {/* Navigation Bar
-      <NavigationBar
-        links={[
-          { name: "Home", href: "/" },
-          { name: "About", href: "/about" },
-          { name: "Tournaments", href: "/tournaments" },
-          { name: "Team", href: "/team" },
-          { name: "Universities", href: "/universities" },
-        ]}
-      /> */}
-
       {/* Main Content */}
       <Container
         sx={{
@@ -54,9 +41,6 @@ const UniversitySearchPage: React.FC = () => {
           <UniversityList />
         </Box>
       </Container>
-
-      {/* Footer
-      <Footer /> */}
     </Box>
   );
 };

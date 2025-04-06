@@ -1,12 +1,22 @@
 import React, { useState } from "react";
-import { useStripe, useElements, PaymentElement } from "@stripe/react-stripe-js";
-import { useNavigate } from "react-router-dom";
-import { Box, Button, Typography, Paper, CircularProgress } from "@mui/material";
+import {
+  useStripe,
+  useElements,
+  PaymentElement,
+} from "@stripe/react-stripe-js";
+// import { useNavigate } from "react-router-dom";
+import {
+  Box,
+  Button,
+  Typography,
+  Paper,
+  CircularProgress,
+} from "@mui/material";
 
 const CheckoutForm: React.FC = () => {
   const stripe = useStripe();
   const elements = useElements();
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
@@ -31,7 +41,11 @@ const CheckoutForm: React.FC = () => {
   };
 
   return (
-    <Box component="form" onSubmit={handleSubmit} sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+    <Box
+      component="form"
+      onSubmit={handleSubmit}
+      sx={{ display: "flex", flexDirection: "column", gap: 2 }}
+    >
       <Paper variant="outlined" sx={{ padding: 2 }}>
         <PaymentElement />
       </Paper>

@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Box, Typography, Card, CardContent } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import MatchEditModal from "../../components/MatchEditModal";
-import axios from "axios";
+// import axios from "axios";
 import dummyMatches from "./dummyMatches";
 import "./TournamentBracket.css";
 

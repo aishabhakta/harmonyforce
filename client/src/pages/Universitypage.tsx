@@ -1,14 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import {
-  Box,
-  Typography,
-  Grid,
-  Button,
-  Card,
-  CardContent,
-  Skeleton,
-} from "@mui/material";
+import { Box, Typography, Grid, Button, Card, Skeleton } from "@mui/material";
 
 interface Team {
   team_id: number;
@@ -51,36 +43,46 @@ const UniversityPage: React.FC = () => {
     if (!universityId) return;
 
     fetch(`http://localhost:5000/university/${universityId}`)
-      .then(res => res.json())
-      .then(data => setUniversity(data))
-      .catch(err => console.error("Failed to fetch university details", err));
+      .then((res) => res.json())
+      .then((data) => setUniversity(data))
+      .catch((err) => console.error("Failed to fetch university details", err));
 
     fetch(`http://localhost:5000/university/${universityId}/teams`)
-      .then(res => res.json())
-      .then(data => setTeams(data))
-      .catch(err => console.error("Failed to fetch teams", err));
+      .then((res) => res.json())
+      .then((data) => setTeams(data))
+      .catch((err) => console.error("Failed to fetch teams", err));
 
-      fetch(`http://localhost:5000/university/${universityId}/matches`)
-      .then(res => res.json())
-      .then(data => setMatches(data))
-      .catch(err => console.error("Failed to fetch matches", err));
-
+    fetch(`http://localhost:5000/university/${universityId}/matches`)
+      .then((res) => res.json())
+      .then((data) => setMatches(data))
+      .catch((err) => console.error("Failed to fetch matches", err));
   }, [universityId]);
 
   if (!university) {
     return (
       <Box sx={{ px: 2, py: 4 }}>
-        <Skeleton variant="rectangular" width="100%" height={300} sx={{ mb: 3 }} />
+        <Skeleton
+          variant="rectangular"
+          width="100%"
+          height={300}
+          sx={{ mb: 3 }}
+        />
         <Skeleton variant="text" width="60%" height={40} sx={{ mb: 1 }} />
         <Skeleton variant="text" width="40%" height={30} sx={{ mb: 1 }} />
         <Skeleton variant="text" width="80%" height={20} />
       </Box>
     );
   }
-  
 
   return (
-    <Box sx={{ backgroundColor: "white", color: "black", width: "100vw", overflowX: "hidden" }}>
+    <Box
+      sx={{
+        backgroundColor: "white",
+        color: "black",
+        width: "100vw",
+        overflowX: "hidden",
+      }}
+    >
       {/* Hero Section */}
       <Box
         sx={{
@@ -103,11 +105,21 @@ const UniversityPage: React.FC = () => {
             backgroundColor: "rgba(0, 0, 0, 0.5)",
           }}
         />
-        <Box sx={{ position: "relative", textAlign: "center", color: "white", p: 4 }}>
-          <Typography variant="h3" fontWeight="bold">{university.university_name}</Typography>
+        <Box
+          sx={{
+            position: "relative",
+            textAlign: "center",
+            color: "white",
+            p: 4,
+          }}
+        >
+          <Typography variant="h3" fontWeight="bold">
+            {university.university_name}
+          </Typography>
           <Typography variant="h5">Location: {university.country}</Typography>
           <Typography variant="body1" mt={2}>
-            Status: {university.status}<br />
+            Status: {university.status}
+            <br />
             Created at: {university.created_at}
           </Typography>
           <Button
@@ -124,7 +136,9 @@ const UniversityPage: React.FC = () => {
 
       {/* About Section */}
       <Box sx={{ maxWidth: "1200px", mx: "auto", px: 2, mt: 4, mb: 4 }}>
-        <Typography variant="h4" fontWeight="bold">About</Typography>
+        <Typography variant="h4" fontWeight="bold">
+          About
+        </Typography>
         <Typography variant="body1" mt={2}>
           {university.description}
         </Typography>
@@ -138,7 +152,8 @@ const UniversityPage: React.FC = () => {
             fontWeight={selectedTab === "teams" ? "bold" : "normal"}
             sx={{
               cursor: "pointer",
-              borderBottom: selectedTab === "teams" ? "3px solid black" : "none",
+              borderBottom:
+                selectedTab === "teams" ? "3px solid black" : "none",
             }}
             onClick={() => setSelectedTab("teams")}
           >
@@ -149,7 +164,8 @@ const UniversityPage: React.FC = () => {
             fontWeight={selectedTab === "matches" ? "bold" : "normal"}
             sx={{
               cursor: "pointer",
-              borderBottom: selectedTab === "matches" ? "3px solid black" : "none",
+              borderBottom:
+                selectedTab === "matches" ? "3px solid black" : "none",
             }}
             onClick={() => setSelectedTab("matches")}
           >
@@ -160,14 +176,18 @@ const UniversityPage: React.FC = () => {
         {/* Teams Section */}
         {selectedTab === "teams" && (
           <Box>
-            <Typography variant="h4" fontWeight="bold" mb={2}>Teams</Typography>
+            <Typography variant="h4" fontWeight="bold" mb={2}>
+              Teams
+            </Typography>
             <Grid container spacing={2}>
               {teams.map((team) => (
                 <Grid item xs={12} key={team.team_id}>
                   <Card sx={{ display: "flex", alignItems: "center", p: 2 }}>
                     <Box
                       component="img"
-                      src={team.profile_image || "https://via.placeholder.com/50"}
+                      src={
+                        team.profile_image || "https://via.placeholder.com/50"
+                      }
                       alt={team.team_name}
                       sx={{ width: 50, height: 50, mr: 2 }}
                     />
@@ -182,38 +202,82 @@ const UniversityPage: React.FC = () => {
         {/* Matches Placeholder */}
         {selectedTab === "matches" && (
           <Box>
-            <Typography variant="h4" fontWeight="bold" mb={2}>Matches</Typography>
+            <Typography variant="h4" fontWeight="bold" mb={2}>
+              Matches
+            </Typography>
             {matches.length === 0 ? (
               <Typography>No matches found for this university.</Typography>
             ) : (
               matches.map((match) => (
                 <Card key={match.match_id} sx={{ my: 2, p: 2 }}>
-                  <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap" }}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      flexWrap: "wrap",
+                    }}
+                  >
                     {/* Team 1 */}
-                    <Box sx={{ display: "flex", alignItems: "center", flex: 1 }}>
-                      <Box component="img" src="https://via.placeholder.com/60" alt="Team A" sx={{ width: 60, height: 60, mr: 3 }} />
+                    <Box
+                      sx={{ display: "flex", alignItems: "center", flex: 1 }}
+                    >
+                      <Box
+                        component="img"
+                        src="https://via.placeholder.com/60"
+                        alt="Team A"
+                        sx={{ width: 60, height: 60, mr: 3 }}
+                      />
                       <Box>
-                        <Typography fontWeight="bold">Team ID: {match.team1_id}</Typography>
-                        <Typography variant="h4">{match.score_team1 ?? "-"}</Typography>
+                        <Typography fontWeight="bold">
+                          Team ID: {match.team1_id}
+                        </Typography>
+                        <Typography variant="h4">
+                          {match.score_team1 ?? "-"}
+                        </Typography>
                       </Box>
                     </Box>
 
                     {/* Status and Optional Admin Button */}
                     {isAdmin && (
-                      <Box sx={{ flex: 1, display: "flex", justifyContent: "center" }}>
+                      <Box
+                        sx={{
+                          flex: 1,
+                          display: "flex",
+                          justifyContent: "center",
+                        }}
+                      >
                         <Button variant="contained" size="medium">
-                          {match.status === "Completed" ? "View Result" : "Edit Result"}
+                          {match.status === "Completed"
+                            ? "View Result"
+                            : "Edit Result"}
                         </Button>
                       </Box>
                     )}
 
                     {/* Team 2 */}
-                    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "flex-end", flex: 1 }}>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "flex-end",
+                        flex: 1,
+                      }}
+                    >
                       <Box sx={{ textAlign: "right", mr: 3 }}>
-                        <Typography fontWeight="bold">Team ID: {match.team2_id}</Typography>
-                        <Typography variant="h4">{match.score_team2 ?? "-"}</Typography>
+                        <Typography fontWeight="bold">
+                          Team ID: {match.team2_id}
+                        </Typography>
+                        <Typography variant="h4">
+                          {match.score_team2 ?? "-"}
+                        </Typography>
                       </Box>
-                      <Box component="img" src="https://via.placeholder.com/60" alt="Team B" sx={{ width: 60, height: 60, ml: 3 }} />
+                      <Box
+                        component="img"
+                        src="https://via.placeholder.com/60"
+                        alt="Team B"
+                        sx={{ width: 60, height: 60, ml: 3 }}
+                      />
                     </Box>
                   </Box>
 
