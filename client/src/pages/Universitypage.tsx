@@ -17,6 +17,7 @@ interface University {
   created_at: string;
   country: string;
   universitylink: string;
+  tournymod: { name: string, email: string}
 }
 
 interface Match {
@@ -118,10 +119,13 @@ const UniversityPage: React.FC = () => {
           </Typography>
           <Typography variant="h5">Location: {university.country}</Typography>
           <Typography variant="body1" mt={2}>
-            Status: {university.status}
-            <br />
-            Created at: {university.created_at}
+            Status: {university.status}<br />
+            Created at: {university.created_at}<br />
+            Moderator: {university.tournymod?.name
+            ? `${university.tournymod.name} (${university.tournymod.email})`
+            : "N/A"}
           </Typography>
+
           <Button
             variant="contained"
             sx={{ mt: 2, backgroundColor: "#1976d2" }}

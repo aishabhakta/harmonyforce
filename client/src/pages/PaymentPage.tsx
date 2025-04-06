@@ -15,7 +15,7 @@ const PaymentPage: React.FC = () => {
   const [clientSecret, setClientSecret] = useState("");
 
   useEffect(() => {
-    fetch("http://localhost:5000/stripe/create-payment-intent", {
+    fetch("http://127.0.0.1:5000/stripe/create-payment-intent", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ amount: 1000, currency: "usd", email: "test@example.com" }),

@@ -3,7 +3,6 @@ from app.database import db
 from app import bcrypt 
 from app.models import User, PendingRegistration
 from datetime import datetime, timedelta
-import jwt
 import os
 from functools import wraps
 from app.utils import generate_jwt, verify_jwt, blacklisted_tokens

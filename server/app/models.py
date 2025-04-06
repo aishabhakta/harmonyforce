@@ -24,6 +24,8 @@ class User(db.Model):
     user_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     team_id = db.Column(db.Integer, db.ForeignKey('aardvark.teams.team_id'), nullable=False)
     username = db.Column(db.String(45), unique=True, nullable=False)
+    first_name = db.Column(db.String(100))
+    last_name = db.Column(db.String(100))
     email = db.Column(db.String(45), unique=True, nullable=False)
     password_hash = db.Column(db.String(255), nullable=True)
     user_type = db.Column(db.String(45), nullable=False, default="regular")
@@ -47,27 +49,41 @@ class TeamRequest(db.Model):
 class University(db.Model):
     __tablename__ = 'universities'
     __table_args__ = {'schema': 'aardvark'}
+
     university_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     university_name = db.Column(db.String(45))
-    country = db.Column(db.String(45)) # luke merge
-    status = db.Column(db.SmallInteger) # luke merge
+    country = db.Column(db.String(45))
+    status = db.Column(db.SmallInteger)
     description = db.Column(db.String(255))
-    universitylink = db.Column(db.String(255)) # luke merge
+    universitylink = db.Column(db.String(255))
     university_image = db.Column(db.String(255))
     created_at = db.Column(db.Date, default=datetime.utcnow)
-    updated_at = db.Column(db.Date, default=datetime.utcnow, onupdate=datetime.utcnow)  # luke merge
-    
+    updated_at = db.Column(db.Date, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    tournymod_id = db.Column(
+        db.Integer,
+        db.ForeignKey('aardvark.users.user_id')  # schema-qualified FK
+    )
+    tournymod = db.relationship('User', foreign_keys=[tournymod_id])
+
+    users = db.relationship(
+        'User',
+        backref='university',
+        lazy=True,
+        foreign_keys='User.university_id' 
+    )
+
 # luke merge v
 class Tournament(db.Model):
     __tablename__ = 'tournaments'
     __table_args__ = {'schema': 'aardvark'}
 
-    tournament_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    name = db.Column(db.String(45))
-    start_date = db.Column(db.Date)
-    end_date = db.Column(db.Date)
-    created_at = db.Column(db.Date)  # Used for filtering by date range
-    university_id = db.Column(db.Integer, db.ForeignKey('universities.university_id'))
+    tournament_id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(255), nullable=False)
+    description = db.Column(db.Text)
+    start_date = db.Column(db.Date, nullable=False)
+    end_date = db.Column(db.Date, nullable=False)
+    created_at = db.Column(db.Date, nullable=False)
 # luke merge ^
 
 # luke merge v

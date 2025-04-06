@@ -14,8 +14,8 @@ import {
   Alert,
   Button,
 } from "@mui/material";
+import { useAuth } from "../AuthProvider"; // Import auth context
 
-// Team Interface
 interface Team {
   team_id: number;
   team_name: string;
@@ -23,7 +23,6 @@ interface Team {
   profile_image?: string;
 }
 
-// Props (Optional University Filter)
 interface TeamListProps {
   universityId?: number;
 }
@@ -49,6 +48,7 @@ const TeamList: React.FC<TeamListProps> = ({ universityId }) => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+  const { user } = useAuth(); // Get current user
 
   useEffect(() => {
     const loadTeams = async () => {
@@ -60,12 +60,9 @@ const TeamList: React.FC<TeamListProps> = ({ universityId }) => {
         setLoading(false);
         return;
       }
-
       try {
-        // Fetch from backend
         const response = await fetch("http://127.0.0.1:5000/teams/getAllTeams");
         const data = await response.json();
-
         if (response.ok) {
           setTeams(data.teams);
         } else {
@@ -149,7 +146,7 @@ const TeamList: React.FC<TeamListProps> = ({ universityId }) => {
             ))}
           </List>
 
-          {/* Create Button & Pagination Row */}
+          {/* Pagination & Conditional Create Button */}
           <Box
             sx={{
               display: "flex",
@@ -158,14 +155,16 @@ const TeamList: React.FC<TeamListProps> = ({ universityId }) => {
               mt: 4,
             }}
           >
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={() => navigate("/TeamRegistration")}
-              sx={{ textTransform: "none" }}
-            >
-              Create Team
-            </Button>
+            {user && user.role === "participant" && !user.team_id && (
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={() => navigate("/TeamRegistration")}
+                sx={{ textTransform: "none" }}
+              >
+                Create Team
+              </Button>
+            )}
 
             <Pagination
               count={Math.ceil(filteredTeams.length / ITEMS_PER_PAGE)}

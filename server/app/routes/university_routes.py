@@ -151,6 +151,10 @@ def get_university_details(university_id):
         "created_at": uni.created_at.strftime('%Y-%m-%d') if uni.created_at else None,
         "country": uni.country,
         "universitylink": uni.universitylink,
+        "tournymod": {
+            "name": f"{uni.tournymod.first_name} {uni.tournymod.last_name}" if uni.tournymod else None,
+            "email": uni.tournymod.email if uni.tournymod else None
+        }
     }), 200
 
 @university_bp.route('/<int:university_id>/matches', methods=['GET'])
@@ -186,3 +190,27 @@ def get_university_matches(university_id):
         })
 
     return jsonify(match_data), 200
+
+@university_bp.route('/assign-tournymod', methods=['POST'])
+def assign_tournymod_to_university():
+    data = request.get_json()
+    university_id = data.get("university_id")
+    user_id = data.get("user_id")
+
+    # Validate user
+    user = User.query.get(user_id)
+    if not user or user.user_type != "tournymod":
+        return jsonify({"error": "Invalid tournament moderator"}), 400
+
+    # Validate university
+    university = University.query.get(university_id)
+    if not university:
+        return jsonify({"error": "University not found"}), 404
+
+    # Assign tournymod
+    university.tournymod_id = user.user_id
+    db.session.commit()
+
+    return jsonify({
+        "message": f"Tournament moderator '{user.username}' assigned to university ID {university_id}"
+    }), 200

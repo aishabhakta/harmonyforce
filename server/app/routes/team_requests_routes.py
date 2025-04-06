@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from app.database import db
 from app.models import Team, TeamRequest, User
+import datetime
 
 team_requests_bp = Blueprint('team_requests', __name__)
 
@@ -53,13 +54,48 @@ def update_team():
 @team_requests_bp.route('/request_join', methods=['POST'])
 def request_join_team():
     data = request.get_json()
-    existing_request = TeamRequest.query.filter_by(user_id=data['user_id'], team_id=data['team_id']).first()
+    user_id = data.get('user_id')
+    team_id = data.get('team_id')
+
+    if not user_id or not team_id:
+        return jsonify({"error": "Missing required fields"}), 400
+
+    # Check if user exists and is not already in a team
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    if user.team_id:
+        return jsonify({"error": "You are already part of a team"}), 400
+
+    # Check if team exists
+    team = Team.query.get(team_id)
+    if not team:
+        return jsonify({"error": "Team not found"}), 404
+
+    # Check team size (including captain)
+    member_count = User.query.filter_by(team_id=team_id).count()
+    if member_count >= 7:
+        return jsonify({"error": "Team already has 7 members"}), 400
+
+    # Check for existing request
+    existing_request = TeamRequest.query.filter_by(user_id=user_id, team_id=team_id).first()
     if existing_request:
-        return jsonify({"error": "Request already exists"}), 400
-    new_request = TeamRequest(user_id=data['user_id'], team_id=data['team_id'])
+        return jsonify({"error": "Join request already sent"}), 400
+
+    # Create the new join request
+    new_request = TeamRequest(
+        user_id=user_id,
+        team_id=team_id,
+        created_at=datetime.utcnow(),
+        status='pending'
+    )
+
     db.session.add(new_request)
     db.session.commit()
+
     return jsonify({"message": "Join request sent successfully!"}), 201
+
 
 # Function to view join requests for a team leader
 @team_requests_bp.route('/view_requests/<int:leader_id>', methods=['GET'])

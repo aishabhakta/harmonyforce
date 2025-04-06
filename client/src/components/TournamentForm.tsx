@@ -20,7 +20,7 @@ const TournamentForm: React.FC = () => {
     };
 
     try {
-      const response = await fetch("http://localhost:5000/registerTournament", {
+      const response = await fetch("http://localhost:5000/tournament/create", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
