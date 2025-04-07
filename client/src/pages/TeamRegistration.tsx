@@ -97,7 +97,7 @@ const TeamRegistration: React.FC = () => {
           >
             Register Team
           </Button> */}
-          <RegisterButton />
+          {/* <RegisterButton /> */}
         </Box>
       </Box>
     </Box>
