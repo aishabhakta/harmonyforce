@@ -83,6 +83,7 @@ class Tournament(db.Model):
     description = db.Column(db.Text)
     start_date = db.Column(db.Date, nullable=False)
     end_date = db.Column(db.Date, nullable=False)
+    university_id = db.Column(db.Integer, db.ForeignKey('aardvark.universities.university_id'), nullable=False) 
     created_at = db.Column(db.Date, nullable=False)
 # luke merge ^
 
