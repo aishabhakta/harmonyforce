@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Box, Typography, Grid, Button, Card, Skeleton } from "@mui/material";
+import MatchResultsEditor from "../components/UniversityModal"; // adjust path if needed
+
 
 interface Team {
   team_id: number;
@@ -39,6 +41,77 @@ const UniversityPage: React.FC = () => {
   const [selectedTab, setSelectedTab] = useState<"teams" | "matches">("teams");
   const [matches, setMatches] = useState<Match[]>([]);
   const isAdmin = true;
+  const [editorOpen, setEditorOpen] = useState(false);
+  const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
+  const [matchFormData, setMatchFormData] = useState({
+    team1Name: "",
+    team2Name: "",
+    team1Score: 0,
+    team2Score: 0,
+    date: "",
+  });
+
+  const handleOpenEditor = (match: Match) => {
+    setSelectedMatch(match);
+    setMatchFormData({
+      team1Name: `Team ${match.team1_id}`,
+      team2Name: `Team ${match.team2_id}`,
+      team1Score: match.score_team1 ?? 0,
+      team2Score: match.score_team2 ?? 0,
+      date: match.start_time?.split("T")[0] ?? "",
+    });
+    setEditorOpen(true);
+  };
+  
+  const handleMatchChange = (field: string, value: any) => {
+    setMatchFormData((prev) => ({ ...prev, [field]: value }));
+  };
+  
+  const handleMatchSave = async () => {
+    if (!selectedMatch) return;
+  
+    const updatedMatch = {
+      score_team1: matchFormData.team1Score,
+      score_team2: matchFormData.team2Score,
+      start_time: matchFormData.date,
+      winner_id:
+        matchFormData.team1Score > matchFormData.team2Score
+          ? selectedMatch.team1_id
+          : matchFormData.team2Score > matchFormData.team1Score
+          ? selectedMatch.team2_id
+          : null,
+      status: "Completed",
+    };    
+  
+    try {
+      const response = await fetch(`http://localhost:5000/matches/${selectedMatch.match_id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updatedMatch),
+      });
+  
+      if (!response.ok) {
+        throw new Error("Failed to update match");
+      }
+  
+      // Optional: show success toast
+      console.log(" Match updated!");
+  
+      // Refetch matches to reflect updated scores
+      const updatedMatchesRes = await fetch(
+        `http://localhost:5000/university/${universityId}/matches`
+      );
+      const updatedMatches = await updatedMatchesRes.json();
+      setMatches(updatedMatches);
+  
+      setEditorOpen(false);
+    } catch (err) {
+      console.error("Error saving match:", err);
+      // Optional: show error toast
+    }
+  };
 
   useEffect(() => {
     if (!universityId) return;
@@ -126,15 +199,33 @@ const UniversityPage: React.FC = () => {
             : "N/A"}
           </Typography>
 
-          <Button
-            variant="contained"
-            sx={{ mt: 2, backgroundColor: "#1976d2" }}
-            href={university.universitylink}
-            target="_blank"
-            rel="noopener noreferrer"
+          <Box sx={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 1.5,
+            mt: 2,
+            }}
           >
-            Visit University Website
-          </Button>
+            
+            <Button
+             variant="contained"
+             sx={{ backgroundColor: "#1976d2" }}
+             href={university.universitylink}
+             target="_blank"
+             rel="noopener noreferrer"
+            >
+              Visit University Website
+            </Button>
+            
+            <Button 
+            variant="contained"
+            sx={{ backgroundColor: "#1976d2" }}
+            onClick={() => window.location.href = `/UniversityRegistration?university_id=${university.university_id}`}
+            >
+              Edit Page
+            </Button>  
+          </Box>
         </Box>
       </Box>
 
@@ -251,11 +342,28 @@ const UniversityPage: React.FC = () => {
                           justifyContent: "center",
                         }}
                       >
-                        <Button variant="contained" size="medium">
+                        {/* <Button variant="contained" size="medium">
                           {match.status === "Completed"
                             ? "View Result"
                             : "Edit Result"}
+                        </Button> */}
+
+                        <Button variant="contained" size="medium" onClick={() => handleOpenEditor(match)}>
+                          {match.status === "Completed" ? "View Result" : "Edit Result"}
                         </Button>
+
+
+                        <MatchResultsEditor open={editorOpen} onClose={() => setEditorOpen(false)} 
+                        team1Name={matchFormData.team1Name}
+                        team2Name={matchFormData.team2Name}
+                        team1Score={matchFormData.team1Score}
+                        team2Score={matchFormData.team2Score}
+                        date={matchFormData.date}
+                        onChange={handleMatchChange}
+                        onSave={handleMatchSave}
+                        />
+
+
                       </Box>
                     )}
 

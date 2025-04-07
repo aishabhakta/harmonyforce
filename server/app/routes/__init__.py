@@ -9,6 +9,7 @@ from app.routes.tournament_routes import tournament_bp
 from app.routes.protected_routes import protected_bp 
 from app.routes.stripe_routes import stripe_bp 
 from app.payments.stripe_webhooks import webhook_bp
+from app.routes.matches import matches_bp
 
 # Create a Blueprint registry
 def register_blueprints(app):
@@ -20,3 +21,4 @@ def register_blueprints(app):
     app.register_blueprint(protected_bp, url_prefix='/protected')
     app.register_blueprint(stripe_bp, url_prefix="/stripe")     # e.g. /stripe/create-payment-intent
     app.register_blueprint(webhook_bp)                           # e.g. /webhook
+    app.register_blueprint(matches_bp, url_prefix="/matches")

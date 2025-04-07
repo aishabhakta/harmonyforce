@@ -1,8 +1,12 @@
 import React from "react";
 import { Box } from "@mui/material";
+import { useLocation } from "react-router-dom";
 import UniversityForm from "../components/UniversityForm";
 
 const UniversityRegistration: React.FC = () => {
+  const { search } = useLocation();
+  const universityId = new URLSearchParams(search).get("university_id");
+
   return (
     <Box
       sx={{
@@ -27,7 +31,7 @@ const UniversityRegistration: React.FC = () => {
           boxSizing: "border-box",
         }}
       >
-        <UniversityForm />
+        <UniversityForm universityId={universityId} />
       </Box>
     </Box>
   );

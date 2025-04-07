@@ -1,40 +1,57 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Box, Button, TextField, Typography } from "@mui/material";
 
-const UniversityForm: React.FC = () => {
+interface UniversityFormProps {
+  universityId?: string | null;
+}
+
+const UniversityForm: React.FC<UniversityFormProps> = ({ universityId }) => {
   const [name, setName] = useState("");
   const [bio, setBio] = useState("");
   const [link, setLink] = useState("");
   const [, setImage] = useState<File | null>(null);
 
+  // Fetch university data if editing
+  useEffect(() => {
+    if (universityId) {
+      fetch(`http://localhost:5000/university/${universityId}`)
+        .then((res) => res.json())
+        .then((data) => {
+          setName(data.university_name || "");
+          setBio(data.description || "");
+          setLink(data.universitylink || "");
+        })
+        .catch((err) => {
+          console.error("Failed to fetch university for editing", err);
+        });
+    }
+  }, [universityId]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
   
     try {
-      const response = await fetch("http://localhost:5000/university/register", {
-        method: "POST",
+      const response = await fetch("http://localhost:5000/university/update", {
+        method: "POST", // you're using POST here
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
+          university_id: universityId, // make sure this is included!
           university_name: name,
           description: bio,
-          university_image: link, // You are using a URL input for the image
+          universitylink: link,
+          university_image: link,
         }),
       });
   
-      if (!response.ok) throw new Error("Failed to register university.");
+      if (!response.ok) throw new Error("Failed to update university.");
       const data = await response.json();
-      console.log("University registered:", data);
-      alert("University registered successfully!");
-      // Optionally clear the fields:
-      setName("");
-      setBio("");
-      setLink("");
-      setImage(null);
+      console.log("University updated:", data);
+      alert("University updated successfully!");
     } catch (error) {
       console.error("Error:", error);
-      alert("Error registering university.");
+      alert("Error updating university.");
     }
   };
   
@@ -52,7 +69,7 @@ const UniversityForm: React.FC = () => {
       }}
     >
       <Typography variant="h4" sx={{ marginBottom: "2rem", textAlign: "center" }}>
-        University Registration
+        {universityId ? "Edit University" : "University Registration"}
       </Typography>
 
       <Typography variant="h6" sx={{ marginBottom: "1rem" }}>
@@ -114,7 +131,7 @@ const UniversityForm: React.FC = () => {
       </Box>
 
       <Button type="submit" variant="contained" fullWidth sx={{ marginTop: "1rem" }}>
-        Submit
+        {universityId ? "Update University" : "Submit"}
       </Button>
     </Box>
   );
