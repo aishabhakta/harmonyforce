@@ -28,12 +28,17 @@ def create_tournament():
         return jsonify({"error": "Invalid date format. Use YYYY-MM-DD"}), 400
 
 
+    university_id = data.get("university_id")
+    if not university_id:
+        return jsonify({"error": "Missing university_id"}), 400
+
     # Create new tournament entry
     new_tournament = Tournament(
         name=data["name"],
         description=data["description"],
         start_date=start_date,
         end_date=end_date,
+        university_id=university_id,
         created_at=datetime.utcnow().date()
     )
 
