@@ -12,6 +12,7 @@ import {
 } from "@mui/material";
 import heroImg from "../assets/images/hero-image.jpg";
 import { useNavigate } from "react-router-dom";
+import { apiFetch } from "../api";
 
 export default function Register() {
   const [username, setUsername] = useState("");
@@ -25,7 +26,7 @@ export default function Register() {
   useEffect(() => {
     const fetchUniversities = async () => {
       try {
-        const response = await fetch("http://127.0.0.1:5000/university/getAll");
+        const response = await apiFetch("/university/getAll");
         const data = await response.json();
         if (response.ok) {
           setUniversities(data.map((uni: any) => uni.university_name));
@@ -43,9 +44,8 @@ export default function Register() {
     const data = { username, email, password, role, university };
 
     try {
-      const response = await fetch("http://127.0.0.1:5000/auth/register", {
+      const response = await apiFetch("/auth/register", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
 

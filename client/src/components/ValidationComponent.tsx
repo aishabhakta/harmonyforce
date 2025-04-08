@@ -8,7 +8,7 @@ import {
   Card,
   Avatar,
 } from "@mui/material";
-
+import { apiFetch } from "../api";
 interface ValidationComponentProps {
   userRole: string;
 }
@@ -95,9 +95,8 @@ const ValidationComponent: React.FC<ValidationComponentProps> = ({
 
   const fetchPendingUsers = async () => {
     try {
-      const response = await fetch(
-        "http://127.0.0.1:5000/auth/pending-registrations"
-      );
+      const response = await apiFetch("/auth/pending-registrations");
+
       const data = await response.json();
       if (response.ok) {
         setPendingUsers(data);
@@ -111,7 +110,7 @@ const ValidationComponent: React.FC<ValidationComponentProps> = ({
 
   const fetchPendingTeams = async () => {
     try {
-      const response = await fetch("http://127.0.0.1:5000/teams/pendingTeams");
+      const response = await apiFetch("/teams/pendingTeams");
       const data = await response.json();
       if (response.ok) {
         setPendingTeams(data);
@@ -125,8 +124,8 @@ const ValidationComponent: React.FC<ValidationComponentProps> = ({
 
   const handleApprove = async (pending_id: number) => {
     try {
-      const response = await fetch(
-        `http://127.0.0.1:5000/auth/approve-registration/${pending_id}`,
+      const response = await apiFetch(
+        `/auth/approve-registration/${pending_id}`,
         {
           method: "POST",
         }
@@ -147,8 +146,8 @@ const ValidationComponent: React.FC<ValidationComponentProps> = ({
 
   const handleReject = async (pending_id: number) => {
     try {
-      const response = await fetch(
-        `http://127.0.0.1:5000/auth/reject-registration/${pending_id}`,
+      const response = await apiFetch(
+        `/auth/reject-registration/${pending_id}`,
         {
           method: "POST",
         }
@@ -169,9 +168,7 @@ const ValidationComponent: React.FC<ValidationComponentProps> = ({
 
   const fetchPendingMembers = async () => {
     try {
-      const response = await fetch(
-        "http://127.0.0.1:5000/teams/pendingMembers"
-      );
+      const response = await apiFetch("/teams/pendingMembers");
       const data = await response.json();
       if (response.ok) {
         setPendingMembers(data);
@@ -185,12 +182,10 @@ const ValidationComponent: React.FC<ValidationComponentProps> = ({
 
   const handleApproveMember = async (memberId: number) => {
     try {
-      const response = await fetch(
-        `http://127.0.0.1:5000/teams/approve-member/${memberId}`,
-        {
-          method: "POST",
-        }
-      );
+      const response = await apiFetch(`/teams/approve-member/${memberId}`, {
+        method: "POST",
+      });
+
       const data = await response.json();
       if (response.ok) {
         setPendingMembers((prev) =>
@@ -207,12 +202,10 @@ const ValidationComponent: React.FC<ValidationComponentProps> = ({
 
   const handleRejectMember = async (memberId: number) => {
     try {
-      const response = await fetch(
-        `http://127.0.0.1:5000/teams/reject-member/${memberId}`,
-        {
-          method: "POST",
-        }
-      );
+      const response = await apiFetch(`/teams/reject-member/${memberId}`, {
+        method: "POST",
+      });
+
       const data = await response.json();
       if (response.ok) {
         setPendingMembers((prev) =>
@@ -229,12 +222,9 @@ const ValidationComponent: React.FC<ValidationComponentProps> = ({
 
   const handleApproveTeam = async (id: number) => {
     try {
-      const response = await fetch(
-        `http://127.0.0.1:5000/teams/approve-team/${id}`,
-        {
-          method: "POST",
-        }
-      );
+      const response = await apiFetch(`/teams/approve-team/${id}`, {
+        method: "POST",
+      });
       const data = await response.json();
       if (response.ok) {
         setPendingTeams((prev) => prev.filter((team) => team.id !== id));
@@ -249,12 +239,9 @@ const ValidationComponent: React.FC<ValidationComponentProps> = ({
 
   const handleRejectTeam = async (id: number) => {
     try {
-      const response = await fetch(
-        `http://127.0.0.1:5000/teams/reject-team/${id}`,
-        {
-          method: "POST",
-        }
-      );
+      const response = await apiFetch(`/teams/reject-team/${id}`, {
+        method: "POST",
+      });
       const data = await response.json();
       if (response.ok) {
         setPendingTeams((prev) => prev.filter((team) => team.id !== id));
@@ -269,9 +256,7 @@ const ValidationComponent: React.FC<ValidationComponentProps> = ({
 
   const fetchJoinRequests = async () => {
     try {
-      const response = await fetch(
-        "http://127.0.0.1:5000/team_requests/pending-join-requests"
-      );
+      const response = await apiFetch("/team_requests/pending-join-requests");
       const data = await response.json();
       if (response.ok) {
         setJoinRequests(data);
@@ -285,14 +270,11 @@ const ValidationComponent: React.FC<ValidationComponentProps> = ({
 
   const handleApproveJoinRequest = async (requestId: number) => {
     try {
-      const response = await fetch(
-        "http://127.0.0.1:5000/team_requests/approve_request",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ request_id: requestId }),
-        }
-      );
+      const response = await apiFetch("/team_requests/approve_request", {
+        method: "POST",
+        body: JSON.stringify({ request_id: requestId }),
+      });
+
       const data = await response.json();
       if (response.ok) {
         setJoinRequests((prev) =>
@@ -309,14 +291,11 @@ const ValidationComponent: React.FC<ValidationComponentProps> = ({
 
   const handleRejectJoinRequest = async (requestId: number) => {
     try {
-      const response = await fetch(
-        "http://127.0.0.1:5000/team_requests/deny_request",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ request_id: requestId }),
-        }
-      );
+      const response = await apiFetch("/team_requests/deny_request", {
+        method: "POST",
+        body: JSON.stringify({ request_id: requestId }),
+      });
+
       const data = await response.json();
       if (response.ok) {
         setJoinRequests((prev) =>

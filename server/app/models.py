@@ -37,7 +37,8 @@ class User(db.Model):
     status = db.Column(db.Integer, default=1)
     blacklisted = db.Column(db.Integer, default=0)
     university_id = db.Column(db.Integer, db.ForeignKey('aardvark.universities.university_id'), nullable=True)
-
+    team = db.relationship('Team', backref='members', lazy=True)
+    
 class TeamRequest(db.Model):
     __tablename__ = 'team_requests'
     __table_args__ = {'schema': 'aardvark'}

@@ -12,8 +12,9 @@ import {
   TableFooter,
   Paper,
 } from "@mui/material";
-import axios from "axios";
+// import axios from "axios";
 import { useAuth } from "../AuthProvider";
+import { apiFetch } from "../api";
 
 interface UniversityReportRow {
   university_id: number;
@@ -43,7 +44,9 @@ const Reports = () => {
   const [endDate, setEndDate] = useState("");
 
   const [collegeStats, setCollegeStats] = useState<UniversityReportRow[]>([]);
-  const [tournamentStats, setTournamentStats] = useState<TournamentReportRow[]>([]);
+  const [tournamentStats, setTournamentStats] = useState<TournamentReportRow[]>(
+    []
+  );
 
   const [collegeTotals, setCollegeTotals] = useState({
     colleges: 0,
@@ -59,25 +62,28 @@ const Reports = () => {
 
   const fetchReports = async () => {
     try {
-      const [collegeRes, totalCollegeRes, tournamentRes, totalTournamentRes] = await Promise.all([
-        axios.get("http://127.0.0.1:5000/university/report/full_statistics"),
-        axios.get("http://127.0.0.1:5000/university/report/total_counts"),
-        axios.get("http://127.0.0.1:5000/tournament/report/full_statistics"),
-        axios.get("http://127.0.0.1:5000/tournament/report/total_tournament_statistics"),
-      ]);
+      const [collegeRes, totalCollegeRes, tournamentRes, totalTournamentRes] =
+        await Promise.all([
+          apiFetch("/university/report/full_statistics"),
+          apiFetch("/university/report/total_counts"),
+          apiFetch("/tournament/report/full_statistics"),
+          apiFetch("/tournament/report/total_tournament_statistics"),
+        ]);
 
-      setCollegeStats(collegeRes.data);
+      setCollegeStats(await collegeRes.json());
+      const collegeTotalsData = await totalCollegeRes.json();
       setCollegeTotals({
-        colleges: totalCollegeRes.data.total_universities,
-        teams: totalCollegeRes.data.total_teams,
-        members: totalCollegeRes.data.total_team_members,
+        colleges: collegeTotalsData.total_universities,
+        teams: collegeTotalsData.total_teams,
+        members: collegeTotalsData.total_team_members,
       });
 
-      setTournamentStats(tournamentRes.data);
+      setTournamentStats(await tournamentRes.json());
+      const tournamentTotalsData = await totalTournamentRes.json();
       setTournamentTotals({
-        colleges: totalTournamentRes.data.active_universities,
-        matchesPlanned: totalTournamentRes.data.matches_yet_to_play,
-        matchesCompleted: totalTournamentRes.data.matches_completed,
+        colleges: tournamentTotalsData.active_universities,
+        matchesPlanned: tournamentTotalsData.matches_yet_to_play,
+        matchesCompleted: tournamentTotalsData.matches_completed,
       });
     } catch (err) {
       console.error("Failed to fetch reports:", err);
@@ -145,7 +151,9 @@ const Reports = () => {
           <TableBody>
             {collegeStats.map((uni, index) => (
               <TableRow key={index}>
-                <TableCell>{new Date(uni.created_at).toLocaleDateString()}</TableCell>
+                <TableCell>
+                  {new Date(uni.created_at).toLocaleDateString()}
+                </TableCell>
                 <TableCell>{uni.university_name}</TableCell>
                 <TableCell>{uni.country}</TableCell>
                 <TableCell>{uni.team_count}</TableCell>
@@ -157,10 +165,14 @@ const Reports = () => {
           </TableBody>
           <TableFooter>
             <TableRow>
-              <TableCell colSpan={3}><strong>Totals</strong></TableCell>
+              <TableCell colSpan={3}>
+                <strong>Totals</strong>
+              </TableCell>
               <TableCell>{collegeTotals.teams}</TableCell>
               <TableCell>{collegeTotals.members}</TableCell>
-              <TableCell colSpan={2}>Colleges: {collegeTotals.colleges}</TableCell>
+              <TableCell colSpan={2}>
+                Colleges: {collegeTotals.colleges}
+              </TableCell>
             </TableRow>
           </TableFooter>
         </Table>
@@ -185,7 +197,9 @@ const Reports = () => {
           <TableBody>
             {tournamentStats.map((t, index) => (
               <TableRow key={index}>
-                <TableCell>{new Date(t.start_date).toLocaleDateString()}</TableCell>
+                <TableCell>
+                  {new Date(t.start_date).toLocaleDateString()}
+                </TableCell>
                 <TableCell>{t.university_name || "N/A"}</TableCell>
                 <TableCell>{t.university_country || "N/A"}</TableCell>
                 <TableCell>{t.matches_on_next_day}</TableCell>
@@ -196,7 +210,9 @@ const Reports = () => {
           </TableBody>
           <TableFooter>
             <TableRow>
-              <TableCell colSpan={3}><strong>Totals</strong></TableCell>
+              <TableCell colSpan={3}>
+                <strong>Totals</strong>
+              </TableCell>
               <TableCell>{tournamentTotals.matchesPlanned}</TableCell>
               <TableCell>{tournamentTotals.matchesCompleted}</TableCell>
               <TableCell>Colleges: {tournamentTotals.colleges}</TableCell>

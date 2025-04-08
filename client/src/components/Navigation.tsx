@@ -18,6 +18,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import { useNavigate } from "react-router";
 import { useAuth } from "../AuthProvider";
 import aardvarkLogo from "../assets/images/aardvark_logo_png.png";
+import { apiFetch } from "../api";
 
 interface NavigationProps {
   links: { name: string; href: string }[];
@@ -31,10 +32,13 @@ const NavigationBar: React.FC<NavigationProps> = ({ links }) => {
 
   const { user, setUser } = useAuth();
 
+  console.log("user.photoURL in NavigationBar:", user?.photoURL);
+  console.log("Current User in NavigationBar:", user);
+
   const handleLogout = async () => {
     try {
       const token = user?.token || localStorage.getItem("session_token");
-      await fetch("http://127.0.0.1:5000/auth/logout", {
+      await apiFetch("/auth/logout", {
         method: "POST",
         headers: {
           Authorization: token || "",
@@ -155,7 +159,8 @@ const NavigationBar: React.FC<NavigationProps> = ({ links }) => {
               <Avatar
                 alt={user.displayName || "Profile"}
                 src={user.photoURL || ""}
-                sx={{ width: 40, height: 40 }}
+                sx={{ width: 40, height: 40, cursor: "pointer" }}
+                onClick={() => navigate(`/player/${user.user_id}`)}
               />
               <Button
                 color="inherit"
