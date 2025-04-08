@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Box, Button, TextField, Typography } from "@mui/material";
+import { apiFetch } from "../api";
 
 interface UniversityFormProps {
   universityId?: string | null;
@@ -14,7 +15,7 @@ const UniversityForm: React.FC<UniversityFormProps> = ({ universityId }) => {
   // Fetch university data if editing
   useEffect(() => {
     if (universityId) {
-      fetch(`http://localhost:5000/university/${universityId}`)
+      apiFetch(`/university/${universityId}`)
         .then((res) => res.json())
         .then((data) => {
           setName(data.university_name || "");
@@ -29,7 +30,7 @@ const UniversityForm: React.FC<UniversityFormProps> = ({ universityId }) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-  
+
     const formData = new FormData();
     formData.append("university_id", universityId ?? "");
     formData.append("university_name", name);
@@ -38,13 +39,16 @@ const UniversityForm: React.FC<UniversityFormProps> = ({ universityId }) => {
     if (image) {
       formData.append("university_image", image); // actual file
     }
-  
+
     try {
-      const response = await fetch("http://localhost:5000/university/update", {
-        method: "POST",
-        body: formData, // no JSON.stringify here!
-      });
-  
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/university/update`,
+        {
+          method: "POST",
+          body: formData, // no JSON.stringify here!
+        }
+      );
+
       if (!response.ok) throw new Error("Failed to update university.");
       const data = await response.json();
       console.log("University updated:", data);
@@ -54,7 +58,6 @@ const UniversityForm: React.FC<UniversityFormProps> = ({ universityId }) => {
       alert("Error updating university.");
     }
   };
-  
 
   return (
     <Box
@@ -68,7 +71,10 @@ const UniversityForm: React.FC<UniversityFormProps> = ({ universityId }) => {
         borderRadius: "8px",
       }}
     >
-      <Typography variant="h4" sx={{ marginBottom: "2rem", textAlign: "center" }}>
+      <Typography
+        variant="h4"
+        sx={{ marginBottom: "2rem", textAlign: "center" }}
+      >
         {universityId ? "Edit University" : "University Registration"}
       </Typography>
 
@@ -127,10 +133,17 @@ const UniversityForm: React.FC<UniversityFormProps> = ({ universityId }) => {
             if (file) setImage(file);
           }}
         />
-        <Typography variant="caption">SVG, PNG, JPG or GIF (max. 3MB)</Typography>
+        <Typography variant="caption">
+          SVG, PNG, JPG or GIF (max. 3MB)
+        </Typography>
       </Box>
 
-      <Button type="submit" variant="contained" fullWidth sx={{ marginTop: "1rem" }}>
+      <Button
+        type="submit"
+        variant="contained"
+        fullWidth
+        sx={{ marginTop: "1rem" }}
+      >
         {universityId ? "Update University" : "Submit"}
       </Button>
     </Box>
