@@ -37,8 +37,7 @@ import { useNavigate } from "react-router-dom";
 const ITEMS_PER_PAGE = 5;
 
 const TournamentList: React.FC = () => {
-  const [tournaments] =
-    useState<Tournament[]>(dummyTournaments);
+  const [tournaments] = useState<Tournament[]>(dummyTournaments);
   const [search, setSearch] = useState<string>("");
   const [page, setPage] = useState<number>(1);
   const [filter, setFilter] = useState<string>("All");
@@ -96,8 +95,15 @@ const TournamentList: React.FC = () => {
 
       <List>
         {paginatedTournaments.map((tournament) => (
-          <ListItem key={tournament.id}>
-            <Card sx={{ width: "100%" }}>
+          <ListItem key={tournament.id} disableGutters sx={{ padding: 0 }}>
+            <Card
+              sx={{
+                width: "100%",
+                borderRadius: 0,
+                height: 60,
+                alignItems: "center",
+              }}
+            >
               <CardContent>
                 <Grid container alignItems="center" spacing={2}>
                   <Grid item xs={2}>
@@ -105,7 +111,13 @@ const TournamentList: React.FC = () => {
                       component="img"
                       src={tournament.logo}
                       alt={tournament.name}
-                      sx={{ width: 50, height: 50 }}
+                      sx={{
+                        width: 50,
+                        height: 50,
+                        objectFit: "contain",
+                        display: "block",
+                        mx: "auto",
+                      }}
                     />
                   </Grid>
                   <Grid item xs={6}>
