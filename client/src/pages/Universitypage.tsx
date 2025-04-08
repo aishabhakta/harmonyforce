@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { Box, Typography, Grid, Button, Card, Skeleton } from "@mui/material";
 import MatchResultsEditor from "../components/UniversityModal"; // adjust path if needed
 import { apiFetch } from "../api";
+import { useNavigate } from "react-router-dom";
 
 interface Team {
   team_id: number;
@@ -50,6 +51,7 @@ const UniversityPage: React.FC = () => {
     team2Score: 0,
     date: "",
   });
+  const navigate = useNavigate();
 
   const handleOpenEditor = (match: Match) => {
     setSelectedMatch(match);
@@ -278,7 +280,17 @@ const UniversityPage: React.FC = () => {
             <Grid container spacing={2}>
               {teams.map((team) => (
                 <Grid item xs={12} key={team.team_id}>
-                  <Card sx={{ display: "flex", alignItems: "center", p: 2 }}>
+                  <Card
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      p: 2,
+                      cursor: "pointer",
+                      transition: "0.3s",
+                      "&:hover": { boxShadow: 4 },
+                    }}
+                    onClick={() => navigate(`/team/${team.team_id}`)}
+                  >
                     <Box
                       component="img"
                       src={

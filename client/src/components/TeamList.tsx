@@ -15,6 +15,7 @@ import {
   Button,
 } from "@mui/material";
 import { useAuth } from "../AuthProvider"; // Import auth context
+import { apiFetch } from "../api";
 
 interface Team {
   team_id: number;
@@ -27,16 +28,46 @@ interface TeamListProps {
   universityId?: number;
 }
 
-// Toggle this to `true` to use dummy data if using the backend switch true to false 
+// Toggle this to `true` to use dummy data if using the backend switch true to false
 const USE_DUMMY_DATA = false;
 
 const dummyTeams: Team[] = [
-  { team_id: 1, team_name: "Team Alpha", university_id: 101, profile_image: "https://via.placeholder.com/50" },
-  { team_id: 2, team_name: "Team Beta", university_id: 101, profile_image: "https://via.placeholder.com/50" },
-  { team_id: 3, team_name: "Team Gamma", university_id: 102, profile_image: "https://via.placeholder.com/50" },
-  { team_id: 4, team_name: "Team Delta", university_id: 103, profile_image: "https://via.placeholder.com/50" },
-  { team_id: 5, team_name: "Team Epsilon", university_id: 102, profile_image: "https://via.placeholder.com/50" },
-  { team_id: 6, team_name: "Team Zeta", university_id: 101, profile_image: "https://via.placeholder.com/50" },
+  {
+    team_id: 1,
+    team_name: "Team Alpha",
+    university_id: 101,
+    profile_image: "https://via.placeholder.com/50",
+  },
+  {
+    team_id: 2,
+    team_name: "Team Beta",
+    university_id: 101,
+    profile_image: "https://via.placeholder.com/50",
+  },
+  {
+    team_id: 3,
+    team_name: "Team Gamma",
+    university_id: 102,
+    profile_image: "https://via.placeholder.com/50",
+  },
+  {
+    team_id: 4,
+    team_name: "Team Delta",
+    university_id: 103,
+    profile_image: "https://via.placeholder.com/50",
+  },
+  {
+    team_id: 5,
+    team_name: "Team Epsilon",
+    university_id: 102,
+    profile_image: "https://via.placeholder.com/50",
+  },
+  {
+    team_id: 6,
+    team_name: "Team Zeta",
+    university_id: 101,
+    profile_image: "https://via.placeholder.com/50",
+  },
 ];
 
 const ITEMS_PER_PAGE = 5;
@@ -61,7 +92,7 @@ const TeamList: React.FC<TeamListProps> = ({ universityId }) => {
         return;
       }
       try {
-        const response = await fetch("http://127.0.0.1:5000/teams/getAllTeams");
+        const response = await apiFetch("/teams/getAllTeams");
         const data = await response.json();
         if (response.ok) {
           setTeams(data.teams);
@@ -121,17 +152,21 @@ const TeamList: React.FC<TeamListProps> = ({ universityId }) => {
                     "&:hover": { boxShadow: 4 },
                   }}
                   onClick={() => {
-                    const path = `/team/${team.team_id}${USE_DUMMY_DATA ? "?dummy=true" : ""}`;
+                    const path = `/team/${team.team_id}${
+                      USE_DUMMY_DATA ? "?dummy=true" : ""
+                    }`;
                     navigate(path);
                   }}
-                  
                 >
                   <CardContent>
                     <Grid container alignItems="center" spacing={2}>
                       <Grid item xs={2}>
                         <Box
                           component="img"
-                          src={team.profile_image || "https://via.placeholder.com/50"}
+                          src={
+                            team.profile_image ||
+                            "https://via.placeholder.com/50"
+                          }
                           alt={team.team_name}
                           sx={{ width: 50, height: 50 }}
                         />
