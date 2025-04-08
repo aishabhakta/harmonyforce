@@ -55,6 +55,7 @@ export default function Login() {
         });
 
         const data = await response.json();
+        console.log(data)
         if (response.ok) {
             localStorage.setItem("user_id", data.user_id);
             localStorage.setItem("session_token", data.token);
@@ -62,7 +63,7 @@ export default function Login() {
             localStorage.setItem("user_role", data.role || "general"); // Store role
 
             setUser({
-                // id: data.user_id,
+                user_id: data.user_id,
                 email: data.email,
                 token: data.token,
                 role: data.role || "general",

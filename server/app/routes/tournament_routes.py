@@ -42,10 +42,8 @@ def create_tournament():
         created_at=datetime.utcnow().date()
     )
 
-
     db.session.add(new_tournament)
     db.session.commit()
-
 
     return jsonify({
         "message": "Tournament created successfully",

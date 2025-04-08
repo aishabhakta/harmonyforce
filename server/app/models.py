@@ -152,7 +152,24 @@ class PendingTeamMember(db.Model):
     email = db.Column(db.String(100), nullable=False)
     team_id = db.Column(db.Integer, nullable=False)
     game_role = db.Column(db.String(100), nullable=True)
-    user_id = db.Column(db.Integer, nullable=True)  # ✅ Add this line
+    user_id = db.Column(db.Integer, nullable=True)  
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow) 
     status = db.Column(db.Integer, default='pending')  # 0 = Pending, 1 = Approved, 2 = Rejected
+
+
+class PendingTeamRegistration(db.Model):
+    __tablename__ = 'pending_team_registrations'
+    __table_args__ = {'schema': 'aardvark'}
+
+    id = db.Column(db.Integer, primary_key=True)
+    team_name = db.Column(db.String(45))
+    captain_name = db.Column(db.String(100))
+    captain_email = db.Column(db.String(100))
+    university_id = db.Column(db.Integer, nullable=False)
+    profile_image = db.Column(db.String(255))
+    members = db.Column(db.JSON)  # list of emails
+    status = db.Column(db.String(20), default='pending')
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+

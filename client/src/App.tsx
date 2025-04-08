@@ -111,7 +111,10 @@ const AppContent: React.FC = () => {
         <Route path="/gateway-timeout" element={<ErrorPage />} />
 
         <Route path="/faqpage" element={<FaqPage />} />
-        <Route path="/validation" element={<ValidationPage />} />
+        <Route element={<PrivateRoute allowedRoles={["superadmin"]} />}>
+          <Route path="/validation" element={<ValidationPage />} />
+        </Route>
+
         <Route
           path="/UniversityRegistration"
           element={<UniversityRegistration />}

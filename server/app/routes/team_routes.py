@@ -1,11 +1,12 @@
 from flask import Flask, Blueprint, request, jsonify, session, current_app
 from flask_cors import CORS # luke add
 from app.database import db
-from app.models import Team, User, PendingTeamMember
+from app.models import Team, User, PendingTeamMember, PendingTeamRegistration, University
 from datetime import datetime
 import os # luke add
 from werkzeug.utils import secure_filename # luke add
 from PIL import Image    # luke add
+from sqlalchemy import func
 
 
 team_bp = Blueprint('team', __name__)
@@ -39,54 +40,27 @@ def register_team():
         return jsonify({"error": "A team cannot have more than 7 members (including captain)."}), 400
 
     try:
-        # Create team
-        new_team = Team(
+        pending_team = PendingTeamRegistration(
             team_name=team_name,
-            captain_id=0,
+            captain_name=captain_name,
+            captain_email=captain_email,
             university_id=university_id,
             profile_image=profile_image,
+            members=members,
+            status="pending",
             created_at=datetime.utcnow(),
-            updated_at=datetime.utcnow(),
-            status=1,
-            blacklisted=0,
-            registration_date=datetime.utcnow().date()
+            updated_at=datetime.utcnow()
         )
-        db.session.add(new_team)
-        db.session.flush()
 
-        # Create or update captain
-        if existing_user:
-            existing_user.team_id = new_team.team_id
-            existing_user.user_type = "captain"
-            existing_user.updated_at = datetime.utcnow()
-            captain_user = existing_user
-        else:
-            captain_user = User(
-                team_id=new_team.team_id,
-                username=captain_name,
-                email=captain_email,
-                user_type="captain",
-                status=1,
-                blacklisted=0,
-                created_at=datetime.utcnow(),
-                updated_at=datetime.utcnow(),
-                password_hash=None
-            )
-            db.session.add(captain_user)
-            db.session.flush()
-
-        new_team.captain_id = captain_user.user_id
-
-        # Optionally handle members (if included in future)
-        # for member_data in members:
-        #     ...
-
+        db.session.add(pending_team)
         db.session.commit()
-        return jsonify({"message": "Team registered successfully!", "team_id": new_team.team_id}), 201
+
+        return jsonify({"message": "Team registration request submitted for approval!"}), 201
 
     except Exception as e:
         db.session.rollback()
-        return jsonify({"error": "Failed to register team", "details": str(e)}), 500
+        return jsonify({"error": "Failed to submit team request", "details": str(e)}), 500
+
 
 # Route to get team details
 @team_bp.route('/getTeam/<int:team_id>', methods=['GET'])
@@ -96,13 +70,8 @@ def get_team(team_id):
         if not team:
             return jsonify({"error": "Team not found"}), 404
 
-        # Fetch the captain details
-
         captain = User.query.filter_by(user_id=team.captain_id).first()
-
-        # Fetch all other team members (excluding the captain)
         members = User.query.filter(User.team_id == team.team_id, User.user_type != "captain").all()
-
 
         team_data = {
             "team_id": team.team_id,
@@ -111,7 +80,7 @@ def get_team(team_id):
                 "user_id": captain.user_id if captain else None,
                 "name": captain.username if captain else None,
                 "email": captain.email if captain else None,
-                "game_role": captain.game_role if captain else None,  # Include game_role
+                "game_role": captain.game_role if captain else None, 
                 # "imageUrl": captain.profile_image if captain else None  # Include profile image
             },
             "university_id": team.university_id,
@@ -124,7 +93,7 @@ def get_team(team_id):
                     "user_id": member.user_id,
                     "name": member.username,
                     "email": member.email,
-                    "game_role": member.game_role,  # Include game_role
+                    "game_role": member.game_role, 
                     # "imageUrl": member.profile_image  # Include profile image
                 }
                 for member in members
@@ -425,3 +394,116 @@ def get_participants_and_captains():
         })
 
     return jsonify(result), 200
+    
+@team_bp.route('/pendingTeams', methods=['GET'])
+def get_pending_teams():
+    results = (
+        db.session.query(
+            PendingTeamRegistration.id,
+            PendingTeamRegistration.team_name,
+            PendingTeamRegistration.captain_name,
+            PendingTeamRegistration.captain_email,
+            PendingTeamRegistration.profile_image,
+            PendingTeamRegistration.status,
+            PendingTeamRegistration.created_at,
+            University.university_name
+        )
+        .outerjoin(University, PendingTeamRegistration.university_id == University.university_id)
+        .filter(PendingTeamRegistration.status == "pending")
+        .all()
+    )
+
+    response = [
+        {
+            "id": r.id,
+            "team_name": r.team_name,
+            "captain_name": r.captain_name,
+            "captain_email": r.captain_email,
+            "profile_image": r.profile_image,
+            "status": r.status,
+            "created_at": r.created_at.isoformat(),
+            "university_name": r.university_name or "Unknown University"
+        }
+        for r in results
+    ]
+
+    return jsonify(response), 200
+
+@team_bp.route('/approve-team/<int:pending_team_id>', methods=['POST'])
+def approve_pending_team(pending_team_id):
+    try:
+        pending = PendingTeamRegistration.query.get(pending_team_id)
+        if not pending:
+            return jsonify({"error": "Pending team not found"}), 404
+
+        # Check if captain exists
+        existing_user = User.query.filter_by(email=pending.captain_email).first()
+        if existing_user:
+            if existing_user.team_id:
+                return jsonify({"error": "Captain is already in a team"}), 400
+        else:
+            # Create new captain
+            existing_user = User(
+                username=pending.captain_name,
+                email=pending.captain_email,
+                user_type="captain",
+                status=1,
+                blacklisted=0,
+                created_at=datetime.utcnow(),
+                updated_at=datetime.utcnow()
+            )
+            db.session.add(existing_user)
+            db.session.flush()
+
+        # Create the team
+        new_team = Team(
+            team_name=pending.team_name,
+            captain_id=existing_user.user_id,
+            registration_date=datetime.utcnow().date(),
+            status=1,
+            blacklisted=0,
+            profile_image=pending.profile_image,
+            university_id=pending.university_id,
+            created_at=datetime.utcnow().date(),
+            updated_at=datetime.utcnow().date(),
+            description=""
+        )
+        db.session.add(new_team)
+        db.session.flush()
+
+        # Assign team_id to captain
+        existing_user.team_id = new_team.team_id
+        existing_user.updated_at = datetime.utcnow()
+
+        # Assign team_id to other members (by email)
+        for email in pending.members:
+            if email == pending.captain_email:
+                continue  # Skip the captain
+            user = User.query.filter_by(email=email).first()
+            if user:
+                if user.team_id:
+                    continue  # already in a team
+                user.team_id = new_team.team_id
+                user.updated_at = datetime.utcnow()
+
+        # Delete from pending table
+        db.session.delete(pending)
+        db.session.commit()
+
+        return jsonify({"message": "Team approved and created successfully!"}), 200
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": "Team approval failed", "details": str(e)}), 500
+
+
+
+@team_bp.route('/reject-team/<int:team_id>', methods=['POST'])
+def reject_team(team_id):
+    team = PendingTeamRegistration.query.get(team_id)
+    if not team:
+        return jsonify({"error": "Team not found"}), 404
+
+    db.session.delete(team)
+    db.session.commit()
+    return jsonify({"message": "Team registration rejected and removed."}), 200

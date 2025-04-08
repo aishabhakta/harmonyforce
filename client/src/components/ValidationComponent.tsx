@@ -29,6 +29,28 @@ interface PendingTeamMember {
   status: string;
 }
 
+interface PendingTeam {
+  id: number;
+  team_name: string;
+  captain_name: string;
+  captain_email: string;
+  university_id: number;
+  university_name: string;
+  profile_image: string;
+}
+
+interface TeamRequest {
+  request_id: number;
+  user_id: number;
+  team_id: number;
+  status: string;
+  created_at: string;
+  user_email?: string; // optionally populate this from backend
+  team_name?: string;
+  first_name?: string;
+  last_name?: string;
+}
+
 
 const moderatorSections = [
   "Moderator Accounts",
@@ -39,7 +61,8 @@ const moderatorSections = [
 const universitySections = [
   "User Accounts",
   "Team Member Requests",
-  "Team Page Validation",
+  "Team Registration Requests",
+  "Member Requests to Join Team",
 ];
 
 const ValidationComponent: React.FC<ValidationComponentProps> = ({ userRole }) => {
@@ -55,7 +78,14 @@ const ValidationComponent: React.FC<ValidationComponentProps> = ({ userRole }) =
   const [section, setSection] = useState(availableSections[0] || "");
   const [pendingUsers, setPendingUsers] = useState<PendingUser[]>([]);
   const [pendingMembers, setPendingMembers] = useState<PendingTeamMember[]>([]);
-
+  const [pendingTeams, setPendingTeams] = useState<PendingTeam[]>([]);
+  const [joinRequests, setJoinRequests] = useState<TeamRequest[]>([]);
+  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: "success" | "error" }>({
+    open: false,
+    message: "",
+    severity: "success",
+  });
+  
 
   const fetchPendingUsers = async () => {
     try {
@@ -63,6 +93,20 @@ const ValidationComponent: React.FC<ValidationComponentProps> = ({ userRole }) =
       const data = await response.json();
       if (response.ok) {
         setPendingUsers(data);
+      } else {
+        console.error("Error fetching pending users:", data.error);
+      }
+    } catch (err) {
+      console.error("Fetch error:", err);
+    }
+  };
+
+  const fetchPendingTeams = async () => {
+    try {
+      const response = await fetch("http://127.0.0.1:5000/teams/pendingTeams");
+      const data = await response.json();
+      if (response.ok) {
+        setPendingTeams(data);
       } else {
         console.error("Error fetching pending users:", data.error);
       }
@@ -79,7 +123,7 @@ const ValidationComponent: React.FC<ValidationComponentProps> = ({ userRole }) =
       const data = await response.json();
       if (response.ok) {
         setPendingUsers((prev) => prev.filter((user) => user.id !== pending_id));
-        alert(data.message);
+        setSnackbar({ open: true, message: data.message, severity: "success" });
       } else {
         alert(data.error);
       }
@@ -96,7 +140,7 @@ const ValidationComponent: React.FC<ValidationComponentProps> = ({ userRole }) =
       const data = await response.json();
       if (response.ok) {
         setPendingUsers((prev) => prev.filter((user) => user.id !== pending_id));
-        alert(data.message);
+        setSnackbar({ open: true, message: data.message, severity: "success" });
       } else {
         alert(data.error);
       }
@@ -127,7 +171,7 @@ const ValidationComponent: React.FC<ValidationComponentProps> = ({ userRole }) =
       const data = await response.json();
       if (response.ok) {
         setPendingMembers((prev) => prev.filter((member) => member.id !== memberId));
-        alert(data.message);
+        setSnackbar({ open: true, message: data.message, severity: "success" });
       } else {
         alert(data.error);
       }
@@ -144,7 +188,7 @@ const ValidationComponent: React.FC<ValidationComponentProps> = ({ userRole }) =
       const data = await response.json();
       if (response.ok) {
         setPendingMembers((prev) => prev.filter((member) => member.id !== memberId));
-        alert(data.message);
+        setSnackbar({ open: true, message: data.message, severity: "success" });
       } else {
         alert(data.error);
       }
@@ -152,12 +196,102 @@ const ValidationComponent: React.FC<ValidationComponentProps> = ({ userRole }) =
       alert("Rejection failed.");
     }
   };
- 
+
+  const handleApproveTeam = async (id: number) => {
+    try {
+      const response = await fetch(`http://127.0.0.1:5000/teams/approve-team/${id}`, {
+        method: "POST",
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setPendingTeams((prev) => prev.filter((team) => team.id !== id));
+        setSnackbar({ open: true, message: data.message, severity: "success" });
+      } else {
+        alert(data.error);
+      }
+    } catch (err) {
+      alert("Approval failed.");
+    }
+  };
+  
+  const handleRejectTeam = async (id: number) => {
+    try {
+      const response = await fetch(`http://127.0.0.1:5000/teams/reject-team/${id}`, {
+        method: "POST",
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setPendingTeams((prev) => prev.filter((team) => team.id !== id));
+        setSnackbar({ open: true, message: data.message, severity: "success" });
+      } else {
+        alert(data.error);
+      }
+    } catch (err) {
+      alert("Rejection failed.");
+    }
+  };
+
+  const fetchJoinRequests = async () => {
+    try {
+      const response = await fetch("http://127.0.0.1:5000/team_requests/pending-join-requests");
+      const data = await response.json();
+      if (response.ok) {
+        setJoinRequests(data);
+      } else {
+        console.error("Error fetching join requests:", data.error);
+      }
+    } catch (err) {
+      console.error("Fetch error:", err);
+    }
+  };
+
+  const handleApproveJoinRequest = async (requestId: number) => {
+    try {
+      const response = await fetch("http://127.0.0.1:5000/team_requests/approve_request", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ request_id: requestId }),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setJoinRequests((prev) => prev.filter((req) => req.request_id !== requestId));
+        setSnackbar({ open: true, message: data.message, severity: "success" });
+      } else {
+        alert(data.error);
+      }
+    } catch (err) {
+      alert("Approval failed.");
+    }
+  };
+  
+  const handleRejectJoinRequest = async (requestId: number) => {
+    try {
+      const response = await fetch("http://127.0.0.1:5000/team_requests/deny_request", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ request_id: requestId }),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setJoinRequests((prev) => prev.filter((req) => req.request_id !== requestId));
+        setSnackbar({ open: true, message: data.message, severity: "success" });
+      } else {
+        alert(data.error);
+      }
+    } catch (err) {
+      alert("Rejection failed.");
+    }
+  };
+  
   useEffect(() => {
     if (section === "User Accounts") {
       fetchPendingUsers();
     } else if (section === "Team Member Requests") {
       fetchPendingMembers();
+    } else if (section === "Team Registration Requests") {
+      fetchPendingTeams();
+    } else if (section === "Member Requests to Join Team") {
+      fetchJoinRequests();
     }
   }, [section]);
 
@@ -230,7 +364,65 @@ const ValidationComponent: React.FC<ValidationComponentProps> = ({ userRole }) =
               )}
             </Box>
           );
-        
+        case "Team Registration Requests":
+          return (
+            <Box>
+              {pendingTeams.length === 0 ? (
+                <Typography>No pending team registrations.</Typography>
+              ) : (
+                pendingTeams.map(team => (
+                  <Card key={team.id} sx={{ p: 2, mb: 2, display: "flex", justifyContent: "space-between" }}>
+                    <Box>
+                      <Typography variant="h6">Team Name: {team.team_name}</Typography>
+                      <Typography variant="body2">
+                        {/* Captain: {team.captain_name} ({team.captain_email})<br /> */}
+                        University: {team.university_name}
+                      </Typography>
+                    </Box>
+                    <Box>
+                      <Button onClick={() => handleApproveTeam(team.id)} sx={{ mr: 1 }} variant="contained">ACCEPT</Button>
+                      <Button onClick={() => handleRejectTeam(team.id)} variant="contained" color="error">DENY</Button>
+                    </Box>
+                  </Card>
+                ))
+              )}
+            </Box>
+          );
+          case "Member Requests to Join Team":
+          return (
+            <Box>
+              {joinRequests.length === 0 ? (
+                <Typography>No pending member join requests.</Typography>
+              ) : (
+                joinRequests.map((req) => (
+                  <Card key={req.request_id} sx={{ display: "flex", alignItems: "center", p: 2, mb: 2 }}>
+                    <Box sx={{ flexGrow: 1 }}>
+                      <Typography>{req.first_name} {req.last_name} wants to join {req.team_name}</Typography>
+                      <Typography color="text.secondary">
+                        Requested At: {new Date(req.created_at).toLocaleString()}
+                      </Typography>
+                    </Box>
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={() => handleApproveJoinRequest(req.request_id)}
+                      sx={{ mr: 1 }}
+                    >
+                      ACCEPT
+                    </Button>
+                    <Button
+                      variant="contained"
+                      color="error"
+                      onClick={() => handleRejectJoinRequest(req.request_id)}
+                    >
+                      DENY
+                    </Button>
+                  </Card>
+                ))
+              )}
+            </Box>
+          );
+
       default:
         return <Typography>No access</Typography>;
     }

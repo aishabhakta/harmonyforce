@@ -1,7 +1,7 @@
 import React, { createContext, useState, useContext, useEffect } from "react";
 
 interface User {
-  // id: number;
+  user_id: number;
   email: string;
   displayName?: string;
   photoURL?: string;
@@ -22,6 +22,7 @@ const USE_DUMMY_AUTH = false;
 
 //  Dummy user data
 const dummyUser: User = {
+  user_id: 1,
   email: "jane.doe@example.com",
   displayName: "Jane Doe",
   photoURL: "https://via.placeholder.com/150",
@@ -39,7 +40,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return;
     }
   
-    // const id = localStorage.getItem("user_id");
+    const user_id = localStorage.getItem("user_id");
     const token = localStorage.getItem("session_token");
     const email = localStorage.getItem("user_email");
     const displayName = localStorage.getItem("user_displayName");
@@ -51,7 +52,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   
     if (token && email) {
       setUser({
-        // id,
+        user_id,
         token,
         email,
         displayName: displayName || undefined,

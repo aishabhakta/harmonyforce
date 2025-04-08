@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from app.database import db
 from app.models import Team, TeamRequest, User
-import datetime
+from datetime import datetime, timedelta
 
 team_requests_bp = Blueprint('team_requests', __name__)
 
@@ -136,3 +136,36 @@ def deny_request():
     request_entry.status = 'denied'
     db.session.commit()
     return jsonify({"message": "Request denied successfully!"}), 200
+
+@team_requests_bp.route('/pending-join-requests', methods=['GET'])
+def get_pending_join_requests():
+    results = (
+        db.session.query(
+            TeamRequest.request_id,
+            TeamRequest.created_at,
+            User.user_id,
+            User.first_name,
+            User.last_name,
+            Team.team_id,
+            Team.team_name
+        )
+        .join(User, TeamRequest.user_id == User.user_id)
+        .join(Team, TeamRequest.team_id == Team.team_id)
+        .filter(TeamRequest.status == 'pending')
+        .all()
+    )
+
+    response = [
+        {
+            "request_id": r.request_id,
+            "created_at": r.created_at.isoformat(),
+            "user_id": r.user_id,
+            "first_name": r.first_name,
+            "last_name": r.last_name,
+            "team_id": r.team_id,
+            "team_name": r.team_name
+        }
+        for r in results
+    ]
+
+    return jsonify(response), 200
