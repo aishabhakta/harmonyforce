@@ -67,7 +67,7 @@ const Homepage: React.FC = () => {
         {/* Introductory Text */}
         <Typography
           variant="h5"
-          sx={{ maxWidth: 800, mx: "auto", mb: 2, px: 2 }}
+          sx={{ maxWidth: 800, mx: "auto", mb: 2, px: 2, pt: 2 }}
         >
           Join us in an exciting international tournament to launch Aardvark’s
           great adventure into A New World! Form a team and win the university
