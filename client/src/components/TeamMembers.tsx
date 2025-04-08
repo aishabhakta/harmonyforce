@@ -118,19 +118,6 @@ const TeamMembers: React.FC<TeamMembersProps> = ({ members, currentUserId }) => 
         ))}
       </TextField>
 
-      <Box
-        sx={{
-          border: "1px dashed #1976d2",
-          borderRadius: "8px",
-          padding: "1rem",
-          textAlign: "center",
-        }}
-      >
-        <Typography variant="body2" sx={{ marginBottom: "0.5rem" }}>
-          Link or drag and drop
-        </Typography>
-        <Typography variant="caption">SVG, PNG, JPG, or GIF (max. 3MB)</Typography>
-      </Box>
 
         <Button
           variant="contained"
