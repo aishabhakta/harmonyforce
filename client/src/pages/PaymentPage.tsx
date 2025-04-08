@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import type { StripeElementsOptions } from "@stripe/stripe-js";
-import { Box, Typography, CircularProgress, Grid, Paper } from "@mui/material";
+import { Box, Typography, CircularProgress, Paper } from "@mui/material";
 import CheckoutForm from "./CheckoutForm";
 
 const stripePromise = loadStripe(

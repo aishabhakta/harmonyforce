@@ -2,6 +2,9 @@ from flask import Blueprint, request, jsonify
 from app.database import db
 from app.models import Team, University, User,Match
 from datetime import datetime
+from sqlalchemy import LargeBinary
+from flask import send_file
+from io import BytesIO
 
 
 university_bp = Blueprint('university', __name__)
@@ -10,11 +13,18 @@ university_bp = Blueprint('university', __name__)
 # Function to register a university
 @university_bp.route('/register', methods=['POST'])
 def register_university():
-    data = request.get_json()
+    university_name = request.form.get('university_name')
+    description = request.form.get('description', '')
+    university_image = request.files.get('university_image')
+    
+    image_data = university_image.read() if university_image else None
+    mime_type = university_image.content_type if university_image else None
+
     new_university = University(
-        university_name=data['university_name'],
-        description=data.get('description', ''),
-        university_image=data.get('university_image', ''),
+        university_name=university_name,
+        description=description,
+        university_image=image_data,
+        image_mime_type=mime_type,
         created_at=datetime.utcnow()
     )
     db.session.add(new_university)
@@ -25,16 +35,36 @@ def register_university():
 # Function to update university details
 @university_bp.route('/update', methods=['POST'])
 def update_university():
-    data = request.get_json()
-    university = University.query.get(data['university_id'])
+    university_id = request.form.get('university_id')
+    university = University.query.get(university_id)
+
     if not university:
         return jsonify({"error": "University not found"}), 404
-    university.university_name = data.get('university_name', university.university_name)
-    university.description = data.get('description', university.description)
-    university.university_image = data.get('university_image', university.university_image)
+
+    university.university_name = request.form.get('university_name', university.university_name)
+    university.description = request.form.get('description', university.description)
+    university.universitylink = request.form.get('universitylink', university.universitylink)
+
+    university_image = request.files.get('university_image')
+    if university_image:
+        university.university_image = university_image.read()
+        university.image_mime_type = university_image.content_type
+
     db.session.commit()
     return jsonify({"message": "University updated successfully!"}), 200
 
+
+@university_bp.route('/<int:university_id>/image', methods=['GET'])
+def get_university_image(university_id):
+    university = University.query.get(university_id)
+    if not university or not university.university_image:
+        return jsonify({"error": "Image not found"}), 404
+
+    return send_file(
+        BytesIO(university.university_image),
+        mimetype=university.image_mime_type,
+        as_attachment=False
+    )
 
 # Function to get all teams for a given university
 @university_bp.route('/<int:university_id>/teams', methods=['GET'])
@@ -56,7 +86,7 @@ def get_all_universities():
                 "university_id": uni.university_id,
                 "university_name": uni.university_name,
                 "description": uni.description,
-                "university_image": uni.university_image,
+                "university_image": f"/university/{uni.university_id}/image", 
                 "country": uni.country,
                 "universitylink": uni.universitylink,
                 "status": uni.status,
@@ -146,7 +176,7 @@ def get_university_details(university_id):
         "university_id": uni.university_id,
         "university_name": uni.university_name,
         "description": uni.description,
-        "university_image": uni.university_image,
+        "university_image": f"/university/{uni.university_id}/image",
         "status": "Active" if uni.status == 1 else "Inactive",
         "created_at": uni.created_at.strftime('%Y-%m-%d') if uni.created_at else None,
         "country": uni.country,

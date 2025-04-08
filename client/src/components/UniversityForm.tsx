@@ -9,7 +9,7 @@ const UniversityForm: React.FC<UniversityFormProps> = ({ universityId }) => {
   const [name, setName] = useState("");
   const [bio, setBio] = useState("");
   const [link, setLink] = useState("");
-  const [, setImage] = useState<File | null>(null);
+  const [image, setImage] = useState<File | null>(null);
 
   // Fetch university data if editing
   useEffect(() => {
@@ -30,19 +30,19 @@ const UniversityForm: React.FC<UniversityFormProps> = ({ universityId }) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
   
+    const formData = new FormData();
+    formData.append("university_id", universityId ?? "");
+    formData.append("university_name", name);
+    formData.append("description", bio);
+    formData.append("universitylink", link);
+    if (image) {
+      formData.append("university_image", image); // actual file
+    }
+  
     try {
       const response = await fetch("http://localhost:5000/university/update", {
-        method: "POST", // you're using POST here
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          university_id: universityId, // make sure this is included!
-          university_name: name,
-          description: bio,
-          universitylink: link,
-          university_image: link,
-        }),
+        method: "POST",
+        body: formData, // no JSON.stringify here!
       });
   
       if (!response.ok) throw new Error("Failed to update university.");

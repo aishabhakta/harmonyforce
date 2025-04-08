@@ -25,7 +25,7 @@ import React from "react";
      <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
 
        {/* FAQ Section */}
-       <Container maxWidth="md" sx={{ flexGrow: 1, textAlign: "center", my: 6 }}>
+       <Container maxWidth="md" sx={{ flexGrow: 1, textAlign: "left", my: 6 }}>
          <Typography variant="h3" sx={{ fontWeight: "bold", mb: 2 }}>
            Frequently Asked Questions
          </Typography>
@@ -51,7 +51,7 @@ import React from "react";
            Contact Us
          </Typography>
          <Typography variant="subtitle1" sx={{ mb: 4, color: "gray" }}>
-         Couldn’t find the answer to your question? Reach out to us at Aardvark@gmail.com or call us at 7475550123
+         Couldn’t find the answer to your question? Reach out to us at Aardvark@gmail.com or call us at (747)-555-0123
          </Typography>
 
        </Container>

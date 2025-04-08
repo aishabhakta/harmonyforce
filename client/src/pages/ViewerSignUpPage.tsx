@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Button, TextField, Typography, Link, Box,
   InputLabel, FormControl, Select, MenuItem
@@ -10,7 +10,7 @@ export default function Register() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState("viewer"); // Default role set internally
+  const [role] = useState("viewer"); // Default role set internally
   const [university, setUniversity] = useState("");
   const [universities, setUniversities] = useState<string[]>([]);
   const navigate = useNavigate();

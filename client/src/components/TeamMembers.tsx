@@ -9,13 +9,11 @@ interface TeamMembersProps {
   setMembers: React.Dispatch<React.SetStateAction<any[]>>;
 }
 
-const TeamMembers: React.FC<TeamMembersProps> = ({ members, currentUserId }) => {
+const TeamMembers: React.FC<TeamMembersProps> = () => {
   const { id } = useParams<{ id: string }>();
   const teamId = parseInt(id || "0");
   const [teamData, setTeamData] = useState<any>(null);
   const [, setLoading] = useState(true);
-  const captainId = teamData?.captain?.user_id;
-  const isCaptainOfTeam = currentUserId === captainId;
   const teamSize = (teamData?.members?.length || 0) + 1;
 
   const [name, setName] = useState("");
@@ -118,19 +116,6 @@ const TeamMembers: React.FC<TeamMembersProps> = ({ members, currentUserId }) => 
         ))}
       </TextField>
 
-      <Box
-        sx={{
-          border: "1px dashed #1976d2",
-          borderRadius: "8px",
-          padding: "1rem",
-          textAlign: "center",
-        }}
-      >
-        <Typography variant="body2" sx={{ marginBottom: "0.5rem" }}>
-          Link or drag and drop
-        </Typography>
-        <Typography variant="caption">SVG, PNG, JPG, or GIF (max. 3MB)</Typography>
-      </Box>
 
         <Button
           variant="contained"

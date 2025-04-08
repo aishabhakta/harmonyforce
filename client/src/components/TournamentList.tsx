@@ -14,7 +14,7 @@
 
 //   fetchTournaments();
 // }, []);
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   Box,
   TextField,
@@ -37,7 +37,7 @@ import { useNavigate } from "react-router-dom";
 const ITEMS_PER_PAGE = 5;
 
 const TournamentList: React.FC = () => {
-  const [tournaments, setTournaments] =
+  const [tournaments] =
     useState<Tournament[]>(dummyTournaments);
   const [search, setSearch] = useState<string>("");
   const [page, setPage] = useState<number>(1);
