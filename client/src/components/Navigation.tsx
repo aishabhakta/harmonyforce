@@ -29,8 +29,17 @@ const NavigationBar: React.FC<NavigationProps> = ({ links }) => {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [drawerOpen, setDrawerOpen] = useState(false);
 
+  // Grab the user from context
+  // ✅ Include loading state from useAuth
   const { user, setUser } = useAuth();
 
+
+
+  console.log("user.photoURL in NavigationBar:", user?.photoURL);
+  console.log("Current User in NavigationBar:", user);
+
+
+  // Example logout handler:
   const handleLogout = async () => {
     try {
       const token = user?.token || localStorage.getItem("session_token");
@@ -155,7 +164,8 @@ const NavigationBar: React.FC<NavigationProps> = ({ links }) => {
               <Avatar
                 alt={user.displayName || "Profile"}
                 src={user.photoURL || ""}
-                sx={{ width: 40, height: 40 }}
+                sx={{ width: 40, height: 40, cursor: "pointer" }}
+                onClick={() => navigate(`/player/${user.user_id}`)}
               />
               <Button
                 color="inherit"
