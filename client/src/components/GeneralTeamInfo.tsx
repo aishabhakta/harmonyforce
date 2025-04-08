@@ -7,6 +7,7 @@ const GeneralTeamInfo: React.FC = () => {
   const [teamLeaderName, setTeamLeaderName] = useState("");
   const [teamLeaderEmail, setTeamLeaderEmail] = useState("");
   const [profileImage] = useState(""); // Placeholder for image URL or base64 string
+  const [imageFile, setImageFile] = useState<File | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -16,34 +17,62 @@ const GeneralTeamInfo: React.FC = () => {
       captain_name: teamLeaderName,
       captain_email: teamLeaderEmail,
       team_bio: teamBio,
-      university_id: 1, // Adjust as necessary
-      profile_image: profileImage,
-      members: [], // Leaving members empty for now
+      university_id: 1,
+      profile_image: "", // Will be uploaded separately
+      members: [],
     };
 
     try {
-      const response = await fetch("http://127.0.0.1:5000/teams/registerTeam", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
+      const registerRes = await fetch(
+        "http://18.218.163.17:5000/teams/registerTeam",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        }
+      );
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error("Error registering team:", errorData);
-      } else {
-        const data = await response.json();
-        console.log("Team registered:", data);
+      const registerData = await registerRes.json();
+
+      if (!registerRes.ok) {
+        console.error("Error registering team:", registerData);
+        return;
+      }
+
+      console.log("Team registered:", registerData);
+
+      // Now upload the image, if selected
+      if (imageFile) {
+        const teamId = registerData.team_id || registerData.id; // depending on your backend response
+
+        const formData = new FormData();
+        formData.append("image", imageFile);
+
+        const uploadRes = await fetch(
+          `http://18.218.163.17:5000/team/${teamId}/upload_image`,
+          {
+            method: "POST",
+            body: formData,
+          }
+        );
+
+        const uploadData = await uploadRes.json();
+
+        if (!uploadRes.ok) {
+          console.error("Image upload failed:", uploadData);
+        } else {
+          console.log("Image uploaded:", uploadData.image_url);
+        }
       }
     } catch (error) {
-      console.error("Error registering team:", error);
+      console.error("Unexpected error:", error);
     }
   };
 
   function setImage(_file: File) {
-    throw new Error("Function not implemented.");
+    setImageFile(_file);
   }
 
   return (
@@ -72,7 +101,7 @@ const GeneralTeamInfo: React.FC = () => {
         value={teamName}
         onChange={(e) => setTeamName(e.target.value)}
       />
-      
+
       <TextField
         fullWidth
         label="Team Bio"
@@ -125,7 +154,9 @@ const GeneralTeamInfo: React.FC = () => {
             if (file) setImage(file);
           }}
         />
-        <Typography variant="caption">SVG, PNG, JPG or GIF (max. 3MB)</Typography>
+        <Typography variant="caption">
+          SVG, PNG, JPG or GIF (max. 3MB)
+        </Typography>
       </Box>
       <Button type="submit" variant="contained" sx={{ marginTop: "1rem" }}>
         Register Team
