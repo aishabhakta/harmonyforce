@@ -1,5 +1,6 @@
 from .database import db
 from datetime import datetime
+from sqlalchemy import LargeBinary
 
 class Team(db.Model):
     __tablename__ = 'teams'
@@ -56,7 +57,8 @@ class University(db.Model):
     status = db.Column(db.SmallInteger)
     description = db.Column(db.String(255))
     universitylink = db.Column(db.String(255))
-    university_image = db.Column(db.String(255))
+    university_image = db.Column(LargeBinary)  # store image as binary
+    image_mime_type = db.Column(db.String(255))  # store content-type like 'image/png'
     created_at = db.Column(db.Date, default=datetime.utcnow)
     updated_at = db.Column(db.Date, default=datetime.utcnow, onupdate=datetime.utcnow)
 

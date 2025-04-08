@@ -3,6 +3,7 @@ import { Box, Typography, TextField, Button } from "@mui/material";
 
 const GeneralTeamInfo: React.FC = () => {
   const [teamName, setTeamName] = useState("");
+  const [teamBio, setTeamBio] = useState("");
   const [teamLeaderName, setTeamLeaderName] = useState("");
   const [teamLeaderEmail, setTeamLeaderEmail] = useState("");
   const [profileImage] = useState(""); // Placeholder for image URL or base64 string
@@ -14,6 +15,7 @@ const GeneralTeamInfo: React.FC = () => {
       team_name: teamName,
       captain_name: teamLeaderName,
       captain_email: teamLeaderEmail,
+      team_bio: teamBio,
       university_id: 1, // Adjust as necessary
       profile_image: profileImage,
       members: [], // Leaving members empty for now
@@ -39,6 +41,10 @@ const GeneralTeamInfo: React.FC = () => {
       console.error("Error registering team:", error);
     }
   };
+
+  function setImage(_file: File) {
+    throw new Error("Function not implemented.");
+  }
 
   return (
     <Box
@@ -66,6 +72,16 @@ const GeneralTeamInfo: React.FC = () => {
         value={teamName}
         onChange={(e) => setTeamName(e.target.value)}
       />
+      
+      <TextField
+        fullWidth
+        label="Team Bio"
+        variant="outlined"
+        sx={{ marginBottom: "1rem" }}
+        value={teamBio}
+        onChange={(e) => setTeamBio(e.target.value)}
+      />
+
       <Box
         sx={{
           display: "grid",
@@ -88,21 +104,28 @@ const GeneralTeamInfo: React.FC = () => {
           onChange={(e) => setTeamLeaderEmail(e.target.value)}
         />
       </Box>
+      <Typography variant="h6" sx={{ marginBottom: "1rem" }}>
+        Team Image
+      </Typography>
+
       <Box
         sx={{
-          marginTop: "1rem",
           border: "1px dashed #1976d2",
           borderRadius: "8px",
           padding: "1rem",
           textAlign: "center",
+          marginBottom: "1rem",
         }}
       >
-        <Typography variant="body2" sx={{ marginBottom: "0.5rem" }}>
-          Link or drag and drop
-        </Typography>
-        <Typography variant="caption">
-          SVG, PNG, JPG, or GIF (max. 3MB)
-        </Typography>
+        <input
+          type="file"
+          accept="image/*"
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (file) setImage(file);
+          }}
+        />
+        <Typography variant="caption">SVG, PNG, JPG or GIF (max. 3MB)</Typography>
       </Box>
       <Button type="submit" variant="contained" sx={{ marginTop: "1rem" }}>
         Register Team

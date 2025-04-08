@@ -163,7 +163,7 @@ const UniversityPage: React.FC = () => {
           position: "relative",
           width: "100%",
           height: "400px",
-          backgroundImage: `url(${university.university_image})`,
+          backgroundImage: `url(http://localhost:5000/university/${university.university_id}/image)`,
           backgroundSize: "cover",
           backgroundPosition: "center",
           display: "flex",

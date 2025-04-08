@@ -1,7 +1,5 @@
 import React from "react";
 import { Box, Container, Typography } from "@mui/material";
-import NavigationBar from "../components/Navigation";
-import Footer from "../components/Footer";
 import TeamList from "../components/TeamList";
 
 const TeamSearchPage: React.FC = () => {
