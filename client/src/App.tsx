@@ -76,7 +76,7 @@ const AppContent: React.FC = () => {
             { name: "Tournaments", href: "/tournaments" },
             { name: "Teams", href: "/team" },
             { name: "Universities", href: "/universities" },
-            { name: "Report", href: "/Report" },
+            // { name: "Report", href: "/Report" },
           ]}
         />
       )}
