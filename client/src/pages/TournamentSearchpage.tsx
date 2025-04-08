@@ -1,7 +1,6 @@
 import React from "react";
-import { Box, Button, Container, Typography } from "@mui/material";
+import { Box, Container, Typography } from "@mui/material";
 import TournamentList from "../components/TournamentList";
-import { Link } from "react-router-dom";
 
 const TournamentSearchPage: React.FC = () => {
   return (
