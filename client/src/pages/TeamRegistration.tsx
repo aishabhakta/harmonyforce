@@ -5,12 +5,7 @@ import TeamMembers from "../components/TeamMembers";
 
 
 const TeamRegistration: React.FC = () => {
-  const [teamName, setTeamName] = useState("");
-  const [universityId, setUniversityId] = useState<number | null>(null);
-  const [captainName, setCaptainName] = useState("");
-  const [captainEmail, setCaptainEmail] = useState("");
-  const [profileImage, setProfileImage] = useState<string | null>(null);
-  const [members, setMembers] = useState<any[]>([]); // Replace with stricter typing if you have
+
   const [success] = useState("");
   const [error] = useState("");
 
@@ -39,20 +34,11 @@ const TeamRegistration: React.FC = () => {
           boxSizing: "border-box",
         }}
       >
-        <GeneralTeamInfo
-          teamName={teamName}
-          setTeamName={setTeamName}
-          captainName={captainName}
-          setCaptainName={setCaptainName}
-          captainEmail={captainEmail}
-          setCaptainEmail={setCaptainEmail}
-          universityId={universityId}
-          setUniversityId={setUniversityId}
-          profileImage={profileImage}
-          setProfileImage={setProfileImage}
-        />
+        <GeneralTeamInfo/>
 
-        <TeamMembers members={members} setMembers={setMembers} />
+        <TeamMembers captainId={0} currentUserId={0} members={[]} setMembers={function (): void {
+          throw new Error("Function not implemented.");
+        } }/>
 
         {success && <Alert severity="success" sx={{ mt: 2 }}>{success}</Alert>}
         {error && <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>}

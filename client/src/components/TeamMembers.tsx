@@ -9,13 +9,11 @@ interface TeamMembersProps {
   setMembers: React.Dispatch<React.SetStateAction<any[]>>;
 }
 
-const TeamMembers: React.FC<TeamMembersProps> = ({ members, currentUserId }) => {
+const TeamMembers: React.FC<TeamMembersProps> = () => {
   const { id } = useParams<{ id: string }>();
   const teamId = parseInt(id || "0");
   const [teamData, setTeamData] = useState<any>(null);
   const [, setLoading] = useState(true);
-  const captainId = teamData?.captain?.user_id;
-  const isCaptainOfTeam = currentUserId === captainId;
   const teamSize = (teamData?.members?.length || 0) + 1;
 
   const [name, setName] = useState("");
