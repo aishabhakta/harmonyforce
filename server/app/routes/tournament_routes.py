@@ -290,13 +290,22 @@ def get_all_tournaments():
 
     for t in tournaments:
         university = University.query.get(t.university_id)
+
         response.append({
             "id": t.tournament_id,
             "name": t.name,
             "university": university.university_name if university else "Unknown",
-            "logo": university.university_image if university else "https://via.placeholder.com/50",
-            "status": "APPLY" if datetime.utcnow().date() < t.end_date else "VIEW"
+            "logo": f"/university/{university.university_id}/image" if university else "https://via.placeholder.com/50",
+            "status": (
+                "APPLY" if t.name == "A New World Tournament"
+                else "UPCOMING" if t.end_date >= datetime.utcnow().date()
+                else "VIEW"
+            ),
+            "description": t.description,
+            "start_date": t.start_date.strftime("%Y-%m-%d") if t.start_date else None,
+            "end_date": t.end_date.strftime("%Y-%m-%d") if t.end_date else None
         })
+
 
     return jsonify(response), 200
 
