@@ -6,7 +6,7 @@ const GeneralTeamInfo: React.FC = () => {
   const [teamBio, setTeamBio] = useState("");
   const [teamLeaderName, setTeamLeaderName] = useState("");
   const [teamLeaderEmail, setTeamLeaderEmail] = useState("");
-  const [profileImage] = useState(""); // Placeholder for image URL or base64 string
+  // const [profileImage] = useState(""); // Placeholder for image URL or base64 string
   const [imageFile, setImageFile] = useState<File | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
