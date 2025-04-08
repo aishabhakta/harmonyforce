@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -11,21 +11,27 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { Match } from "../pages/TournamentBracket/TournamentBracket";
-import axios from "axios";
+import { teamDatabase } from "../pages/TournamentBracket/dummyMatches";
 
 interface MatchEditModalProps {
   match: Match;
   onClose: () => void;
   onSave: (updatedMatch: Match) => void;
-  editable?: boolean;
 }
 
 const MatchEditModal: React.FC<MatchEditModalProps> = ({
   match,
   onClose,
   onSave,
-  editable = false,
 }) => {
+  const [team1Name, setTeam1Name] = useState(match.team1_name || "");
+  const [team2Name, setTeam2Name] = useState(match.team2_name || "");
+  const [team1University, setTeam1University] = useState(
+    match.team1_university || ""
+  );
+  const [team2University, setTeam2University] = useState(
+    match.team2_university || ""
+  );
   const [team1Score, setTeam1Score] = useState(match.score_team1 ?? "");
   const [team2Score, setTeam2Score] = useState(match.score_team2 ?? "");
   const [winner, setWinner] = useState<"team1" | "team2" | "">(() => {
@@ -36,33 +42,66 @@ const MatchEditModal: React.FC<MatchEditModalProps> = ({
   const [date, setDate] = useState(
     match.start_time ?? new Date().toISOString().split("T")[0]
   );
+  const [error, setError] = useState("");
 
-  const handleSave = async () => {
+  const getTeamInfo = (name: string) => {
+    return teamDatabase.find(
+      (team) => team.name.toLowerCase() === name.toLowerCase()
+    );
+  };
+  const [team1Error, setTeam1Error] = useState("");
+  const [team2Error, setTeam2Error] = useState("");
+
+  useEffect(() => {
+    const info1 = getTeamInfo(team1Name);
+    if (info1) setTeam1University(info1.university);
+
+    const info2 = getTeamInfo(team2Name);
+    if (info2) setTeam2University(info2.university);
+  }, [team1Name, team2Name]);
+
+  useEffect(() => {
+    const team1Match = teamDatabase.find((t) => t.name === team1Name);
+    const team2Match = teamDatabase.find((t) => t.name === team2Name);
+
+    setTeam1University(team1Match?.university || "");
+    setTeam2University(team2Match?.university || "");
+
+    setTeam1Error(team1Match ? "" : "Team not found");
+    setTeam2Error(team2Match ? "" : "Team not found");
+  }, [team1Name, team2Name]);
+
+  const handleSave = () => {
+    const info1 = getTeamInfo(team1Name);
+    const info2 = getTeamInfo(team2Name);
+
+    if (!info1 || !info2) {
+      setError("One or both team names are invalid.");
+      return;
+    }
+
     const updatedMatch: Match = {
       ...match,
+      team1_id: info1.team_id,
+      team2_id: info2.team_id,
+      team1_name: team1Name,
+      team2_name: team2Name,
+      team1_university: info1.university,
+      team2_university: info2.university,
       score_team1: Number(team1Score),
       score_team2: Number(team2Score),
       winner_id:
         winner === "team1"
-          ? match.team1_id
+          ? info1.team_id
           : winner === "team2"
-          ? match.team2_id
+          ? info2.team_id
           : null,
       start_time: date,
-      status: 1,
     };
 
-    try {
-      await axios.post(`/api/match/${match.match_id}/set_scores`, {
-        score_team1: updatedMatch.score_team1,
-        score_team2: updatedMatch.score_team2,
-      });
-
-      onSave(updatedMatch);
-      onClose();
-    } catch (error) {
-      console.error("Error updating match:", error);
-    }
+    setError("");
+    onSave(updatedMatch);
+    onClose();
   };
 
   return (
@@ -76,21 +115,31 @@ const MatchEditModal: React.FC<MatchEditModalProps> = ({
 
       <DialogContent>
         <div className="flex flex-col gap-6 p-6">
+          {error && <p className="text-red-600 font-medium -mt-3">{error}</p>}
+
           <div className="flex flex-row gap-10 w-full">
             <div className="w-1/2 flex flex-col justify-start">
               <div className="mb-4">
-                <h6 className="text-lg font-semibold mb-2">Team 1 Name</h6>
+                <h6
+                  className="text-lg font-semibold"
+                  style={{ marginBottom: "0.5rem" }}
+                >
+                  Team 1 Name
+                </h6>
                 <TextField
-                  value={match.team1_name}
+                  type="text"
+                  value={team1Name}
+                  onChange={(e) => setTeam1Name(e.target.value)}
                   fullWidth
-                  disabled
                   sx={{ mb: 2 }}
                 />
                 <TextField
                   label="University"
-                  value={match.team1_university}
+                  value={team1University}
                   fullWidth
                   disabled
+                  error={!!team1Error}
+                  helperText={team1Error || ""}
                   sx={{ mb: 2 }}
                 />
                 <TextField
@@ -100,33 +149,40 @@ const MatchEditModal: React.FC<MatchEditModalProps> = ({
                   fullWidth
                   label="Team 1 Score"
                   sx={{ mb: 2 }}
-                  disabled={!editable}
                 />
                 <FormControlLabel
                   control={
                     <Radio
                       checked={winner === "team1"}
-                      onChange={() => editable && setWinner("team1")}
+                      onChange={() => setWinner("team1")}
                     />
                   }
                   label="Winner of match?"
-                  sx={{ mb: 2 }}
+                  style={{ marginBottom: "0.5rem" }}
                 />
               </div>
 
               <div className="mb-4">
-                <h6 className="text-lg font-semibold mb-2">Team 2 Name</h6>
+                <h6
+                  className="text-lg font-semibold"
+                  style={{ marginBottom: "0.5rem" }}
+                >
+                  Team 2 Name
+                </h6>
                 <TextField
-                  value={match.team2_name}
+                  type="text"
+                  value={team2Name}
+                  onChange={(e) => setTeam2Name(e.target.value)}
                   fullWidth
-                  disabled
                   sx={{ mb: 2 }}
                 />
                 <TextField
                   label="University"
-                  value={match.team2_university}
+                  value={team2University}
                   fullWidth
                   disabled
+                  error={!!team2Error}
+                  helperText={team2Error || ""}
                   sx={{ mb: 2 }}
                 />
                 <TextField
@@ -136,17 +192,16 @@ const MatchEditModal: React.FC<MatchEditModalProps> = ({
                   fullWidth
                   label="Team 2 Score"
                   sx={{ mb: 2 }}
-                  disabled={!editable}
                 />
                 <FormControlLabel
                   control={
                     <Radio
                       checked={winner === "team2"}
-                      onChange={() => editable && setWinner("team2")}
+                      onChange={() => setWinner("team2")}
                     />
                   }
                   label="Winner of match?"
-                  sx={{ mb: 2 }}
+                  style={{ marginBottom: "0.5rem" }}
                 />
               </div>
 
@@ -154,8 +209,8 @@ const MatchEditModal: React.FC<MatchEditModalProps> = ({
                 onClick={handleSave}
                 variant="contained"
                 color="primary"
-                sx={{ mt: 2 }}
-                disabled={!editable}
+                className="mt-4 w-fit"
+                sx={{ mb: 2 }}
               >
                 Save Results
               </Button>
@@ -168,7 +223,6 @@ const MatchEditModal: React.FC<MatchEditModalProps> = ({
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
                 InputLabelProps={{ shrink: true }}
-                disabled={!editable}
               />
             </div>
           </div>

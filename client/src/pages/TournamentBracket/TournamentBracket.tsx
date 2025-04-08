@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import { Box, Typography, Card, CardContent } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import MatchEditModal from "../../components/MatchEditModal";
-import axios from "axios";
-import { useAuth } from "../../AuthProvider";
+// import axios from "axios";
+import dummyMatches from "./dummyMatches";
 import "./TournamentBracket.css";
 
 export interface Match {
@@ -23,30 +23,23 @@ export interface Match {
 }
 
 const TournamentBracket = () => {
-  const { user } = useAuth();
-  const isEditor =
-    user?.role === "aardvarkstaff" ||
-    user?.role === "superadmin" ||
-    user?.role === "tournymod";
-
   const [matches, setMatches] = useState<Match[]>([]);
   const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
+  const isAdmin = true;
 
   useEffect(() => {
-    const fetchMatches = async () => {
-      try {
-        const res = await axios.get("/api/matches"); // Update if you have a specific tournament ID
-        setMatches(res.data);
-      } catch (err) {
-        console.error("Error fetching matches", err);
-      }
-    };
+    // Replace this later with real API call
+    // const fetchMatches = async () => {
+    //   const res = await axios.get("/api/matches");
+    //   setMatches(res.data);
+    // };
+    // fetchMatches();
 
-    fetchMatches();
+    setMatches(dummyMatches);
   }, []);
 
   const handleOpenMatchModal = (match: Match) => {
-    if (isEditor) setSelectedMatch(match);
+    if (isAdmin) setSelectedMatch(match);
   };
 
   const handleCloseModal = () => setSelectedMatch(null);
@@ -56,6 +49,18 @@ const TournamentBracket = () => {
       prev.map((m) => (m.match_id === updated.match_id ? updated : m))
     );
   };
+
+  const round1Matches = matches.filter((m) => m.match_id <= 16);
+  const round2Matches = matches.filter(
+    (m) => m.match_id > 16 && m.match_id <= 24
+  );
+  const round3Matches = matches.filter(
+    (m) => m.match_id > 24 && m.match_id <= 28
+  );
+  const round4Matches = matches.filter(
+    (m) => m.match_id > 28 && m.match_id <= 30
+  );
+  const round5Matches = matches.filter((m) => m.match_id === 31);
 
   const renderMatch = (match: Match) => {
     const winner = match.winner_id;
@@ -111,19 +116,6 @@ const TournamentBracket = () => {
       </Box>
     );
   };
-
-  const round1Matches = matches.filter((m) => m.match_id <= 16);
-  const round2Matches = matches.filter(
-    (m) => m.match_id > 16 && m.match_id <= 24
-  );
-  const round3Matches = matches.filter(
-    (m) => m.match_id > 24 && m.match_id <= 28
-  );
-  const round4Matches = matches.filter(
-    (m) => m.match_id > 28 && m.match_id <= 30
-  );
-  const round5Matches = matches.filter((m) => m.match_id === 31);
-
   return (
     <Box className="bracket-container">
       <Typography variant="h3" className="bracket-title">
@@ -132,7 +124,6 @@ const TournamentBracket = () => {
       <Typography variant="h5" className="bracket-subtitle">
         Who will reign champion?
       </Typography>
-
       <Grid container spacing={4} className="bracket-grid">
         {/* LEFT SIDE */}
         <Grid container className="bracket-side">
@@ -175,7 +166,6 @@ const TournamentBracket = () => {
           match={selectedMatch}
           onClose={handleCloseModal}
           onSave={updateMatchInState}
-          editable={isEditor}
         />
       )}
     </Box>
