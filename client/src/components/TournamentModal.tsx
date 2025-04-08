@@ -11,10 +11,9 @@ import {
   CardContent,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import { Match, Tournament } from "./dummyData/dummyTournaments";
 import { Link } from "react-router-dom";
 import RegisterButton from "../components/RegisterButton"; // adjust path if needed
-
+import { Match, Tournament } from "../types";
 
 interface TournamentModalProps {
   open: boolean;
@@ -115,7 +114,14 @@ const TournamentModal: React.FC<TournamentModalProps> = ({
           {otherMatches.map(renderMatch)}
         </Box>
         {tournament.name === "A New World Tournament" && (
-          <Box mt={4} textAlign="center" display="flex" flexDirection="column" gap={2} alignItems="center">
+          <Box
+            mt={4}
+            textAlign="center"
+            display="flex"
+            flexDirection="column"
+            gap={2}
+            alignItems="center"
+          >
             <Link to="/tournaments/bracket" style={{ textDecoration: "none" }}>
               <Button variant="contained" color="primary">
                 Go to Tournament Bracket
@@ -123,7 +129,6 @@ const TournamentModal: React.FC<TournamentModalProps> = ({
             </Link>
 
             <RegisterButton />
-
           </Box>
         )}
       </DialogContent>
