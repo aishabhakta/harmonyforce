@@ -57,19 +57,42 @@ export default function Login() {
         const data = await response.json();
         console.log(data)
         if (response.ok) {
-            localStorage.setItem("user_id", data.user_id);
+          // Safely store values in localStorage
+          if (data.user_id !== undefined && data.user_id !== null) {
+            localStorage.setItem("user_id", String(data.user_id));
+          }
+          if (data.token) {
             localStorage.setItem("session_token", data.token);
+          }
+          if (data.email) {
             localStorage.setItem("user_email", data.email);
-            localStorage.setItem("user_role", data.role || "general"); // Store role
-
-            setUser({
-                user_id: data.user_id,
-                email: data.email,
-                token: data.token,
-                role: data.role || "general",
-            });
-
-            setOpenSnackbar(true);
+          }
+          if (data.username) {
+            localStorage.setItem("user_displayName", data.username);
+          }
+          if (data.profile_image) {
+            localStorage.setItem("user_photoURL", data.profile_image);
+          }
+          if (data.role) {
+            localStorage.setItem("user_role", data.role);
+          }
+          if (data.team_id !== undefined && data.team_id !== null) {
+            localStorage.setItem("team_id", String(data.team_id));
+          }
+        
+          // Set user in context
+          setUser({
+            user_id: Number(data.user_id),
+            email: data.email,
+            token: data.token,
+            displayName: data.username,
+            photoURL: data.profile_image,
+            role: data.role,
+            team_id: data.team_id !== undefined ? Number(data.team_id) : undefined,
+          });
+        
+          setOpenSnackbar(true);
+        
 
             // Redirect based on role
             switch (data.role) {

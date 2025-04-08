@@ -125,21 +125,25 @@ const PlayerPage: React.FC = () => {
           {/* Profile Image */}
           <Grid item xs={12} md={4}>
           <Avatar
-    src={player.profile_image || "https://via.placeholder.com/150"}
-    alt={player.name}
-    sx={{ width: 200, height: 200, border: "3px solid #1976d2" }}
-  />
-  <Box sx={{ mt: 2 }}>
-    <Button
-      variant="contained"
-      color="primary"
-      fullWidth
-      href="/edit-profile"
-      sx={{ textTransform: "none" }}
-    >
-      Edit Profile
-    </Button>
-  </Box>
+            src={player.profile_image || "https://via.placeholder.com/150"}
+            alt={player.name}
+            sx={{ width: 200, height: 200, border: "3px solid #1976d2" }}
+            />
+            
+            {user?.user_id === player.user_id && (
+              <Box sx={{ mt: 2 }}>
+              <Button
+                variant="contained"
+                color="primary"
+                fullWidth
+                href="/edit-profile"
+                sx={{ textTransform: "none" }}
+              >
+                Edit Profile
+              </Button>
+            </Box>
+          )}
+
           </Grid>
 
           {/* Info Card */}
@@ -193,8 +197,9 @@ const PlayerPage: React.FC = () => {
                     sx={{ width: 40, height: 40, mr: 2 }}
                   />
                   <Typography variant="subtitle1">
-                    {player.university_name}
+                    {player.university_name || "No University"}
                   </Typography>
+
                 </Card>
               </Grid>
 
@@ -216,7 +221,10 @@ const PlayerPage: React.FC = () => {
                     alt={player.team_name}
                     sx={{ width: 40, height: 40, mr: 2 }}
                   />
-                  <Typography variant="subtitle1">{player.team_name}</Typography>
+                  <Typography variant="subtitle1">
+  {player.team_name || "No Team"}
+</Typography>
+
                 </Card>
               </Grid>
             </Grid>
