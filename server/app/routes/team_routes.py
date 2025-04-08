@@ -6,8 +6,6 @@ from datetime import datetime
 import os # luke add
 from werkzeug.utils import secure_filename # luke add
 from PIL import Image    # luke add
-from sqlalchemy import func
-
 
 team_bp = Blueprint('team', __name__)
 
