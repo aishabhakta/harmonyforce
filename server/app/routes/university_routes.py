@@ -244,3 +244,31 @@ def assign_tournymod_to_university():
     return jsonify({
         "message": f"Tournament moderator '{user.username}' assigned to university ID {university_id}"
     }), 200
+
+
+@university_bp.route('/report/full_statistics', methods=['GET'])
+def full_university_report():
+    universities = University.query.all()
+    result = []
+
+    for uni in universities:
+        team_count = Team.query.filter_by(university_id=uni.university_id).count()
+        total_members = User.query.filter_by(university_id=uni.university_id).count()
+        unimod_exists = db.session.query(
+            User.query.filter_by(university_id=uni.university_id, user_type='unimod').exists()
+        ).scalar()
+
+        result.append({
+            "university_id": uni.university_id,
+            "university_name": uni.university_name,
+            "country": uni.country,
+            "created_at": uni.created_at.strftime('%Y-%m-%d') if uni.created_at else None,
+            "status": uni.status,
+            "team_count": team_count,
+            "total_members": total_members,
+            "unimod_exists": unimod_exists
+        })
+
+    return jsonify(result), 200
+
+

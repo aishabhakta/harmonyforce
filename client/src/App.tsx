@@ -38,6 +38,7 @@ import PaymentPage from "./pages/PaymentPage";
 import TournamentBracket from "./pages/TournamentBracket/TournamentBracket";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import ViewerSignUpPage from "./pages/ViewerSignUpPage";
+import Reportpage from "./pages/Reportpage";
 
 const AppContent: React.FC = () => {
   const location = useLocation();
@@ -75,6 +76,7 @@ const AppContent: React.FC = () => {
             { name: "Tournaments", href: "/tournaments" },
             { name: "Teams", href: "/team" },
             { name: "Universities", href: "/universities" },
+            { name: "Report", href: "/Report" },
           ]}
         />
       )}
@@ -138,6 +140,7 @@ const AppContent: React.FC = () => {
         <Route path="/success" element={<Success />} />
         <Route path="/cancel" element={<Cancel />} />
         <Route path="/viewregister" element={<ViewerSignUpPage />} />
+        <Route path="/report" element={<Reportpage />} />
       </Routes>
 
       {!hideNavigationAndFooter && <Footer />}
