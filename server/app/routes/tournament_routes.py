@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 from app.database import db
 from app.models import Team, University, User, Tournament, Match
 from datetime import datetime
+from sqlalchemy import cast, String
 
 tournament_bp = Blueprint('tournament', __name__)
 
@@ -201,14 +202,14 @@ def get_tournament_status(tournament_id):
 
     # Count total matches played
     matches_played = db.session.query(Match).filter(
-        Match.tournament_id == tournament_id,
-        Match.status == 1  # Only completed matches
+    Match.tournament_id == str(t.tournament_id),
+        cast(Match.status, String) == "1" # Only completed matches
     ).count()
 
 
     # Count total matches scheduled for the next tournament day
     matches_on_next_day = db.session.query(Match).filter(
-        Match.tournament_id == tournament_id,
+        Match.tournament_id == str(tournament_id),
         Match.start_time == next_match_date
     ).count() if next_match_date else 0
 
@@ -239,13 +240,13 @@ def get_total_tournament_statistics():
 
     # Count total matches yet to be played (status = 0)
     matches_yet_to_play = db.session.query(Match).filter(
-        Match.status == 0  # Matches not yet completed
+        Match.status == "0"  # Matches not yet completed
     ).count()
 
 
     # Count total completed matches (status = 1)
     matches_completed = db.session.query(Match).filter(
-        Match.status == 1  # Matches completed
+        Match.status == "1"  # Matches completed
     ).count()
 
 
@@ -298,3 +299,43 @@ def get_all_tournaments():
         })
 
     return jsonify(response), 200
+
+@tournament_bp.route('/report/full_statistics', methods=['GET'])
+def full_tournament_report():
+    tournaments = Tournament.query.all()
+    result = []
+
+    for t in tournaments:
+        university = University.query.get(t.university_id)
+        university_name = university.university_name if university else "N/A"
+        university_country = university.country if university else "N/A"
+
+        next_match = db.session.query(Match.start_time).filter(
+            Match.tournament_id == t.tournament_id,
+            Match.start_time >= datetime.utcnow()
+        ).order_by(Match.start_time).first()
+
+        next_match_date = next_match[0] if next_match else None
+
+        matches_played = db.session.query(Match).filter(
+            Match.tournament_id == t.tournament_id,
+                cast(Match.status, String) == "1"
+        ).count()
+
+        matches_on_next_day = db.session.query(Match).filter(
+            Match.tournament_id == t.tournament_id,
+            Match.start_time == next_match_date
+        ).count() if next_match_date else 0
+
+        is_complete = datetime.utcnow().date() > t.end_date if t.end_date else False
+
+        result.append({
+            "start_date": t.start_date.strftime('%Y-%m-%d') if t.start_date else None,
+            "university_name": university_name,
+            "university_country": university_country,
+            "matches_on_next_day": matches_on_next_day,
+            "matches_played": matches_played,
+            "is_complete": is_complete
+        })
+
+    return jsonify(result), 200
