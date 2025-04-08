@@ -160,8 +160,12 @@ const UniversityPage: React.FC = () => {
           width: "100%",
           height: "400px",
           backgroundImage: `url(${
-            import.meta.env.VITE_BACKEND_URL
-          }/university/${university.university_id}/image)`,
+            university.university_id && university.university_id !== 0
+              ? `${import.meta.env.VITE_BACKEND_URL}/university/${
+                  university.university_id
+                }/image`
+              : "https://via.placeholder.com/800x400?text=University+Image+Unavailable"
+          })`,
           backgroundSize: "cover",
           backgroundPosition: "center",
           display: "flex",
