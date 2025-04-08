@@ -58,6 +58,10 @@ def login():
         "token": token,
         "role": user.user_type,
         "user_id": user.user_id,
+    "email": user.email,
+    "username": user.username,
+    "profile_image": user.profile_image,
+    "team_id": user.team_id,
     }), 200
 
 # Protected Route
