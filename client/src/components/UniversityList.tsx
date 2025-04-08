@@ -1,10 +1,21 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  Box, TextField, List, ListItem, ListItemText, Card, CardContent,
-  Grid, Pagination, MenuItem, Select, SelectChangeEvent,
+  Box,
+  TextField,
+  List,
+  ListItem,
+  ListItemText,
+  Card,
+  CardContent,
+  Grid,
+  Pagination,
+  MenuItem,
+  Select,
+  SelectChangeEvent,
   Button,
 } from "@mui/material";
+import { apiFetch } from "../api";
 
 interface University {
   university_id: number;
@@ -23,8 +34,7 @@ const UniversityList: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch("http://localhost:5000/university/getAll")
-      .then((res) => res.json())
+    apiFetch("/university/getAll")
       .then((data) => setUniversities(data))
       .catch((err) => console.error("Failed to fetch universities:", err));
   }, []);
@@ -35,7 +45,10 @@ const UniversityList: React.FC = () => {
       (filter === "All" || u.country === filter)
   );
 
-  const paginated = filtered.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
+  const paginated = filtered.slice(
+    (page - 1) * ITEMS_PER_PAGE,
+    page * ITEMS_PER_PAGE
+  );
 
   return (
     <Box sx={{ width: "100%", maxWidth: "900px", margin: "auto" }}>
@@ -56,22 +69,36 @@ const UniversityList: React.FC = () => {
         fullWidth
       >
         <MenuItem value="All">All Countries</MenuItem>
-        {[...new Set(universities.map((u) => u.country))].filter(Boolean).map((loc) => (
-          <MenuItem key={loc} value={loc}>{loc}</MenuItem>
-        ))}
+        {[...new Set(universities.map((u) => u.country))]
+          .filter(Boolean)
+          .map((loc) => (
+            <MenuItem key={loc} value={loc}>
+              {loc}
+            </MenuItem>
+          ))}
       </Select>
 
       <List>
         {paginated.map((u) => (
           <ListItem key={u.university_id} disablePadding>
             <Card
-              sx={{ width: "100%", cursor: "pointer", transition: "0.3s", "&:hover": { boxShadow: 4 } }}
+              sx={{
+                width: "100%",
+                cursor: "pointer",
+                transition: "0.3s",
+                "&:hover": { boxShadow: 4 },
+              }}
               onClick={() => navigate(`/university/${u.university_id}`)}
             >
               <CardContent>
                 <Grid container alignItems="center" spacing={2}>
                   <Grid item xs={2}>
-                    <Box component="img" src={u.university_image} alt={u.university_name} sx={{ width: 50, height: 50 }} />
+                    <Box
+                      component="img"
+                      src={u.university_image}
+                      alt={u.university_name}
+                      sx={{ width: 50, height: 50 }}
+                    />
                   </Grid>
                   <Grid item xs={6}>
                     <ListItemText primary={u.university_name} />
@@ -87,7 +114,14 @@ const UniversityList: React.FC = () => {
       </List>
 
       {/* Pagination */}
-      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mt: 4 }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mt: 4,
+        }}
+      >
         <Button
           variant="contained"
           color="primary"
