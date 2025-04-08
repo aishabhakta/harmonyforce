@@ -15,7 +15,9 @@ interface AuthContextType {
   setUser: React.Dispatch<React.SetStateAction<User | null>>;
 }
 
-export const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export const AuthContext = createContext<AuthContextType | undefined>(
+  undefined
+);
 
 //  Toggle dummy user on/off
 const USE_DUMMY_AUTH = false;
@@ -31,7 +33,9 @@ const dummyUser: User = {
   // id: 0
 };
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
@@ -39,18 +43,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(dummyUser);
       return;
     }
-  
-    const user_id = localStorage.getItem("user_id");
+
+    const userIdString = localStorage.getItem("user_id");
     const token = localStorage.getItem("session_token");
     const email = localStorage.getItem("user_email");
     const displayName = localStorage.getItem("user_displayName");
     const photoURL = localStorage.getItem("user_photoURL");
     const role = localStorage.getItem("user_role");
     const teamIdString = localStorage.getItem("team_id");
-  
+
+    const user_id = userIdString ? parseInt(userIdString) : undefined;
     const team_id = teamIdString ? parseInt(teamIdString) : undefined;
-  
-    if (token && email) {
+
+    if (user_id !== undefined && token && email) {
       setUser({
         user_id,
         token,
@@ -62,7 +67,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
     }
   }, []);
-  
 
   return (
     <AuthContext.Provider value={{ user, setUser }}>
