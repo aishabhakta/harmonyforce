@@ -68,26 +68,23 @@ const UserList: React.FC = () => {
         if (USE_DUMMY_DATA) {
           setUsers(dummyUsers);
         } else {
-          const res = await apiFetch("/teams/user/participants-and-captains");
-          const data = await res.json();
-          if (res.ok) {
-            setUsers(
-              data.map((u: any) => ({
-                user_id: u.user_id,
-                username: u.username,
-                email: u.email,
-                profile_image: u.profile_image,
-                user_type: u.role,
-                game_role: u.game_role,
-                university_name: u.university_name || "Unknown University",
-                team_name: u.team_name || "No Team",
-              }))
-            );
-          } else {
-            setError(data.error || "Failed to fetch users");
-          }
+          const data = await apiFetch("/teams/user/participants-and-captains");
+          // Assume apiFetch either throws or returns parsed JSON
+          setUsers(
+            data.map((u: any) => ({
+              user_id: u.user_id,
+              username: u.username,
+              email: u.email,
+              profile_image:
+                u.profile_image || "https://via.placeholder.com/50",
+              user_type: u.role,
+              game_role: u.game_role,
+              university_name: u.university_name || "Unknown University",
+              team_name: u.team_name || "No Team",
+            }))
+          );
         }
-      } catch (err) {
+      } catch (err: any) {
         setError("Error loading users.");
       } finally {
         setLoading(false);
