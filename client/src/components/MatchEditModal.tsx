@@ -11,17 +11,20 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { Match } from "../pages/TournamentBracket/TournamentBracket";
+import axios from "axios";
 
 interface MatchEditModalProps {
   match: Match;
   onClose: () => void;
   onSave: (updatedMatch: Match) => void;
+  editable?: boolean;
 }
 
 const MatchEditModal: React.FC<MatchEditModalProps> = ({
   match,
   onClose,
   onSave,
+  editable = false,
 }) => {
   const [team1Score, setTeam1Score] = useState(match.score_team1 ?? "");
   const [team2Score, setTeam2Score] = useState(match.score_team2 ?? "");
@@ -34,7 +37,7 @@ const MatchEditModal: React.FC<MatchEditModalProps> = ({
     match.start_time ?? new Date().toISOString().split("T")[0]
   );
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const updatedMatch: Match = {
       ...match,
       score_team1: Number(team1Score),
@@ -49,8 +52,17 @@ const MatchEditModal: React.FC<MatchEditModalProps> = ({
       status: 1,
     };
 
-    onSave(updatedMatch);
-    onClose();
+    try {
+      await axios.post(`/api/match/${match.match_id}/set_scores`, {
+        score_team1: updatedMatch.score_team1,
+        score_team2: updatedMatch.score_team2,
+      });
+
+      onSave(updatedMatch);
+      onClose();
+    } catch (error) {
+      console.error("Error updating match:", error);
+    }
   };
 
   return (
@@ -88,12 +100,13 @@ const MatchEditModal: React.FC<MatchEditModalProps> = ({
                   fullWidth
                   label="Team 1 Score"
                   sx={{ mb: 2 }}
+                  disabled={!editable}
                 />
                 <FormControlLabel
                   control={
                     <Radio
                       checked={winner === "team1"}
-                      onChange={() => setWinner("team1")}
+                      onChange={() => editable && setWinner("team1")}
                     />
                   }
                   label="Winner of match?"
@@ -123,12 +136,13 @@ const MatchEditModal: React.FC<MatchEditModalProps> = ({
                   fullWidth
                   label="Team 2 Score"
                   sx={{ mb: 2 }}
+                  disabled={!editable}
                 />
                 <FormControlLabel
                   control={
                     <Radio
                       checked={winner === "team2"}
-                      onChange={() => setWinner("team2")}
+                      onChange={() => editable && setWinner("team2")}
                     />
                   }
                   label="Winner of match?"
@@ -141,6 +155,7 @@ const MatchEditModal: React.FC<MatchEditModalProps> = ({
                 variant="contained"
                 color="primary"
                 sx={{ mt: 2 }}
+                disabled={!editable}
               >
                 Save Results
               </Button>
@@ -153,6 +168,7 @@ const MatchEditModal: React.FC<MatchEditModalProps> = ({
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
                 InputLabelProps={{ shrink: true }}
+                disabled={!editable}
               />
             </div>
           </div>
