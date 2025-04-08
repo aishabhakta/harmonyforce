@@ -23,7 +23,9 @@ interface RosterProps {
 
 const Roster: React.FC<RosterProps> = ({ members, captain, teamId }) => {
   const teamSize = members.length + (captain ? 1 : 0);
-  const allMembers = captain ? [captain, ...members] : members;
+  const allMembers = captain
+  ? [captain, ...members.filter((m) => m.id !== captain.id)]
+  : members;
   const { user } = useAuth();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
@@ -121,7 +123,7 @@ const Roster: React.FC<RosterProps> = ({ members, captain, teamId }) => {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                  // user_id: user?.id,
+                  user_id: user?.user_id,
                   team_id: teamId
                 })
               })

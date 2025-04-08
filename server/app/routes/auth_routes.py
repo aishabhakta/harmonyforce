@@ -56,7 +56,8 @@ def login():
     return jsonify({
         "message": "Login successful!",
         "token": token,
-        "role": user.user_type  # Send role to frontend
+        "role": user.user_type,
+        "user_id": user.user_id,
     }), 200
 
 # Protected Route
