@@ -29,10 +29,15 @@ const NavigationBar: React.FC<NavigationProps> = ({ links }) => {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [drawerOpen, setDrawerOpen] = useState(false);
 
+  
+
   // Grab the user from context
   const { user, setUser } = useAuth();
 
-
+  console.log("📦 localStorage user_id:", localStorage.getItem("user_id"));
+  console.log("📧 localStorage email:", localStorage.getItem("user_email"));
+  console.log("🔑 localStorage token:", localStorage.getItem("session_token"));
+  console.log("🔍 Auth Context User:", user);
 
   console.log("user.photoURL in NavigationBar:", user?.photoURL);
   console.log("Current User in NavigationBar:", user);
@@ -45,9 +50,10 @@ const NavigationBar: React.FC<NavigationProps> = ({ links }) => {
       await fetch("http://127.0.0.1:5000/auth/logout", {
         method: "POST",
         headers: {
-          Authorization: token || "",
+          Authorization: `Bearer ${token}`,
         },
       });
+  
       setUser(null);
       localStorage.clear();
       navigate("/login");
@@ -55,7 +61,7 @@ const NavigationBar: React.FC<NavigationProps> = ({ links }) => {
       console.error("Logout error:", err);
     }
   };
-
+  
   const drawer = (
     <Box
       sx={{ width: 250 }}

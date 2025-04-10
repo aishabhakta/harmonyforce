@@ -7,6 +7,7 @@ import os
 from functools import wraps
 from app.utils import generate_jwt, verify_jwt, blacklisted_tokens
 from werkzeug.utils import secure_filename
+from app.models import Payment
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -70,7 +71,23 @@ def register():
     db.session.add(user)
     db.session.commit()
 
+
+
+    existing_payment = Payment.query.filter_by(email=user.email).first()
+    if not existing_payment:
+        placeholder_payment = Payment(
+            email=user.email,
+            amount=0,
+            currency="usd",
+            status="pending",
+            payment_intent_id=f"placeholder_user_{user.user_id}"
+        )
+        db.session.add(placeholder_payment)
+        db.session.commit()
+        print(f"📝 Placeholder payment created for {user.email}")
+
     return jsonify({"message": "User registered successfully!"}), 201
+
 
 # User Login
 @auth_bp.route('/login', methods=['POST'])
@@ -135,16 +152,33 @@ def approve_user(pending_id):
         email=pending.email,
         password_hash=pending.password_hash,
         user_type=pending.role,
-        university_id=None,  # Map based on name if needed
+        university_id=pending.university,
         status=1,
         blacklisted=0,
-        created_at=datetime.utcnow()
+        created_at=datetime.utcnow(),
+        updated_at=datetime.utcnow(),
+        team_id=0
     )
     db.session.add(user)
     db.session.delete(pending)
     db.session.commit()
 
+    # ✅ Add placeholder payment after approval
+    existing_payment = Payment.query.filter_by(email=user.email).first()
+    if not existing_payment:
+        placeholder_payment = Payment(
+            email=user.email,
+            amount=0,
+            currency="usd",
+            status="pending",
+            payment_intent_id=f"placeholder_user_{user.user_id}"
+        )
+        db.session.add(placeholder_payment)
+        db.session.commit()
+        print(f"🧾 Placeholder created after approval for {user.email}")
+
     return jsonify({"message": "User approved and registered!"}), 201
+
 
 @auth_bp.route('/reject-registration/<int:pending_id>', methods=['POST'])
 def reject_user(pending_id):

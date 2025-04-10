@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -9,12 +9,12 @@ import {
   Button,
   Card,
   CardContent,
+  CircularProgress,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { Match, Tournament } from "./dummyData/dummyTournaments";
 import { Link } from "react-router-dom";
-import RegisterButton from "../components/RegisterButton"; // adjust path if needed
-
+import RegisterButton from "../components/RegisterButton";
 
 interface TournamentModalProps {
   open: boolean;
@@ -29,6 +29,33 @@ const TournamentModal: React.FC<TournamentModalProps> = ({
   tournament,
   matches,
 }) => {
+  const [hasPaid, setHasPaid] = useState(false);
+  const [checkingPayment, setCheckingPayment] = useState(true);
+
+  console.log("🔥 TournamentModal file loaded");
+
+  useEffect(() => {
+    console.log("🎯 useEffect triggered! Modal open =", open);
+    const userId = localStorage.getItem("user_id");
+    console.log("👤 userId from localStorage:", userId);
+
+    if (open && userId) {
+      console.log("🔍 Modal is open. Attempting to fetch payment...");
+      setCheckingPayment(true);
+      fetch(`http://localhost:5000/stripe/check-user-paid/${userId}`)
+        .then((res) => res.json())
+        .then((data) => {
+          console.log("✅ Payment check response:", data);
+          setHasPaid(data.status === "succeeded");
+        })
+        .catch((err) => {
+          console.error("❌ Payment check failed", err);
+          setHasPaid(false);
+        })
+        .finally(() => setCheckingPayment(false));
+    }
+  }, [open]);
+
   const finalMatch = matches.find(
     (m) => m.match_id === 31 && m.tournament_id === tournament.id
   );
@@ -114,16 +141,36 @@ const TournamentModal: React.FC<TournamentModalProps> = ({
         <Box sx={{ maxHeight: 300, overflowY: "auto" }}>
           {otherMatches.map(renderMatch)}
         </Box>
+
         {tournament.name === "A New World Tournament" && (
-          <Box mt={4} textAlign="center" display="flex" flexDirection="column" gap={2} alignItems="center">
+          <Box
+            mt={4}
+            textAlign="center"
+            display="flex"
+            flexDirection="column"
+            gap={2}
+            alignItems="center"
+          >
             <Link to="/tournaments/bracket" style={{ textDecoration: "none" }}>
               <Button variant="contained" color="primary">
                 Go to Tournament Bracket
               </Button>
             </Link>
 
-            <RegisterButton />
-
+            {checkingPayment ? (
+              <CircularProgress />
+            ) : hasPaid ? (
+              <>
+                <Button variant="contained" color="success" disabled>
+                  Already Paid
+                </Button>
+                <Typography variant="subtitle2" color="textSecondary">
+                  ALREADY APPLIED
+                </Typography>
+              </>
+            ) : (
+              <RegisterButton />
+            )}
           </Box>
         )}
       </DialogContent>

@@ -1,20 +1,4 @@
-// useEffect(() => {
-//   const fetchTournaments = async () => {
-//     try {
-//       const response = await fetch(
-//         "http://localhost:5000/tournament/tournaments"
-//       );
-//       if (!response.ok) throw new Error("Failed to fetch tournaments");
-//       const data = await response.json();
-//       setTournaments(data);
-//     } catch (error) {
-//       console.error("Error loading tournaments:", error);
-//     }
-//   };
-
-//   fetchTournaments();
-// }, []);
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   TextField,
@@ -38,16 +22,39 @@ import { useAuth } from "../AuthProvider";
 const ITEMS_PER_PAGE = 5;
 
 const TournamentList: React.FC = () => {
-  const [tournaments] =
-    useState<Tournament[]>(dummyTournaments);
+  const [tournaments] = useState<Tournament[]>(dummyTournaments);
   const [search, setSearch] = useState<string>("");
   const [page, setPage] = useState<number>(1);
   const [filter, setFilter] = useState<string>("All");
   const [modalOpen, setModalOpen] = useState<boolean>(false);
-  const [selectedTournament, setSelectedTournament] =
-    useState<Tournament | null>(null);
+  const [selectedTournament, setSelectedTournament] = useState<Tournament | null>(null);
+  const [paidTournaments, setPaidTournaments] = useState<string[]>([]); // always initialized as an array
+
   const navigate = useNavigate();
   const { user } = useAuth();
+
+  useEffect(() => {
+    const userId = localStorage.getItem("user_id");
+    if (userId) {
+      fetch(`http://localhost:5000/stripe/check-user-paid/${userId}`)
+        .then((res) => {
+          if (!res.ok) throw new Error("No payment found");
+          return res.json();
+        })
+        .then((data) => {
+          if (data.status === "succeeded") {
+            // ✅ Set default tournament name manually for now
+            setPaidTournaments(["A New World Tournament"]);
+          } else {
+            setPaidTournaments([]); // no valid payment
+          }
+        })
+        .catch((err) => {
+          console.error("Payment check failed:", err);
+          setPaidTournaments([]); // handle errors safely
+        });
+    }
+  }, []);
 
   const handleOpenModal = (tournament: Tournament) => {
     setSelectedTournament(tournament);
@@ -90,55 +97,62 @@ const TournamentList: React.FC = () => {
       >
         <MenuItem value="All">All Universities</MenuItem>
         {[...new Set(dummyTournaments.map((t) => t.university))].map((univ) => (
-          <MenuItem key={univ as string} value={univ as string}>
+          <MenuItem key={univ} value={univ}>
             {univ}
           </MenuItem>
         ))}
       </Select>
 
       <List>
-        {paginatedTournaments.map((tournament) => (
-          <ListItem key={tournament.id}>
-            <Card sx={{ width: "100%" }}>
-              <CardContent>
-                <Grid container alignItems="center" spacing={2}>
-                  <Grid item xs={2}>
-                    <Box
-                      component="img"
-                      src={tournament.logo}
-                      alt={tournament.name}
-                      sx={{ width: 50, height: 50 }}
-                    />
+        {paginatedTournaments.map((tournament) => {
+          const isPaid = paidTournaments.includes(tournament.name); // ✅ no more TypeError
+          const buttonLabel =
+            tournament.status === "APPLY" && isPaid ? "APPLIED" : tournament.status;
+
+          return (
+            <ListItem key={tournament.id}>
+              <Card sx={{ width: "100%" }}>
+                <CardContent>
+                  <Grid container alignItems="center" spacing={2}>
+                    <Grid item xs={2}>
+                      <Box
+                        component="img"
+                        src={tournament.logo}
+                        alt={tournament.name}
+                        sx={{ width: 50, height: 50 }}
+                      />
+                    </Grid>
+                    <Grid item xs={6}>
+                      <ListItemText primary={tournament.name} />
+                    </Grid>
+                    <Grid item xs={2}>
+                      <ListItemText primary={tournament.university} />
+                    </Grid>
+                    <Grid item xs={2}>
+                      <Button
+                        variant="contained"
+                        color={
+                          tournament.status === "APPLY"
+                            ? isPaid
+                              ? "success"
+                              : "primary"
+                            : tournament.status === "UPCOMING"
+                            ? "secondary"
+                            : "error"
+                        }
+                        onClick={() => handleOpenModal(tournament)}
+                      >
+                        {buttonLabel}
+                      </Button>
+                    </Grid>
                   </Grid>
-                  <Grid item xs={6}>
-                    <ListItemText primary={tournament.name} />
-                  </Grid>
-                  <Grid item xs={2}>
-                    <ListItemText primary={tournament.university} />
-                  </Grid>
-                  <Grid item xs={2}>
-                    <Button
-                      variant="contained"
-                      color={
-                        tournament.status === "APPLY"
-                          ? "primary"
-                          : tournament.status === "UPCOMING"
-                          ? "secondary"
-                          : "error"
-                      }
-                      onClick={() => handleOpenModal(tournament)}
-                    >
-                      {tournament.status}
-                    </Button>
-                  </Grid>
-                </Grid>
-              </CardContent>
-            </Card>
-          </ListItem>
-        ))}
+                </CardContent>
+              </Card>
+            </ListItem>
+          );
+        })}
       </List>
 
-      {/* Bottom row */}
       <Box
         sx={{
           display: "flex",
@@ -157,7 +171,7 @@ const TournamentList: React.FC = () => {
             >
               Create Tournament
             </Button>
-    
+
             <Pagination
               count={Math.ceil(filteredTournaments.length / ITEMS_PER_PAGE)}
               page={page}
@@ -168,9 +182,9 @@ const TournamentList: React.FC = () => {
         )}
       </Box>
 
-      {/* Modal */}
       {selectedTournament && (
         <TournamentModal
+          key={modalOpen ? "open" : "closed"}
           open={modalOpen}
           onClose={handleCloseModal}
           tournament={selectedTournament}

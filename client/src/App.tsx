@@ -40,6 +40,7 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import ViewerSignUpPage from "./pages/ViewerSignUpPage";
 import Reportpage from "./pages/Reportpage";
 import { useAuth } from "./AuthProvider"; 
+import CheckoutPage from "./pages/CheckoutPage";
 
 
 const AppContent: React.FC = () => {
@@ -141,7 +142,7 @@ const AppContent: React.FC = () => {
           element={<TournamentRegistration />}
         />
         <Route path="/edit-profile" element={<EditProfilePage />} />
-        <Route path="/checkoutform" element={<PaymentPage />} />
+        <Route path="/checkout" element={<PaymentPage />} />
         <Route path="/tournaments/bracket" element={<TournamentBracket />} />
 
         {/* <Route
@@ -158,6 +159,8 @@ const AppContent: React.FC = () => {
         <Route element={<PrivateRoute allowedRoles={["superadmin", "aardvarkstaff"]} />}>
           <Route path="/report" element={<Reportpage />} />
         </Route>
+        <Route path="/checkoutform" element={<CheckoutPage />} />
+
       </Routes>
 
       {!hideNavigationAndFooter && <Footer />}
