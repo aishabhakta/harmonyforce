@@ -11,6 +11,7 @@ import {
 } from "@mui/material";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFnsV3";
 import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
+import { apiFetch } from "../api";
 
 interface University {
   university_id: number;
@@ -23,15 +24,15 @@ const TournamentForm: React.FC = () => {
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
   const [universities, setUniversities] = useState<University[]>([]);
-  const [selectedUniversityId, setSelectedUniversityId] = useState<number | "">("");
+  const [selectedUniversityId, setSelectedUniversityId] = useState<number | "">(
+    ""
+  );
   const [submitting, setSubmitting] = useState(false);
-
 
   useEffect(() => {
     const fetchUniversities = async () => {
       try {
-        const response = await fetch("http://localhost:5000/university/getAll");
-        const data = await response.json();
+        const data = await apiFetch("/university/getAll");
         setUniversities(data);
       } catch (error) {
         console.error("Failed to fetch universities:", error);
@@ -44,13 +45,19 @@ const TournamentForm: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true); // Disable button immediately
-  
-    if (!name || !description || !startDate || !endDate || !selectedUniversityId) {
+
+    if (
+      !name ||
+      !description ||
+      !startDate ||
+      !endDate ||
+      !selectedUniversityId
+    ) {
       alert("Please fill in all fields.");
       setSubmitting(false);
       return;
     }
-  
+
     const payload = {
       name,
       description,
@@ -58,19 +65,17 @@ const TournamentForm: React.FC = () => {
       end_date: endDate.toISOString().split("T")[0],
       university_id: selectedUniversityId,
     };
-  
+
     try {
-      const response = await fetch("http://localhost:5000/tournament/create", {
+      const data = await apiFetch("/tournament/create", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-  
-      if (!response.ok) throw new Error("Failed to register tournament.");
-      const data = await response.json();
-  
-      alert(`🎉 Tournament "${name}" created successfully! ID: ${data.tournament_id}`);
-  
+
+      alert(
+        `🎉 Tournament "${name}" created successfully! ID: ${data.tournament_id}`
+      );
+
       // Optionally reset form fields
       setName("");
       setDescription("");
@@ -84,7 +89,7 @@ const TournamentForm: React.FC = () => {
       setSubmitting(false); // Re-enable button
     }
   };
-  
+
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
       <Box
@@ -98,7 +103,10 @@ const TournamentForm: React.FC = () => {
           borderRadius: "8px",
         }}
       >
-        <Typography variant="h4" sx={{ marginBottom: "2rem", textAlign: "center" }}>
+        <Typography
+          variant="h4"
+          sx={{ marginBottom: "2rem", textAlign: "center" }}
+        >
           Tournament Creator
         </Typography>
 
@@ -121,7 +129,9 @@ const TournamentForm: React.FC = () => {
         />
 
         <FormControl fullWidth sx={{ marginBottom: "1rem" }}>
-          <InputLabel id="university-select-label">Select University</InputLabel>
+          <InputLabel id="university-select-label">
+            Select University
+          </InputLabel>
           <Select
             labelId="university-select-label"
             value={selectedUniversityId}
@@ -156,10 +166,14 @@ const TournamentForm: React.FC = () => {
           />
         </Box>
 
-        <Button type="submit" variant="contained" fullWidth disabled={submitting}>
-  {submitting ? "Submitting..." : "Submit"}
-</Button>
-
+        <Button
+          type="submit"
+          variant="contained"
+          fullWidth
+          disabled={submitting}
+        >
+          {submitting ? "Submitting..." : "Submit"}
+        </Button>
       </Box>
     </LocalizationProvider>
   );

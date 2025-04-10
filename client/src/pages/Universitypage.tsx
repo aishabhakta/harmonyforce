@@ -2,7 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Box, Typography, Grid, Button, Card, Skeleton } from "@mui/material";
 import MatchResultsEditor from "../components/UniversityModal"; // adjust path if needed
-
+import { apiFetch } from "../api";
+import { useNavigate } from "react-router-dom";
 
 interface Team {
   team_id: number;
@@ -19,7 +20,7 @@ interface University {
   created_at: string;
   country: string;
   universitylink: string;
-  tournymod: { name: string, email: string}
+  tournymod: { name: string; email: string };
 }
 
 interface Match {
@@ -50,6 +51,7 @@ const UniversityPage: React.FC = () => {
     team2Score: 0,
     date: "",
   });
+  const navigate = useNavigate();
 
   const handleOpenEditor = (match: Match) => {
     setSelectedMatch(match);
@@ -62,14 +64,14 @@ const UniversityPage: React.FC = () => {
     });
     setEditorOpen(true);
   };
-  
+
   const handleMatchChange = (field: string, value: any) => {
     setMatchFormData((prev) => ({ ...prev, [field]: value }));
   };
-  
+
   const handleMatchSave = async () => {
     if (!selectedMatch) return;
-  
+
     const updatedMatch = {
       score_team1: matchFormData.team1Score,
       score_team2: matchFormData.team2Score,
@@ -81,31 +83,28 @@ const UniversityPage: React.FC = () => {
           ? selectedMatch.team2_id
           : null,
       status: "Completed",
-    };    
-  
+    };
+
     try {
-      const response = await fetch(`http://localhost:5000/matches/${selectedMatch.match_id}`, {
+      const response = await apiFetch(`/matches/${selectedMatch.match_id}`, {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify(updatedMatch),
       });
-  
+
       if (!response.ok) {
         throw new Error("Failed to update match");
       }
-  
+
       // Optional: show success toast
       console.log(" Match updated!");
-  
+
       // Refetch matches to reflect updated scores
-      const updatedMatchesRes = await fetch(
-        `http://localhost:5000/university/${universityId}/matches`
+      const updatedMatches = await apiFetch(
+        `/university/${universityId}/matches`
       );
-      const updatedMatches = await updatedMatchesRes.json();
+
       setMatches(updatedMatches);
-  
+
       setEditorOpen(false);
     } catch (err) {
       console.error("Error saving match:", err);
@@ -116,19 +115,16 @@ const UniversityPage: React.FC = () => {
   useEffect(() => {
     if (!universityId) return;
 
-    fetch(`http://localhost:5000/university/${universityId}`)
-      .then((res) => res.json())
-      .then((data) => setUniversity(data))
+    apiFetch(`/university/${universityId}`)
+      .then(setUniversity)
       .catch((err) => console.error("Failed to fetch university details", err));
 
-    fetch(`http://localhost:5000/university/${universityId}/teams`)
-      .then((res) => res.json())
-      .then((data) => setTeams(data))
+    apiFetch(`/university/${universityId}/teams`)
+      .then(setTeams)
       .catch((err) => console.error("Failed to fetch teams", err));
 
-    fetch(`http://localhost:5000/university/${universityId}/matches`)
-      .then((res) => res.json())
-      .then((data) => setMatches(data))
+    apiFetch(`/university/${universityId}/matches`)
+      .then(setMatches)
       .catch((err) => console.error("Failed to fetch matches", err));
   }, [universityId]);
 
@@ -163,7 +159,13 @@ const UniversityPage: React.FC = () => {
           position: "relative",
           width: "100%",
           height: "400px",
-          backgroundImage: `url(http://localhost:5000/university/${university.university_id}/image)`,
+          backgroundImage: `url(${
+            university.university_id && university.university_id !== 0
+              ? `${import.meta.env.VITE_BACKEND_URL}/university/${
+                  university.university_id
+                }/image`
+              : "https://via.placeholder.com/800x400?text=University+Image+Unavailable"
+          })`,
           backgroundSize: "cover",
           backgroundPosition: "center",
           display: "flex",
@@ -192,39 +194,44 @@ const UniversityPage: React.FC = () => {
           </Typography>
           <Typography variant="h5">Location: {university.country}</Typography>
           <Typography variant="body1" mt={2}>
-            Status: {university.status}<br />
-            Created at: {university.created_at}<br />
-            Moderator: {university.tournymod?.name
-            ? `${university.tournymod.name} (${university.tournymod.email})`
-            : "N/A"}
+            Status: {university.status}
+            <br />
+            Created at: {university.created_at}
+            <br />
+            Moderator:{" "}
+            {university.tournymod?.name
+              ? `${university.tournymod.name} (${university.tournymod.email})`
+              : "N/A"}
           </Typography>
 
-          <Box sx={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: 1.5,
-            mt: 2,
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: 1.5,
+              mt: 2,
             }}
           >
-            
             <Button
-             variant="contained"
-             sx={{ backgroundColor: "#1976d2" }}
-             href={university.universitylink}
-             target="_blank"
-             rel="noopener noreferrer"
+              variant="contained"
+              sx={{ backgroundColor: "#1976d2" }}
+              href={university.universitylink}
+              target="_blank"
+              rel="noopener noreferrer"
             >
               Visit University Website
             </Button>
-            
-            <Button 
-            variant="contained"
-            sx={{ backgroundColor: "#1976d2" }}
-            onClick={() => window.location.href = `/UniversityRegistration?university_id=${university.university_id}`}
+
+            <Button
+              variant="contained"
+              sx={{ backgroundColor: "#1976d2" }}
+              onClick={() =>
+                (window.location.href = `/UniversityRegistration?university_id=${university.university_id}`)
+              }
             >
               Edit Page
-            </Button>  
+            </Button>
           </Box>
         </Box>
       </Box>
@@ -277,7 +284,17 @@ const UniversityPage: React.FC = () => {
             <Grid container spacing={2}>
               {teams.map((team) => (
                 <Grid item xs={12} key={team.team_id}>
-                  <Card sx={{ display: "flex", alignItems: "center", p: 2 }}>
+                  <Card
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      p: 2,
+                      cursor: "pointer",
+                      transition: "0.3s",
+                      "&:hover": { boxShadow: 4 },
+                    }}
+                    onClick={() => navigate(`/team/${team.team_id}`)}
+                  >
                     <Box
                       component="img"
                       src={
@@ -348,22 +365,27 @@ const UniversityPage: React.FC = () => {
                             : "Edit Result"}
                         </Button> */}
 
-                        <Button variant="contained" size="medium" onClick={() => handleOpenEditor(match)}>
-                          {match.status === "Completed" ? "View Result" : "Edit Result"}
+                        <Button
+                          variant="contained"
+                          size="medium"
+                          onClick={() => handleOpenEditor(match)}
+                        >
+                          {match.status === "Completed"
+                            ? "View Result"
+                            : "Edit Result"}
                         </Button>
 
-
-                        <MatchResultsEditor open={editorOpen} onClose={() => setEditorOpen(false)} 
-                        team1Name={matchFormData.team1Name}
-                        team2Name={matchFormData.team2Name}
-                        team1Score={matchFormData.team1Score}
-                        team2Score={matchFormData.team2Score}
-                        date={matchFormData.date}
-                        onChange={handleMatchChange}
-                        onSave={handleMatchSave}
+                        <MatchResultsEditor
+                          open={editorOpen}
+                          onClose={() => setEditorOpen(false)}
+                          team1Name={matchFormData.team1Name}
+                          team2Name={matchFormData.team2Name}
+                          team1Score={matchFormData.team1Score}
+                          team2Score={matchFormData.team2Score}
+                          date={matchFormData.date}
+                          onChange={handleMatchChange}
+                          onSave={handleMatchSave}
                         />
-
-
                       </Box>
                     )}
 

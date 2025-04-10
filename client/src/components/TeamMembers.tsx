@@ -1,6 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { Box, Typography, TextField, MenuItem, Button, Alert } from "@mui/material";
+import {
+  Box,
+  Typography,
+  TextField,
+  MenuItem,
+  Button,
+  Alert,
+} from "@mui/material";
 import { useParams } from "react-router-dom";
+import { apiFetch } from "../api";
 
 interface TeamMembersProps {
   captainId: number;
@@ -29,9 +37,8 @@ const TeamMembers: React.FC<TeamMembersProps> = () => {
     }
 
     try {
-      const response = await fetch(`http://127.0.0.1:5000/teams/requestAddMember`, {
+      const response = await apiFetch(`/teams/requestAddMember`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email,
           team_id: teamId,
@@ -60,13 +67,13 @@ const TeamMembers: React.FC<TeamMembersProps> = () => {
   useEffect(() => {
     if (!teamId) return;
 
-    fetch(`http://127.0.0.1:5000/teams/getTeam/${teamId}`)
-      .then(res => res.json())
-      .then(data => {
+    apiFetch(`/teams/getTeam/${teamId}`)
+      .then(async (res) => {
+        const data = await res.json();
         setTeamData(data);
         setLoading(false);
       })
-      .catch(err => {
+      .catch((err) => {
         console.error("Failed to fetch team", err);
         setLoading(false);
       });
@@ -92,12 +99,39 @@ const TeamMembers: React.FC<TeamMembersProps> = () => {
         Each team must have between 5 – 7 members.
       </Typography>
 
-      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-      {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error}
+        </Alert>
+      )}
+      {success && (
+        <Alert severity="success" sx={{ mb: 2 }}>
+          {success}
+        </Alert>
+      )}
 
-      <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: "1rem", marginBottom: "1rem" }}>
-        <TextField label="Name *" variant="outlined" fullWidth value={name} onChange={(e) => setName(e.target.value)} />
-        <TextField label="Email Address *" variant="outlined" fullWidth value={email} onChange={(e) => setEmail(e.target.value)} />
+      <Box
+        sx={{
+          display: "grid",
+          gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
+          gap: "1rem",
+          marginBottom: "1rem",
+        }}
+      >
+        <TextField
+          label="Name *"
+          variant="outlined"
+          fullWidth
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
+        <TextField
+          label="Email Address *"
+          variant="outlined"
+          fullWidth
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
       </Box>
 
       <TextField
@@ -109,23 +143,30 @@ const TeamMembers: React.FC<TeamMembersProps> = () => {
         value={role}
         onChange={(e) => setRole(e.target.value)}
       >
-        {["Expedition Leader", "Resource Specialist", "Scientist", "Technician", "Chronicler", "Weapons Specialist", "Physician"].map((roleOption) => (
+        {[
+          "Expedition Leader",
+          "Resource Specialist",
+          "Scientist",
+          "Technician",
+          "Chronicler",
+          "Weapons Specialist",
+          "Physician",
+        ].map((roleOption) => (
           <MenuItem key={roleOption} value={roleOption}>
             {roleOption.charAt(0).toUpperCase() + roleOption.slice(1)}
           </MenuItem>
         ))}
       </TextField>
 
-
-        <Button
-          variant="contained"
-          color="primary"
-          sx={{ marginTop: "1rem", width: "100%" }}
-          onClick={handleAddMember}
-          disabled={teamSize >= 7}
-        >
-          Add Member
-        </Button>      
+      <Button
+        variant="contained"
+        color="primary"
+        sx={{ marginTop: "1rem", width: "100%" }}
+        onClick={handleAddMember}
+        disabled={teamSize >= 7}
+      >
+        Add Member
+      </Button>
     </Box>
   );
 };

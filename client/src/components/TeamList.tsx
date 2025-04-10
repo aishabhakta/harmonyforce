@@ -15,34 +15,44 @@ import {
   Button,
 } from "@mui/material";
 import { useAuth } from "../AuthProvider"; // Import auth context
+import { apiFetch } from "../api";
 
-interface Team {
-  team_id: number;
-  team_name: string;
-  university_id: number;
-  profile_image?: string;
-}
-
-interface TeamListProps {
-  universityId?: number;
-}
-
-// Toggle this to `true` to use dummy data if using the backend switch true to false 
 const USE_DUMMY_DATA = false;
 
-const dummyTeams: Team[] = [
-  { team_id: 1, team_name: "Team Alpha", university_id: 101, profile_image: "https://via.placeholder.com/50" },
-  { team_id: 2, team_name: "Team Beta", university_id: 101, profile_image: "https://via.placeholder.com/50" },
-  { team_id: 3, team_name: "Team Gamma", university_id: 102, profile_image: "https://via.placeholder.com/50" },
-  { team_id: 4, team_name: "Team Delta", university_id: 103, profile_image: "https://via.placeholder.com/50" },
-  { team_id: 5, team_name: "Team Epsilon", university_id: 102, profile_image: "https://via.placeholder.com/50" },
-  { team_id: 6, team_name: "Team Zeta", university_id: 101, profile_image: "https://via.placeholder.com/50" },
+interface User {
+  user_id: number;
+  username: string;
+  email: string;
+  profile_image: string;
+  user_type: string;
+  game_role: string;
+  university_name?: string;
+  team_name?: string;
+}
+
+const dummyUsers: User[] = [
+  {
+    user_id: 1,
+    username: "yenry_s",
+    email: "yenry@example.com",
+    profile_image: "https://example.com/images/yenry.png",
+    user_type: "player",
+    game_role: "strategist",
+  },
+  {
+    user_id: 2,
+    username: "maria_l",
+    email: "maria@example.com",
+    profile_image: "https://example.com/images/maria.png",
+    user_type: "player",
+    game_role: "defender",
+  },
 ];
 
 const ITEMS_PER_PAGE = 5;
 
-const TeamList: React.FC<TeamListProps> = ({ universityId }) => {
-  const [teams, setTeams] = useState<Team[]>([]);
+const UserList: React.FC = () => {
+  const [users, setUsers] = useState<User[]>([]);
   const [search, setSearch] = useState<string>("");
   const [page, setPage] = useState<number>(1);
   const [loading, setLoading] = useState<boolean>(true);
@@ -51,40 +61,44 @@ const TeamList: React.FC<TeamListProps> = ({ universityId }) => {
   const { user } = useAuth(); // Get current user
 
   useEffect(() => {
-    const loadTeams = async () => {
+    const fetchUsers = async () => {
       setLoading(true);
       setError(null);
-
-      if (USE_DUMMY_DATA) {
-        setTeams(dummyTeams);
-        setLoading(false);
-        return;
-      }
       try {
-        const response = await fetch("http://127.0.0.1:5000/teams/getAllTeams");
-        const data = await response.json();
-        if (response.ok) {
-          setTeams(data.teams);
+        if (USE_DUMMY_DATA) {
+          setUsers(dummyUsers);
         } else {
-          setError(data.error || "Failed to fetch teams");
+          const data = await apiFetch("/teams/user/participants-and-captains");
+          // Assume apiFetch either throws or returns parsed JSON
+          setUsers(
+            data.map((u: any) => ({
+              user_id: u.user_id,
+              username: u.username,
+              email: u.email,
+              profile_image:
+                u.profile_image || "https://via.placeholder.com/50",
+              user_type: u.role,
+              game_role: u.game_role,
+              university_name: u.university_name || "Unknown University",
+              team_name: u.team_name || "No Team",
+            }))
+          );
         }
-      } catch (err) {
-        setError("An error occurred while loading teams.");
+      } catch (err: any) {
+        setError("Error loading users.");
       } finally {
         setLoading(false);
       }
     };
 
-    loadTeams();
+    fetchUsers();
   }, []);
 
-  const filteredTeams = teams.filter(
-    (team) =>
-      team.team_name.toLowerCase().includes(search.toLowerCase()) &&
-      (!universityId || team.university_id === universityId)
+  const filteredUsers = users.filter((u) =>
+    u.username.toLowerCase().includes(search.toLowerCase())
   );
 
-  const paginatedTeams = filteredTeams.slice(
+  const paginatedUsers = filteredUsers.slice(
     (page - 1) * ITEMS_PER_PAGE,
     page * ITEMS_PER_PAGE
   );
@@ -92,7 +106,7 @@ const TeamList: React.FC<TeamListProps> = ({ universityId }) => {
   return (
     <Box sx={{ width: "100%", maxWidth: "900px", margin: "auto", mt: 3 }}>
       <TextField
-        label="Search Teams"
+        label="Search Users"
         variant="outlined"
         fullWidth
         value={search}
@@ -111,33 +125,36 @@ const TeamList: React.FC<TeamListProps> = ({ universityId }) => {
       {!loading && !error && (
         <>
           <List>
-            {paginatedTeams.map((team) => (
-              <ListItem key={team.team_id} disablePadding>
+            {paginatedUsers.map((user) => (
+              <ListItem key={user.user_id} disablePadding>
                 <Card
                   sx={{
                     width: "100%",
                     cursor: "pointer",
                     transition: "0.3s",
                     "&:hover": { boxShadow: 4 },
+                    mb: 2,
                   }}
-                  onClick={() => {
-                    const path = `/team/${team.team_id}${USE_DUMMY_DATA ? "?dummy=true" : ""}`;
-                    navigate(path);
-                  }}
-                  
+                  onClick={() => navigate(`/player/${user.user_id}`)}
                 >
                   <CardContent>
                     <Grid container alignItems="center" spacing={2}>
                       <Grid item xs={2}>
                         <Box
                           component="img"
-                          src={team.profile_image || "https://via.placeholder.com/50"}
-                          alt={team.team_name}
+                          src={
+                            user.profile_image ||
+                            "https://via.placeholder.com/50"
+                          }
+                          alt={user.username}
                           sx={{ width: 50, height: 50 }}
                         />
                       </Grid>
                       <Grid item xs={10}>
-                        <ListItemText primary={team.team_name} />
+                        <ListItemText
+                          primary={user.username}
+                          secondary={`${user.user_type}• ${user.university_name} • ${user.team_name}`}
+                        />
                       </Grid>
                     </Grid>
                   </CardContent>
@@ -146,7 +163,6 @@ const TeamList: React.FC<TeamListProps> = ({ universityId }) => {
             ))}
           </List>
 
-          {/* Pagination & Conditional Create Button */}
           <Box
             sx={{
               display: "flex",
@@ -155,6 +171,7 @@ const TeamList: React.FC<TeamListProps> = ({ universityId }) => {
               mt: 4,
             }}
           >
+            {/* Show Create Team button if user is eligible */}
             {user && user.role === "participant" && !user.team_id && (
               <Button
                 variant="contained"
@@ -167,9 +184,9 @@ const TeamList: React.FC<TeamListProps> = ({ universityId }) => {
             )}
 
             <Pagination
-              count={Math.ceil(filteredTeams.length / ITEMS_PER_PAGE)}
+              count={Math.ceil(filteredUsers.length / ITEMS_PER_PAGE)}
               page={page}
-              onChange={(_, value) => setPage(value)}
+              onChange={(_, val) => setPage(val)}
             />
           </Box>
         </>
@@ -178,4 +195,4 @@ const TeamList: React.FC<TeamListProps> = ({ universityId }) => {
   );
 };
 
-export default TeamList;
+export default UserList;

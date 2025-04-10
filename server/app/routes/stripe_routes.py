@@ -5,7 +5,7 @@ from app.models import Payment
 from flask_cors import CORS 
 
 stripe_bp = Blueprint('stripe', __name__)
-CORS(stripe_bp, origins=["http://localhost:5173"])
+CORS(stripe_bp, origins=["http://localhost:5173", "http://18.218.163.17"])
 
 @stripe_bp.route('/create-payment-intent', methods=['POST'])
 def create_payment():

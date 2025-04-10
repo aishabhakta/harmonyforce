@@ -3,6 +3,7 @@ import { useParams, useSearchParams } from "react-router-dom";
 import { Box, CircularProgress, Alert } from "@mui/material";
 import TeamHeader from "../components/TeamHeader";
 import Roster from "../components/Roster";
+import { apiFetch } from "../api";
 
 interface Member {
   user_id: number;
@@ -85,9 +86,7 @@ const TeamPage: React.FC = () => {
       }
 
       try {
-        const response = await fetch(
-          `http://127.0.0.1:5000/teams/getTeam/${id}`
-        );
+        const response = await apiFetch(`/teams/getTeam/${id}`);
         const data = await response.json();
 
         if (response.ok) {
@@ -140,25 +139,30 @@ const TeamPage: React.FC = () => {
 
       {/* Roster */}
       <Box sx={{ width: "100%", marginBottom: "2rem" }}>
-      <Roster
-        teamId={team.team_id}
-        teamSize={1 + team.members.length} // captain + members
-        members={team.members.map((member) => ({
-          id: member.user_id.toString(),
-          name: member.name,
-          role: member.role,
-          game_role: member.game_role,
-          imageUrl: member.imageUrl || "https://via.placeholder.com/150",
-        }))}
-        captain={team.captain ? {
-          id: team.captain.user_id?.toString() || "0",
-          name: team.captain.name || "Unknown Captain",
-          role: "Team Captain",
-          game_role: team.captain.game_role || "Expedition Leader",
-          imageUrl: team.captain.imageUrl || "https://via.placeholder.com/150",
-          isCaptain: true,
-        } : undefined}
-      />
+        <Roster
+          teamId={team.team_id}
+          teamSize={1 + team.members.length} // captain + members
+          members={team.members.map((member) => ({
+            id: member.user_id.toString(),
+            name: member.name,
+            role: member.role,
+            game_role: member.game_role,
+            imageUrl: member.imageUrl || "https://via.placeholder.com/150",
+          }))}
+          captain={
+            team.captain
+              ? {
+                  id: team.captain.user_id?.toString() || "0",
+                  name: team.captain.name || "Unknown Captain",
+                  role: "Team Captain",
+                  game_role: team.captain.game_role || "Expedition Leader",
+                  imageUrl:
+                    team.captain.imageUrl || "https://via.placeholder.com/150",
+                  isCaptain: true,
+                }
+              : undefined
+          }
+        />
       </Box>
     </Box>
   );

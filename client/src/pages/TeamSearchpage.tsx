@@ -41,10 +41,10 @@ const TeamSearchPage: React.FC = () => {
       >
         {/* Title & Subtitle */}
         <Typography variant="h3" fontWeight="bold" gutterBottom>
-          Teams
+          User
         </Typography>
         <Typography variant="subtitle1" sx={{ marginBottom: "2rem" }}>
-          Search for teams participating in the tournament.
+          Search for users participating in the tournament.
         </Typography>
 
         {/* Team Search Component */}

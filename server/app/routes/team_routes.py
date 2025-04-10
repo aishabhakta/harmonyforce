@@ -378,17 +378,18 @@ def remove_member(user_id):
 #return all participants and captains
 @team_bp.route('/user/participants-and-captains', methods=['GET'])
 def get_participants_and_captains():
-    users = User.query.filter(User.user_type.in_(['participant', 'captain'])).all()
-
+    users = User.query.filter(User.user_type.in_(['player', 'captain','tournymod'])).all()
     result = []
     for user in users:
         result.append({
+            "user_id": user.user_id,
             "username": user.username,
             "profile_image": user.profile_image,
             "email": user.email,
             "university_name": user.university.university_name if user.university else None,
             "in_team": user.team_id is not None and user.team_id != 0,
             "role": user.user_type,
+            "team_name": user.team.team_name if user.team else None,
         })
 
     return jsonify(result), 200

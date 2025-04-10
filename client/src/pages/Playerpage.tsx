@@ -9,9 +9,10 @@ import {
   CardContent,
   Avatar,
   Grid,
-  Button
+  Button,
 } from "@mui/material";
 import { useAuth } from "../AuthProvider"; // Make sure this path is correct
+import { apiFetch } from "../api";
 
 // Toggle this to true to use dummy data
 const USE_DUMMY_DATA = false;
@@ -49,48 +50,51 @@ const PlayerPage: React.FC = () => {
   const [player, setPlayer] = useState<Player | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  
 
   const { user } = useAuth(); // Get current logged-in user
 
   const isPrivileged =
-    user && ["aardvarkstaff", "superadmin", "tournymod"].includes(user.role || "");
+    user &&
+    ["aardvarkstaff", "superadmin", "tournymod"].includes(user.role || "");
 
-    useEffect(() => {
-      if (!playerId) {
-        setError("Invalid player ID");
-        setLoading(false);
-        return;
-      }
-    
-      if (USE_DUMMY_DATA) {
-        // Dynamically return the dummy player based on playerId
-        const dummy = { ...dummyPlayer, user_id: parseInt(playerId), name: `Player ${playerId}` };
-        setPlayer(dummy);
-        setLoading(false);
-        return;
-      }
-    
-      const fetchPlayer = async () => {
-        try {
-          const response = await fetch(`http://127.0.0.1:5000/teams/getPlayer/${playerId}`);
-          const data = await response.json();
-    
-          if (response.ok) {
-            setPlayer(data);
-          } else {
-            setError(data.error || "Failed to fetch player details.");
-          }
-        } catch (err) {
-          setError("An error occurred while fetching player details.");
-        } finally {
-          setLoading(false);
-        }
+  useEffect(() => {
+    if (!playerId) {
+      setError("Invalid player ID");
+      setLoading(false);
+      return;
+    }
+
+    if (USE_DUMMY_DATA) {
+      // Dynamically return the dummy player based on playerId
+      const dummy = {
+        ...dummyPlayer,
+        user_id: parseInt(playerId),
+        name: `Player ${playerId}`,
       };
-    
-      fetchPlayer();
-    }, [playerId]);
-    
+      setPlayer(dummy);
+      setLoading(false);
+      return;
+    }
+
+    const fetchPlayer = async () => {
+      try {
+        const response = await apiFetch(`/teams/getPlayer/${playerId}`);
+        const data = await response.json();
+
+        if (response.ok) {
+          setPlayer(data);
+        } else {
+          setError(data.error || "Failed to fetch player details.");
+        }
+      } catch (err) {
+        setError("An error occurred while fetching player details.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPlayer();
+  }, [playerId]);
 
   if (loading) {
     return (
@@ -101,7 +105,11 @@ const PlayerPage: React.FC = () => {
   }
 
   if (error) {
-    return <Alert severity="error" sx={{ mt: 5 }}>{error}</Alert>;
+    return (
+      <Alert severity="error" sx={{ mt: 5 }}>
+        {error}
+      </Alert>
+    );
   }
 
   if (!player) return null;
@@ -117,29 +125,32 @@ const PlayerPage: React.FC = () => {
         px: 2,
         py: 4,
         width: "100vw",
-        overflowX: "hidden"
+        overflowX: "hidden",
       }}
     >
       <Box sx={{ maxWidth: "900px", margin: "auto" }}>
         <Grid container spacing={4}>
           {/* Profile Image */}
           <Grid item xs={12} md={4}>
-          <Avatar
-    src={player.profile_image || "https://via.placeholder.com/150"}
-    alt={player.name}
-    sx={{ width: 200, height: 200, border: "3px solid #1976d2" }}
-  />
-  <Box sx={{ mt: 2 }}>
-    <Button
-      variant="contained"
-      color="primary"
-      fullWidth
-      href="/edit-profile"
-      sx={{ textTransform: "none" }}
-    >
-      Edit Profile
-    </Button>
-  </Box>
+            <Avatar
+              src={player.profile_image || "https://via.placeholder.com/150"}
+              alt={player.name}
+              sx={{ width: 200, height: 200, border: "3px solid #1976d2" }}
+            />
+
+            {user?.user_id === player.user_id && (
+              <Box sx={{ mt: 2 }}>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  fullWidth
+                  href="/edit-profile"
+                  sx={{ textTransform: "none" }}
+                >
+                  Edit Profile
+                </Button>
+              </Box>
+            )}
           </Grid>
 
           {/* Info Card */}
@@ -152,7 +163,9 @@ const PlayerPage: React.FC = () => {
                 <Typography sx={{ fontWeight: "bold", display: "inline" }}>
                   Role:{" "}
                 </Typography>
-                <Typography sx={{ display: "inline" }}>{player.role}</Typography>
+                <Typography sx={{ display: "inline" }}>
+                  {player.role}
+                </Typography>
 
                 <Typography sx={{ mt: 2 }}>
                   {player.about || "No bio available."}
@@ -183,17 +196,19 @@ const PlayerPage: React.FC = () => {
                     p: 2,
                     height: 85,
                     boxShadow: 3,
-                    borderRadius: 2
+                    borderRadius: 2,
                   }}
                 >
                   <Box
                     component="img"
-                    src={player.university_logo || "https://via.placeholder.com/50"}
+                    src={
+                      player.university_logo || "https://via.placeholder.com/50"
+                    }
                     alt={player.university_name}
                     sx={{ width: 40, height: 40, mr: 2 }}
                   />
                   <Typography variant="subtitle1">
-                    {player.university_name}
+                    {player.university_name || "No University"}
                   </Typography>
                 </Card>
               </Grid>
@@ -207,7 +222,7 @@ const PlayerPage: React.FC = () => {
                     p: 2,
                     height: 85,
                     boxShadow: 3,
-                    borderRadius: 2
+                    borderRadius: 2,
                   }}
                 >
                   <Box
@@ -216,7 +231,9 @@ const PlayerPage: React.FC = () => {
                     alt={player.team_name}
                     sx={{ width: 40, height: 40, mr: 2 }}
                   />
-                  <Typography variant="subtitle1">{player.team_name}</Typography>
+                  <Typography variant="subtitle1">
+                    {player.team_name || "No Team"}
+                  </Typography>
                 </Card>
               </Grid>
             </Grid>

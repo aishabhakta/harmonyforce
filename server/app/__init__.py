@@ -17,7 +17,7 @@ def create_app():
     app = Flask(__name__)
 
     # Allow only frontend origin
-    CORS(app, resources={r"/*": {"origins": "http://localhost:5173"}})
+    CORS(app, resources={r"/*": {"origins": "http://18.218.163.17"}})
 
     # Load configuration
     app.config.from_object('app.config.Config')

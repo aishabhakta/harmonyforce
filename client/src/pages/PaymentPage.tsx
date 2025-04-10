@@ -5,6 +5,7 @@ import { loadStripe } from "@stripe/stripe-js";
 import type { StripeElementsOptions } from "@stripe/stripe-js";
 import { Box, Typography, CircularProgress, Paper } from "@mui/material";
 import CheckoutForm from "./CheckoutForm";
+import { apiFetch } from "../api";
 
 const stripePromise = loadStripe(
   import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY ||
@@ -15,13 +16,17 @@ const PaymentPage: React.FC = () => {
   const [clientSecret, setClientSecret] = useState("");
 
   useEffect(() => {
-    fetch("http://127.0.0.1:5000/stripe/create-payment-intent", {
+    apiFetch("/stripe/create-payment-intent", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ amount: 1000, currency: "usd", email: "test@example.com" }),
+      body: JSON.stringify({
+        amount: 1000,
+        currency: "usd",
+        email: "test@example.com",
+      }),
     })
       .then((res) => res.json())
-      .then((data) => setClientSecret(data.clientSecret || data.client_secret));
+      .then((data) => setClientSecret(data.clientSecret || data.client_secret))
+      .catch((err) => console.error("Failed to fetch payment intent", err));
   }, []);
 
   const appearance = { theme: "stripe" } as const;
@@ -63,15 +68,26 @@ const PaymentPage: React.FC = () => {
         }}
       >
         {/* Left Side - Info */}
-        <Box p={4} display="flex" flexDirection="column" justifyContent="center">
+        <Box
+          p={4}
+          display="flex"
+          flexDirection="column"
+          justifyContent="center"
+        >
           <Typography variant="h4" fontWeight="bold" gutterBottom>
             Register your placement in your team
           </Typography>
-          <Typography variant="h3" fontWeight="bold" color="primary" gutterBottom>
+          <Typography
+            variant="h3"
+            fontWeight="bold"
+            color="primary"
+            gutterBottom
+          >
             $10.00
           </Typography>
           <Typography variant="body1" color="text.secondary">
-            In order to participate in the upcoming tournament games, you’ll need to pay a one-time registration fee.
+            In order to participate in the upcoming tournament games, you’ll
+            need to pay a one-time registration fee.
           </Typography>
         </Box>
 
