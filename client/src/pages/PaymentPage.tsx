@@ -24,8 +24,12 @@ const PaymentPage: React.FC = () => {
         email: "test@example.com",
       }),
     })
-      .then((res) => res.json())
-      .then((data) => setClientSecret(data.clientSecret || data.client_secret));
+      .then((data) => {
+        setClientSecret(data.clientSecret || data.client_secret);
+      })
+      .catch((err) => {
+        console.error("Stripe error:", err);
+      });
   }, []);
 
   const appearance = { theme: "stripe" } as const;
