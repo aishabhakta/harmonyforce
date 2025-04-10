@@ -428,6 +428,72 @@ def get_pending_teams():
 
     return jsonify(response), 200
 
+# @team_bp.route('/approve-team/<int:pending_team_id>', methods=['POST'])
+# def approve_pending_team(pending_team_id):
+#     try:
+#         pending = PendingTeamRegistration.query.get(pending_team_id)
+#         if not pending:
+#             return jsonify({"error": "Pending team not found"}), 404
+
+#         # Check if captain exists
+#         existing_user = User.query.filter_by(email=pending.captain_email).first()
+#         if existing_user:
+#             if existing_user.team_id:
+#                 return jsonify({"error": "Captain is already in a team"}), 400
+#         else:
+#             # Create new captain
+#             existing_user = User(
+#                 username=pending.captain_name,
+#                 email=pending.captain_email,
+#                 user_type="captain",
+#                 status=1,
+#                 blacklisted=0,
+#                 created_at=datetime.utcnow(),
+#                 updated_at=datetime.utcnow()
+#             )
+#             db.session.add(existing_user)
+#             db.session.flush()
+
+#         # Create the team
+#         new_team = Team(
+#             team_name=pending.team_name,
+#             captain_id=existing_user.user_id,
+#             registration_date=datetime.utcnow().date(),
+#             status=1,
+#             blacklisted=0,
+#             profile_image=pending.profile_image,
+#             university_id=pending.university_id,
+#             created_at=datetime.utcnow().date(),
+#             updated_at=datetime.utcnow().date(),
+#             description=""
+#         )
+#         db.session.add(new_team)
+#         db.session.flush()
+
+#         # Assign team_id to captain
+#         existing_user.team_id = new_team.team_id
+#         existing_user.updated_at = datetime.utcnow()
+
+#         # Assign team_id to other members (by email)
+#         for email in pending.members:
+#             if email == pending.captain_email:
+#                 continue  # Skip the captain
+#             user = User.query.filter_by(email=email).first()
+#             if user:
+#                 if user.team_id:
+#                     continue  # already in a team
+#                 user.team_id = new_team.team_id
+#                 user.updated_at = datetime.utcnow()
+
+#         # Delete from pending table
+#         db.session.delete(pending)
+#         db.session.commit()
+
+#         return jsonify({"message": "Team approved and created successfully!"}), 200
+
+#     except Exception as e:
+#         db.session.rollback()
+#         return jsonify({"error": "Team approval failed", "details": str(e)}), 500
 @team_bp.route('/approve-team/<int:pending_team_id>', methods=['POST'])
 def approve_pending_team(pending_team_id):
     try:
@@ -435,13 +501,11 @@ def approve_pending_team(pending_team_id):
         if not pending:
             return jsonify({"error": "Pending team not found"}), 404
 
-        # Check if captain exists
         existing_user = User.query.filter_by(email=pending.captain_email).first()
         if existing_user:
             if existing_user.team_id:
                 return jsonify({"error": "Captain is already in a team"}), 400
         else:
-            # Create new captain
             existing_user = User(
                 username=pending.captain_name,
                 email=pending.captain_email,
@@ -449,12 +513,13 @@ def approve_pending_team(pending_team_id):
                 status=1,
                 blacklisted=0,
                 created_at=datetime.utcnow(),
-                updated_at=datetime.utcnow()
+                updated_at=datetime.utcnow(),
+                team_id=None,  # <-- this might be causing issues if it's NOT NULL
+                university_id=pending.university_id or 0,  # make sure this isn't None
             )
             db.session.add(existing_user)
             db.session.flush()
 
-        # Create the team
         new_team = Team(
             team_name=pending.team_name,
             captain_id=existing_user.user_id,
@@ -470,28 +535,25 @@ def approve_pending_team(pending_team_id):
         db.session.add(new_team)
         db.session.flush()
 
-        # Assign team_id to captain
         existing_user.team_id = new_team.team_id
         existing_user.updated_at = datetime.utcnow()
 
-        # Assign team_id to other members (by email)
         for email in pending.members:
             if email == pending.captain_email:
-                continue  # Skip the captain
+                continue
             user = User.query.filter_by(email=email).first()
-            if user:
-                if user.team_id:
-                    continue  # already in a team
+            if user and not user.team_id:
                 user.team_id = new_team.team_id
                 user.updated_at = datetime.utcnow()
 
-        # Delete from pending table
         db.session.delete(pending)
         db.session.commit()
 
         return jsonify({"message": "Team approved and created successfully!"}), 200
 
     except Exception as e:
+        import traceback
+        print(traceback.format_exc())  # Logs full error trace
         db.session.rollback()
         return jsonify({"error": "Team approval failed", "details": str(e)}), 500
 
