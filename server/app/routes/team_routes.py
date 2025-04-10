@@ -391,18 +391,26 @@ def get_participants_and_captains():
             except Exception as e:
                 print("Image decode error:", e)
 
+        # Safely fetch university name based on ID
+        university_name = None
+        if user.university_id:
+            uni = University.query.get(user.university_id)
+            university_name = uni.university_name if uni else None
+
         result.append({
             "user_id": user.user_id,
             "username": user.username,
             "profile_image": image_url,
             "email": user.email,
-            "university_name": user.university.university_name if user.university else None,
+            "university_id": user.university_id,
+            "university_name": university_name,
             "in_team": user.team_id is not None and user.team_id != 0,
             "role": user.user_type,
             "team_name": user.team.team_name if user.team else None,
         })
 
     return jsonify(result), 200
+
     
 @team_bp.route('/pendingTeams', methods=['GET'])
 def get_pending_teams():

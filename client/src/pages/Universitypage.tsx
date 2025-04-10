@@ -1,10 +1,17 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { Box, Typography, Grid, Button, Card, Skeleton } from "@mui/material";
-import MatchResultsEditor from "../components/UniversityModal"; // adjust path if needed
-import { useAuth } from "../AuthProvider"; import { Link } from "react-router-dom";
-
-
+import { useParams, Link } from "react-router-dom";
+import {
+  Box,
+  Typography,
+  Grid,
+  Button,
+  Card,
+  Skeleton,
+  Snackbar,
+  Alert,
+} from "@mui/material";
+import MatchResultsEditor from "../components/UniversityModal";
+import { useAuth } from "../AuthProvider";
 
 interface Team {
   team_id: number;
@@ -21,7 +28,7 @@ interface University {
   created_at: string;
   country: string;
   universitylink: string;
-  tournymod: { name: string, email: string}
+  tournymod: { name: string; email: string };
 }
 
 interface Match {
@@ -42,7 +49,6 @@ const UniversityPage: React.FC = () => {
   const [university, setUniversity] = useState<University | null>(null);
   const [selectedTab, setSelectedTab] = useState<"teams" | "matches">("teams");
   const [matches, setMatches] = useState<Match[]>([]);
-  const isAdmin = true;
   const [editorOpen, setEditorOpen] = useState(false);
   const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
   const [matchFormData, setMatchFormData] = useState({
@@ -52,18 +58,18 @@ const UniversityPage: React.FC = () => {
     team2Score: 0,
     date: "",
   });
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success" as "success" | "error",
+  });
+
   const { user } = useAuth();
 
   const getTeamName = (teamId: number) => {
     const team = teams.find((t) => t.team_id === teamId);
     return team ? team.team_name : `Team ${teamId}`;
   };
-  
-  // const getTeamImage = (teamId: number) => {
-  //   const team = teams.find((t) => t.team_id === teamId);
-  //   return team?.profile_image ?? "https://via.placeholder.com/60";
-  // };
-  
 
   const handleOpenEditor = (match: Match) => {
     setSelectedMatch(match);
@@ -76,14 +82,14 @@ const UniversityPage: React.FC = () => {
     });
     setEditorOpen(true);
   };
-  
+
   const handleMatchChange = (field: string, value: any) => {
     setMatchFormData((prev) => ({ ...prev, [field]: value }));
   };
-  
+
   const handleMatchSave = async () => {
     if (!selectedMatch) return;
-  
+
     const updatedMatch = {
       score_team1: matchFormData.team1Score,
       score_team2: matchFormData.team2Score,
@@ -95,35 +101,30 @@ const UniversityPage: React.FC = () => {
           ? selectedMatch.team2_id
           : null,
       status: "Completed",
-    };    
-  
+    };
+
     try {
-      const response = await fetch(`http://localhost:5000/matches/${selectedMatch.match_id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(updatedMatch),
-      });
-  
-      if (!response.ok) {
-        throw new Error("Failed to update match");
-      }
-  
-      // Optional: show success toast
-      console.log(" Match updated!");
-  
-      // Refetch matches to reflect updated scores
-      const updatedMatchesRes = await fetch(
-        `http://localhost:5000/university/${universityId}/matches`
+      const response = await fetch(
+        `http://localhost:5000/matches/${selectedMatch.match_id}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(updatedMatch),
+        }
       );
-      const updatedMatches = await updatedMatchesRes.json();
+
+      if (!response.ok) throw new Error("Failed to update match");
+
+      setSnackbar({ open: true, message: "Match updated!", severity: "success" });
+
+      // Refresh match list
+      const res = await fetch(`http://localhost:5000/university/${universityId}/matches`);
+      const updatedMatches = await res.json();
       setMatches(updatedMatches);
-  
       setEditorOpen(false);
     } catch (err) {
       console.error("Error saving match:", err);
-      // Optional: show error toast
+      setSnackbar({ open: true, message: "Failed to update match", severity: "error" });
     }
   };
 
@@ -133,7 +134,7 @@ const UniversityPage: React.FC = () => {
     fetch(`http://localhost:5000/university/${universityId}`)
       .then((res) => res.json())
       .then((data) => setUniversity(data))
-      .catch((err) => console.error("Failed to fetch university details", err));
+      .catch((err) => console.error("Failed to fetch university", err));
 
     fetch(`http://localhost:5000/university/${universityId}/teams`)
       .then((res) => res.json())
@@ -144,116 +145,72 @@ const UniversityPage: React.FC = () => {
       .then((res) => res.json())
       .then((data) => setMatches(data))
       .catch((err) => console.error("Failed to fetch matches", err));
-
-      console.log("Fetching for university ID:", universityId);
   }, [universityId]);
 
   if (!university) {
     return (
       <Box sx={{ px: 2, py: 4 }}>
-        <Skeleton
-          variant="rectangular"
-          width="100%"
-          height={300}
-          sx={{ mb: 3 }}
-        />
-        <Skeleton variant="text" width="60%" height={40} sx={{ mb: 1 }} />
-        <Skeleton variant="text" width="40%" height={30} sx={{ mb: 1 }} />
+        <Skeleton variant="rectangular" width="100%" height={300} sx={{ mb: 3 }} />
+        <Skeleton variant="text" width="60%" height={40} />
+        <Skeleton variant="text" width="40%" height={30} />
         <Skeleton variant="text" width="80%" height={20} />
       </Box>
     );
   }
 
   return (
-    <Box
-      sx={{
-        backgroundColor: "white",
-        color: "black",
-        width: "100vw",
-        overflowX: "hidden",
-      }}
-    >
+    <Box sx={{ backgroundColor: "white", color: "black", width: "100vw" }}>
       {/* Hero Section */}
       <Box
         sx={{
-          position: "relative",
-          width: "100%",
           height: "400px",
           backgroundImage: `url(http://localhost:5000/university/${university.university_id}/image)`,
           backgroundSize: "cover",
           backgroundPosition: "center",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
+          position: "relative",
         }}
       >
-        <Box
-          sx={{
-            position: "absolute",
-            width: "100%",
-            height: "100%",
-            backgroundColor: "rgba(0, 0, 0, 0.5)",
-          }}
-        />
-        <Box
-          sx={{
-            position: "relative",
-            textAlign: "center",
-            color: "white",
-            p: 4,
-          }}
-        >
-          <Typography variant="h3" fontWeight="bold">
-            {university.university_name}
-          </Typography>
-          <Typography variant="h5">Location: {university.country}</Typography>
-          <Typography variant="body1" mt={2}>
-            Status: {university.status}<br />
-            Created at: {university.created_at}<br />
-            Moderator: {university.tournymod?.name
-            ? `${university.tournymod.name} (${university.tournymod.email})`
-            : "N/A"}
-          </Typography>
+        <Box sx={{ position: "absolute", inset: 0, backgroundColor: "rgba(0,0,0,0.5)" }} />
+          <Box sx={{ position: "relative", color: "white", textAlign: "center", p: 4 }}>
+            <Typography variant="h3" fontWeight="bold">{university.university_name}</Typography>
+            <Typography variant="h5">Location: {university.country}</Typography>
+            <Typography mt={2}>
+              Status: {university.status}<br />
+              Created at: {university.created_at}<br />
+              Moderator: {university.tournymod?.name
+                ? `${university.tournymod.name} (${university.tournymod.email})`
+                : "N/A"}
+            </Typography>
 
-          <Box sx={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: 1.5,
-            mt: 2,
-            }}
-          >
-            
-            <Button
-             variant="contained"
-             sx={{ backgroundColor: "#1976d2" }}
-             href={university.universitylink}
-             target="_blank"
-             rel="noopener noreferrer"
-            >
-              Visit University Website
-            </Button>
-            {["superadmin", "unimod", "aardvarkstaff"].includes(user?.role || "") && (
-              <Button 
+            <Box sx={{ mt: 2, p: 2 }}>
+              <Button
                 variant="contained"
-                sx={{ backgroundColor: "#1976d2" }}
-                onClick={() => window.location.href = `/UniversityRegistration?university_id=${university.university_id}`}
+                href={university.universitylink}
+                target="_blank"
+                rel="noopener noreferrer"
+                sx={{ mr: 2 }}
               >
-                Edit Page
+                Visit University Website
               </Button>
-            )}  
+            </Box>
+              {(user?.role === "superadmin" || user?.role === "aardvarkstaff" ||
+                (user?.role === "unimod" && user.university_id === university.university_id)) && (
+                <Button
+                  variant="contained"
+                  onClick={() =>
+                    window.location.href = `/UniversityRegistration?university_id=${university.university_id}`
+                  }
+                >
+                  Edit Page
+                </Button>
+              )}
           </Box>
-        </Box>
       </Box>
 
       {/* About Section */}
-      <Box sx={{ maxWidth: "1200px", mx: "auto", px: 2, mt: 4, mb: 4 }}>
-        <Typography variant="h4" fontWeight="bold">
-          About
-        </Typography>
-        <Typography variant="body1" mt={2}>
-          {university.description}
-        </Typography>
+      <Box sx={{ maxWidth: "1200px", mx: "auto", px: 2, mt: 4 }}>
+        <Typography variant="h4" fontWeight="bold">About</Typography>
+        <Typography mt={2}>{university.description}</Typography>
       </Box>
 
       {/* Tabs */}
@@ -262,11 +219,7 @@ const UniversityPage: React.FC = () => {
           <Typography
             variant="h5"
             fontWeight={selectedTab === "teams" ? "bold" : "normal"}
-            sx={{
-              cursor: "pointer",
-              borderBottom:
-                selectedTab === "teams" ? "3px solid black" : "none",
-            }}
+            sx={{ cursor: "pointer", borderBottom: selectedTab === "teams" ? "3px solid black" : "none" }}
             onClick={() => setSelectedTab("teams")}
           >
             Teams
@@ -274,143 +227,65 @@ const UniversityPage: React.FC = () => {
           <Typography
             variant="h5"
             fontWeight={selectedTab === "matches" ? "bold" : "normal"}
-            sx={{
-              cursor: "pointer",
-              borderBottom:
-                selectedTab === "matches" ? "3px solid black" : "none",
-            }}
+            sx={{ cursor: "pointer", borderBottom: selectedTab === "matches" ? "3px solid black" : "none" }}
             onClick={() => setSelectedTab("matches")}
           >
             Matches
           </Typography>
         </Box>
 
-        {/* Teams Section */}
+        {/* Teams Tab */}
         {selectedTab === "teams" && (
-          <Box>
-            <Typography variant="h4" fontWeight="bold" mb={2}>
-              Teams
-            </Typography>
-            <Grid container spacing={2}>
-              {teams.map((team) => (
-                <Grid item xs={12} key={team.team_id}>
-  <Link to={`/team/${team.team_id}`} style={{ textDecoration: "none" }}>
-    <Card sx={{ display: "flex", alignItems: "center", p: 2, cursor: "pointer" }}>
-      <Box
-        component="img"
-        src={team.profile_image || "https://via.placeholder.com/50"}
-        alt={team.team_name}
-        sx={{ width: 50, height: 50, mr: 2 }}
-      />
-      <Typography variant="body1" color="black">
-        {team.team_name}
-      </Typography>
-    </Card>
-  </Link>
-</Grid>
-
-              ))}
-            </Grid>
-          </Box>
+          <Grid container spacing={2}>
+            {teams.map((team) => (
+              <Grid item xs={12} key={team.team_id}>
+                <Link to={`/team/${team.team_id}`} style={{ textDecoration: "none" }}>
+                  <Card sx={{ display: "flex", alignItems: "center", p: 2 }}>
+                    <Box
+                      component="img"
+                      src={team.profile_image || "https://via.placeholder.com/50"}
+                      alt={team.team_name}
+                      sx={{ width: 50, height: 50, mr: 2 }}
+                    />
+                    <Typography color="black">{team.team_name}</Typography>
+                  </Card>
+                </Link>
+              </Grid>
+            ))}
+          </Grid>
         )}
 
-        {/* Matches Placeholder */}
+        {/* Matches Tab */}
         {selectedTab === "matches" && (
           <Box>
-            <Typography variant="h4" fontWeight="bold" mb={2}>
-              Matches
-            </Typography>
             {matches.length === 0 ? (
-              <Typography>No matches found for this university.</Typography>
+              <Typography>No matches found.</Typography>
             ) : (
               matches.map((match) => (
                 <Card key={match.match_id} sx={{ my: 2, p: 2 }}>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      flexWrap: "wrap",
-                    }}
-                  >
-                    {/* Team 1 */}
-                    <Box
-                      sx={{ display: "flex", alignItems: "center", flex: 1 }}
-                    >
-                      <Box
-                        component="img"
-                        src="https://via.placeholder.com/60"
-                        alt="Team A"
-                        sx={{ width: 60, height: 60, mr: 3 }}
-                      />
+                  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap" }}>
+                    <Box sx={{ display: "flex", alignItems: "center" }}>
+                      <Box component="img" src="https://via.placeholder.com/60" sx={{ mr: 2 }} />
                       <Box>
-                      <Typography fontWeight="bold">
-                        {getTeamName(match.team1_id)}
-                        </Typography>
-
-                        <Typography variant="h4">
-                          {match.score_team1 ?? "-"}
-                        </Typography>
+                        <Typography fontWeight="bold">{getTeamName(match.team1_id)}</Typography>
+                        <Typography variant="h4">{match.score_team1 ?? "-"}</Typography>
                       </Box>
                     </Box>
 
-                    {/* Status and Optional Admin Button */}
                     {["superadmin", "tournymod"].includes(user?.role || "") && (
-                      <Box
-                        sx={{
-                          flex: 1,
-                          display: "flex",
-                          justifyContent: "center",
-                        }}
-                      >
-                        <Button variant="contained" size="medium" onClick={() => handleOpenEditor(match)}>
-                          {/* {match.status === "Completed" ? "View Result" : "Edit Result"} */}
-                          Edit Result
-                        </Button>
-
-                        <MatchResultsEditor
-                          open={editorOpen}
-                          onClose={() => setEditorOpen(false)}
-                          team1Name={matchFormData.team1Name}
-                          team2Name={matchFormData.team2Name}
-                          team1Score={matchFormData.team1Score}
-                          team2Score={matchFormData.team2Score}
-                          date={matchFormData.date}
-                          onChange={handleMatchChange}
-                          onSave={handleMatchSave}
-                        />
-                      </Box>
+                      <Button variant="contained" onClick={() => handleOpenEditor(match)}>Edit Result</Button>
                     )}
 
-
-                    {/* Team 2 */}
-                    <Box
-                      sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "flex-end",
-                        flex: 1,
-                      }}
-                    >
-                      <Box sx={{ textAlign: "right", mr: 3 }}>
-                      <Typography fontWeight="bold">
-  {getTeamName(match.team2_id)}
-</Typography>
-
-                        <Typography variant="h4">
-                          {match.score_team2 ?? "-"}
-                        </Typography>
+                    <Box sx={{ display: "flex", alignItems: "center" }}>
+                      <Box sx={{ textAlign: "right", mr: 2 }}>
+                        <Typography fontWeight="bold">{getTeamName(match.team2_id)}</Typography>
+                        <Typography variant="h4">{match.score_team2 ?? "-"}</Typography>
                       </Box>
-                      <Box
-                        component="img"
-                        src="https://via.placeholder.com/60"
-                        alt="Team B"
-                        sx={{ width: 60, height: 60, ml: 3 }}
-                      />
+                      <Box component="img" src="https://via.placeholder.com/60" />
                     </Box>
                   </Box>
 
-                  <Typography variant="body2" mt={1} color="gray">
+                  <Typography variant="body2" mt={1}>
                     Match Date: {match.start_time} | Status: {match.status}
                   </Typography>
                 </Card>
@@ -419,6 +294,33 @@ const UniversityPage: React.FC = () => {
           </Box>
         )}
       </Box>
+
+      <MatchResultsEditor
+        open={editorOpen}
+        onClose={() => setEditorOpen(false)}
+        team1Name={matchFormData.team1Name}
+        team2Name={matchFormData.team2Name}
+        team1Score={matchFormData.team1Score}
+        team2Score={matchFormData.team2Score}
+        date={matchFormData.date}
+        onChange={handleMatchChange}
+        onSave={handleMatchSave}
+      />
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={() => setSnackbar((prev) => ({ ...prev, open: false }))}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          onClose={() => setSnackbar((prev) => ({ ...prev, open: false }))}
+          severity={snackbar.severity}
+          sx={{ width: "100%" }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

@@ -1,5 +1,12 @@
 import React, { useState } from "react";
-import { Box, Typography, TextField, Button } from "@mui/material";
+import {
+  Box,
+  Typography,
+  TextField,
+  Button,
+  Snackbar,
+  Alert,
+} from "@mui/material";
 
 const GeneralTeamInfo: React.FC = () => {
   const [teamName, setTeamName] = useState("");
@@ -7,6 +14,10 @@ const GeneralTeamInfo: React.FC = () => {
   const [teamLeaderName, setTeamLeaderName] = useState("");
   const [teamLeaderEmail, setTeamLeaderEmail] = useState("");
   const [profileImage] = useState(""); // Placeholder for image URL or base64 string
+
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState<"success" | "error">("success");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,7 +29,7 @@ const GeneralTeamInfo: React.FC = () => {
       team_bio: teamBio,
       university_id: 1, // Adjust as necessary
       profile_image: profileImage,
-      members: [], // Leaving members empty for now
+      members: [],
     };
 
     try {
@@ -33,12 +44,26 @@ const GeneralTeamInfo: React.FC = () => {
       if (!response.ok) {
         const errorData = await response.json();
         console.error("Error registering team:", errorData);
+        setSnackbarMessage(errorData.message || "Failed to register team.");
+        setSnackbarSeverity("error");
+        setOpenSnackbar(true);
       } else {
         const data = await response.json();
         console.log("Team registered:", data);
+        setSnackbarMessage("Team registered successfully!");
+        setSnackbarSeverity("success");
+        setOpenSnackbar(true);
+        // Optionally clear form:
+        setTeamName("");
+        setTeamBio("");
+        setTeamLeaderName("");
+        setTeamLeaderEmail("");
       }
     } catch (error) {
       console.error("Error registering team:", error);
+      setSnackbarMessage("An error occurred. Please try again.");
+      setSnackbarSeverity("error");
+      setOpenSnackbar(true);
     }
   };
 
@@ -72,7 +97,7 @@ const GeneralTeamInfo: React.FC = () => {
         value={teamName}
         onChange={(e) => setTeamName(e.target.value)}
       />
-      
+
       <TextField
         fullWidth
         label="Team Bio"
@@ -104,7 +129,8 @@ const GeneralTeamInfo: React.FC = () => {
           onChange={(e) => setTeamLeaderEmail(e.target.value)}
         />
       </Box>
-      <Typography variant="h6" sx={{ marginBottom: "1rem" }}>
+
+      <Typography variant="h6" sx={{ marginBottom: "1rem", marginTop: "2rem" }}>
         Team Image
       </Typography>
 
@@ -125,11 +151,29 @@ const GeneralTeamInfo: React.FC = () => {
             if (file) setImage(file);
           }}
         />
-        <Typography variant="caption">SVG, PNG, JPG or GIF (max. 3MB)</Typography>
+        <Typography variant="caption">
+          SVG, PNG, JPG or GIF (max. 3MB)
+        </Typography>
       </Box>
+
       <Button type="submit" variant="contained" sx={{ marginTop: "1rem" }}>
         Register Team
       </Button>
+
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={6000}
+        onClose={() => setOpenSnackbar(false)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          onClose={() => setOpenSnackbar(false)}
+          severity={snackbarSeverity}
+          sx={{ width: "100%" }}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

@@ -77,6 +77,7 @@ const UserList: React.FC = () => {
               profile_image: u.profile_image,
               user_type: u.role,
               game_role: u.game_role,
+              university_id: u.university_id,
               university_name: u.university_name || "Unknown University",
               team_name: u.team_name || "No Team",
             })));
