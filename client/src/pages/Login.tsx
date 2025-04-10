@@ -197,7 +197,7 @@ export default function Login() {
           </Button>
           <Typography variant="body2">
             Don't have an account?{" "}
-            <Link href="/viewregister" underline="hover">
+            <Link href="/register" underline="hover">
               Register for one
             </Link>
           </Typography>
