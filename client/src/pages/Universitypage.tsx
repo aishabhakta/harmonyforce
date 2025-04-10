@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Box, Typography, Grid, Button, Card, Skeleton } from "@mui/material";
 import MatchResultsEditor from "../components/UniversityModal"; // adjust path if needed
+import { Link } from "react-router-dom";
+
 
 
 interface Team {
@@ -51,11 +53,22 @@ const UniversityPage: React.FC = () => {
     date: "",
   });
 
+  const getTeamName = (teamId: number) => {
+    const team = teams.find((t) => t.team_id === teamId);
+    return team ? team.team_name : `Team ${teamId}`;
+  };
+  
+  // const getTeamImage = (teamId: number) => {
+  //   const team = teams.find((t) => t.team_id === teamId);
+  //   return team?.profile_image ?? "https://via.placeholder.com/60";
+  // };
+  
+
   const handleOpenEditor = (match: Match) => {
     setSelectedMatch(match);
     setMatchFormData({
-      team1Name: `Team ${match.team1_id}`,
-      team2Name: `Team ${match.team2_id}`,
+      team1Name: getTeamName(match.team1_id),
+      team2Name: getTeamName(match.team2_id),
       team1Score: match.score_team1 ?? 0,
       team2Score: match.score_team2 ?? 0,
       date: match.start_time?.split("T")[0] ?? "",
@@ -130,6 +143,8 @@ const UniversityPage: React.FC = () => {
       .then((res) => res.json())
       .then((data) => setMatches(data))
       .catch((err) => console.error("Failed to fetch matches", err));
+
+      console.log("Fetching for university ID:", universityId);
   }, [universityId]);
 
   if (!university) {
@@ -277,18 +292,21 @@ const UniversityPage: React.FC = () => {
             <Grid container spacing={2}>
               {teams.map((team) => (
                 <Grid item xs={12} key={team.team_id}>
-                  <Card sx={{ display: "flex", alignItems: "center", p: 2 }}>
-                    <Box
-                      component="img"
-                      src={
-                        team.profile_image || "https://via.placeholder.com/50"
-                      }
-                      alt={team.team_name}
-                      sx={{ width: 50, height: 50, mr: 2 }}
-                    />
-                    <Typography variant="body1">{team.team_name}</Typography>
-                  </Card>
-                </Grid>
+  <Link to={`/team/${team.team_id}`} style={{ textDecoration: "none" }}>
+    <Card sx={{ display: "flex", alignItems: "center", p: 2, cursor: "pointer" }}>
+      <Box
+        component="img"
+        src={team.profile_image || "https://via.placeholder.com/50"}
+        alt={team.team_name}
+        sx={{ width: 50, height: 50, mr: 2 }}
+      />
+      <Typography variant="body1" color="black">
+        {team.team_name}
+      </Typography>
+    </Card>
+  </Link>
+</Grid>
+
               ))}
             </Grid>
           </Box>
@@ -324,9 +342,10 @@ const UniversityPage: React.FC = () => {
                         sx={{ width: 60, height: 60, mr: 3 }}
                       />
                       <Box>
-                        <Typography fontWeight="bold">
-                          Team ID: {match.team1_id}
+                      <Typography fontWeight="bold">
+                        {getTeamName(match.team1_id)}
                         </Typography>
+
                         <Typography variant="h4">
                           {match.score_team1 ?? "-"}
                         </Typography>
@@ -377,9 +396,10 @@ const UniversityPage: React.FC = () => {
                       }}
                     >
                       <Box sx={{ textAlign: "right", mr: 3 }}>
-                        <Typography fontWeight="bold">
-                          Team ID: {match.team2_id}
-                        </Typography>
+                      <Typography fontWeight="bold">
+  {getTeamName(match.team2_id)}
+</Typography>
+
                         <Typography variant="h4">
                           {match.score_team2 ?? "-"}
                         </Typography>
