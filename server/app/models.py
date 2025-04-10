@@ -139,12 +139,18 @@ class PendingRegistration(db.Model):
     __table_args__ = {'schema': 'aardvark'}
 
     id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, nullable=False)
+    team_id = db.Column(db.Integer, default=0)
     username = db.Column(db.String(45))
     email = db.Column(db.String(45), unique=True)
     password_hash = db.Column(db.String(255))
     role = db.Column(db.String(45))
     university = db.Column(db.String(255))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    first_name = db.Column(db.String(100))
+    last_name = db.Column(db.String(100))
+    bio = db.Column(db.Text)
+    profile_image = db.Column(db.String(255))
 
 # models.py
 class PendingTeamMember(db.Model):
