@@ -245,44 +245,77 @@ def assign_tournymod_to_university():
         "message": f"Tournament moderator '{user.username}' assigned to university ID {university_id}"
     }), 200
 
-
 @university_bp.route('/report/full_statistics', methods=['GET'])
 def full_university_report():
-    universities = University.query.all()
+    start_date = request.args.get("start_date")
+    end_date = request.args.get("end_date")
+
+    print("==== University Report Filter ====")
+    print(f"Start: {start_date if start_date else 'N/A'}")
+    print(f"End: {end_date if end_date else 'N/A'}")
+
+    query = University.query
+
+    try:
+        if start_date:
+            start_date_obj = datetime.strptime(start_date, "%Y-%m-%d").date()
+            query = query.filter(University.created_at >= start_date_obj)
+        if end_date:
+            end_date_obj = datetime.strptime(end_date, "%Y-%m-%d").date()
+            query = query.filter(University.created_at <= end_date_obj)
+    except ValueError:
+        return jsonify({"error": "Invalid date format. Use YYYY-MM-DD"}), 400
+
+    universities = query.all()
     result = []
 
     for uni in universities:
-        try:
-            team_count = Team.query.filter_by(university_id=uni.university_id).count()
-            total_members = User.query.filter_by(university_id=uni.university_id).count()
-            unimod_exists = db.session.query(
-                User.query.filter_by(university_id=uni.university_id, user_type='unimod').exists()
+        team_count = Team.query.filter_by(university_id=uni.university_id).count()
+        member_count = User.query.filter_by(university_id=uni.university_id).count()
+
+        result.append({
+            "university_id": uni.university_id,
+            "university_name": uni.university_name,
+            "country": uni.country,
+            "created_at": uni.created_at.strftime('%Y-%m-%d') if uni.created_at else None,
+            "status": uni.status,
+            "team_count": team_count,
+            "total_members": member_count,
+            "unimod_exists": db.session.query(
+                db.session.query(User).filter_by(university_id=uni.university_id, user_type='unimod').exists()
             ).scalar()
-
-            created_at = None
-            if uni.created_at:
-                if isinstance(uni.created_at, str):
-                    print(f"[WARN] created_at is string: {uni.created_at}")
-                elif isinstance(uni.created_at, datetime):
-                    created_at = uni.created_at.strftime('%Y-%m-%d')
-                else:
-                    print(f"[ERROR] Unexpected type for created_at: {type(uni.created_at)}")
-
-            result.append({
-                "university_id": uni.university_id,
-                "university_name": uni.university_name,
-                "country": uni.country,
-                "created_at": created_at,
-                "status": uni.status,
-                "team_count": team_count,
-                "total_members": total_members,
-                "unimod_exists": unimod_exists
-            })
-
-        except Exception as e:
-            print(f"Error processing university {uni.university_id}: {str(e)}")
-
+        })
 
     return jsonify(result), 200
+    
+    
+@university_bp.route('/report/total_counts', methods=['GET'])
+def university_total_counts():
+    start_date = request.args.get("start_date")
+    end_date = request.args.get("end_date")
 
+    query = University.query
 
+    try:
+        if start_date:
+            start_date_obj = datetime.strptime(start_date, "%Y-%m-%d").date()
+            query = query.filter(University.created_at >= start_date_obj)
+        if end_date:
+            end_date_obj = datetime.strptime(end_date, "%Y-%m-%d").date()
+            query = query.filter(University.created_at <= end_date_obj)
+    except ValueError:
+        return jsonify({"error": "Invalid date format. Use YYYY-MM-DD"}), 400
+
+    universities = query.all()
+    total_teams = 0
+    total_team_members = 0
+
+    for uni in universities:
+        total_teams += Team.query.filter_by(university_id=uni.university_id).count()
+        total_team_members += User.query.filter_by(university_id=uni.university_id).count()
+
+    return jsonify({
+        "total_universities": len(universities),
+        "total_teams": total_teams,
+        "total_team_members": total_team_members
+    }), 200
