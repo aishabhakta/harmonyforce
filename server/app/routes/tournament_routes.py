@@ -299,43 +299,103 @@ def get_all_tournaments():
         })
 
     return jsonify(response), 200
-
 @tournament_bp.route('/report/full_statistics', methods=['GET'])
 def full_tournament_report():
-    tournaments = Tournament.query.all()
+    start_date = request.args.get("start_date")
+    end_date = request.args.get("end_date")
+
+    print("==== Tournament Report Filter ====")
+    print(f"Start: {start_date if start_date else 'N/A'}")
+    print(f"End: {end_date if end_date else 'N/A'}")
+
+    query = Tournament.query
+
+    try:
+        if start_date:
+            start_date_obj = datetime.strptime(start_date, "%Y-%m-%d").date()
+            query = query.filter(Tournament.created_at >= start_date_obj)
+        if end_date:
+            end_date_obj = datetime.strptime(end_date, "%Y-%m-%d").date()
+            query = query.filter(Tournament.created_at <= end_date_obj)
+    except ValueError:
+        return jsonify({"error": "Invalid date format. Use YYYY-MM-DD"}), 400
+
+    tournaments = query.all()
     result = []
 
     for t in tournaments:
         university = University.query.get(t.university_id)
-        university_name = university.university_name if university else "N/A"
-        university_country = university.country if university else "N/A"
 
-        next_match = db.session.query(Match.start_time).filter(
+        matches_played = Match.query.filter(
+            Match.tournament_id == t.tournament_id,
+            Match.status == "1"  # adjust if it's integer
+        ).count()
+
+        next_match = Match.query.filter(
             Match.tournament_id == t.tournament_id,
             Match.start_time >= datetime.utcnow()
         ).order_by(Match.start_time).first()
 
-        next_match_date = next_match[0] if next_match else None
-
-        matches_played = db.session.query(Match).filter(
+        matches_on_next_day = Match.query.filter(
             Match.tournament_id == t.tournament_id,
-                cast(Match.status, String) == "1"
-        ).count()
-
-        matches_on_next_day = db.session.query(Match).filter(
-            Match.tournament_id == t.tournament_id,
-            Match.start_time == next_match_date
-        ).count() if next_match_date else 0
-
-        is_complete = datetime.utcnow().date() > t.end_date if t.end_date else False
+            Match.start_time == next_match.start_time if next_match else None
+        ).count() if next_match else 0
 
         result.append({
             "start_date": t.start_date.strftime('%Y-%m-%d') if t.start_date else None,
-            "university_name": university_name,
-            "university_country": university_country,
+            "created_at": t.created_at.strftime('%Y-%m-%d') if t.created_at else None,
+            "university_name": university.university_name if university else "N/A",
+            "university_country": university.country if university else "N/A",
             "matches_on_next_day": matches_on_next_day,
             "matches_played": matches_played,
-            "is_complete": is_complete
+            "is_complete": datetime.utcnow().date() > t.end_date if t.end_date else False
         })
 
     return jsonify(result), 200
+
+@tournament_bp.route('/report/total_tournament_statistics', methods=['GET'])
+def total_tournament_statistics():
+    start_date = request.args.get("start_date")
+    end_date = request.args.get("end_date")
+
+    query = Tournament.query
+
+    try:
+        if start_date:
+            start_date_obj = datetime.strptime(start_date, "%Y-%m-%d").date()
+            query = query.filter(Tournament.created_at >= start_date_obj)
+        if end_date:
+            end_date_obj = datetime.strptime(end_date, "%Y-%m-%d").date()
+            query = query.filter(Tournament.created_at <= end_date_obj)
+    except ValueError:
+        return jsonify({"error": "Invalid date format. Use YYYY-MM-DD"}), 400
+
+    tournaments = query.all()
+    total_matches_played = 0
+    total_matches_next_round = 0
+    total_colleges = len(tournaments)
+
+    for t in tournaments:
+        matches_played = Match.query.filter(
+            Match.tournament_id == t.tournament_id,
+            Match.status == "1"
+        ).count()
+
+        next_match = Match.query.filter(
+            Match.tournament_id == t.tournament_id,
+            Match.start_time >= datetime.utcnow()
+        ).order_by(Match.start_time).first()
+
+        matches_on_next_day = Match.query.filter(
+            Match.tournament_id == t.tournament_id,
+            Match.start_time == next_match.start_time if next_match else None
+        ).count() if next_match else 0
+
+        total_matches_played += matches_played
+        total_matches_next_round += matches_on_next_day
+
+    return jsonify({
+        "active_universities": total_colleges,
+        "matches_yet_to_play": total_matches_next_round,
+        "matches_completed": total_matches_played
+    }), 200

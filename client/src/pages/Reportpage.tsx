@@ -56,23 +56,27 @@ const Reports = () => {
     matchesPlanned: 0,
     matchesCompleted: 0,
   });
-
+  
   const fetchReports = async () => {
     try {
+      const params: any = {};
+      if (startDate) params.start_date = startDate;
+      if (endDate) params.end_date = endDate;
+  
       const [collegeRes, totalCollegeRes, tournamentRes, totalTournamentRes] = await Promise.all([
-        axios.get("http://127.0.0.1:5000/university/report/full_statistics"),
-        axios.get("http://127.0.0.1:5000/university/report/total_counts"),
-        axios.get("http://127.0.0.1:5000/tournament/report/full_statistics"),
-        axios.get("http://127.0.0.1:5000/tournament/report/total_tournament_statistics"),
+        axios.get("http://127.0.0.1:5000/university/report/full_statistics", { params }),
+        axios.get("http://127.0.0.1:5000/university/report/total_counts", { params }),
+        axios.get("http://127.0.0.1:5000/tournament/report/full_statistics", { params }),
+        axios.get("http://127.0.0.1:5000/tournament/report/total_tournament_statistics", { params }),
       ]);
-
+  
       setCollegeStats(collegeRes.data);
       setCollegeTotals({
         colleges: totalCollegeRes.data.total_universities,
         teams: totalCollegeRes.data.total_teams,
         members: totalCollegeRes.data.total_team_members,
       });
-
+  
       setTournamentStats(tournamentRes.data);
       setTournamentTotals({
         colleges: totalTournamentRes.data.active_universities,
@@ -83,6 +87,7 @@ const Reports = () => {
       console.error("Failed to fetch reports:", err);
     }
   };
+  
 
   useEffect(() => {
     if (isStaff) {
