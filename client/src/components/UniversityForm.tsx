@@ -31,29 +31,37 @@ const UniversityForm: React.FC<UniversityFormProps> = ({ universityId }) => {
     e.preventDefault();
   
     const formData = new FormData();
-    formData.append("university_id", universityId ?? "");
     formData.append("university_name", name);
     formData.append("description", bio);
     formData.append("universitylink", link);
     if (image) {
-      formData.append("university_image", image); // actual file
+      formData.append("university_image", image);
+    }
+  
+    const endpoint = universityId
+      ? "http://localhost:5000/university/update"
+      : "http://localhost:5000/university/register";
+  
+    if (universityId) {
+      formData.append("university_id", universityId);
     }
   
     try {
-      const response = await fetch("http://localhost:5000/university/update", {
+      const response = await fetch(endpoint, {
         method: "POST",
-        body: formData, // no JSON.stringify here!
+        body: formData,
       });
   
-      if (!response.ok) throw new Error("Failed to update university.");
+      if (!response.ok) throw new Error("Failed to submit university form.");
       const data = await response.json();
-      console.log("University updated:", data);
-      alert("University updated successfully!");
+      console.log("University saved:", data);
+      alert(`University ${universityId ? "updated" : "created"} successfully!`);
     } catch (error) {
       console.error("Error:", error);
-      alert("Error updating university.");
+      alert(`Error ${universityId ? "updating" : "creating"} university.`);
     }
   };
+  
   
 
   return (

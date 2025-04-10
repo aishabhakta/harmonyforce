@@ -59,10 +59,11 @@ const AppContent: React.FC = () => {
 
   // Hide navigation and footer for login/register pages
   const hideNavigationAndFooter = [
-    "/login",
-    "/register",
+    // "/login",
+    // "/register",
     "/access-denied",
     "/404",
+    // "/viewregister"
   ].includes(location.pathname);
 
   // const stripePromise = loadStripe(
@@ -78,7 +79,7 @@ const AppContent: React.FC = () => {
 
   const links = [
     ...baseLinks,
-    ...(user?.role === "superadmin" ? [{ name: "Report", href: "/Report" }] : []),
+    ...(user?.role === "superadmin" ? [{ name: "Report", href: "/Report" }, { name: "Register", href: "/register" }] : []),
   ];
 
   // return <NavigationBar links={links} />;
