@@ -12,6 +12,7 @@ import {
 } from "@mui/material";
 import heroImg from "../assets/images/hero-image.jpg";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../AuthProvider";
 
 export default function Register() {
   const [username, setUsername] = useState("");
@@ -21,6 +22,8 @@ export default function Register() {
   const [university, setUniversity] = useState("");
   const [universities, setUniversities] = useState<string[]>([]);
   const navigate = useNavigate();
+  const { user } = useAuth();
+
 
   useEffect(() => {
     const fetchUniversities = async () => {
@@ -77,7 +80,7 @@ export default function Register() {
         }}
       >
         <Box sx={{ width: "100%", maxWidth: 400 }}>
-          <Typography variant="h3">Register</Typography>
+          <Typography variant="h3">Create User</Typography>
 
           <TextField
             label="Username"
@@ -120,9 +123,14 @@ export default function Register() {
               <MenuItem value="tournymod">Tournament Moderator</MenuItem>
               <MenuItem value="unimod">University Moderator</MenuItem>
               <MenuItem value="aardvarkstaff">Aardvark Support Staff</MenuItem>
-              <MenuItem value="superadmin">Super Admin</MenuItem>
+
+              {/* Only show this if the current user is a superadmin */}
+              {user?.role === "superadmin" && (
+                <MenuItem value="superadmin">Super Admin</MenuItem>
+              )}
             </Select>
           </FormControl>
+
 
           <FormControl fullWidth margin="normal">
             <InputLabel>University</InputLabel>
@@ -149,12 +157,6 @@ export default function Register() {
             Register
           </Button>
 
-          <Typography variant="body2">
-            Already have an account?{" "}
-            <Link href="/login" underline="hover">
-              Login
-            </Link>
-          </Typography>
         </Box>
       </Box>
 

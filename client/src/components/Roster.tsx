@@ -85,13 +85,21 @@ const Roster: React.FC<RosterProps> = ({ members, captain, teamId }) => {
   const open = Boolean(anchorEl);
 
   const canEditTeam =
-    user && ["captain", "tournymod", "aardvarkstaff", "superadmin"].includes(user.role || "");
+    user &&
+    (
+      (user.role === "captain" && user.team_id === teamId) ||
+      ["tournymod", "aardvarkstaff", "superadmin"].includes(user.role || "")
+    );
 
   const canRequestJoin =
     user && user.role === "participant" && !user.team_id;
 
   const canRemoveMembers =
-    user && ["captain", "tournymod", "aardvarkstaff", "superadmin"].includes(user.role || "");
+    user &&
+    (
+      (user.role === "captain" && user.team_id === teamId) ||
+      ["tournymod", "aardvarkstaff", "superadmin"].includes(user.role || "")
+    );
 
   return (
     <>

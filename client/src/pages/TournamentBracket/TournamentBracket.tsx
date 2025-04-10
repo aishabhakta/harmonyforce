@@ -5,6 +5,7 @@ import MatchEditModal from "../../components/MatchEditModal";
 // import axios from "axios";
 import dummyMatches from "./dummyMatches";
 import "./TournamentBracket.css";
+import { useAuth } from "../../AuthProvider";
 
 export interface Match {
   match_id: number;
@@ -25,7 +26,9 @@ export interface Match {
 const TournamentBracket = () => {
   const [matches, setMatches] = useState<Match[]>([]);
   const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
-  const isAdmin = true;
+  const { user } = useAuth();
+  const isPrivileged = ["superadmin", "tournymod", "aardvarkstaff"].includes(user?.role || "");
+
 
   useEffect(() => {
     // Replace this later with real API call
@@ -39,7 +42,7 @@ const TournamentBracket = () => {
   }, []);
 
   const handleOpenMatchModal = (match: Match) => {
-    if (isAdmin) setSelectedMatch(match);
+    if (isPrivileged) setSelectedMatch(match);
   };
 
   const handleCloseModal = () => setSelectedMatch(null);

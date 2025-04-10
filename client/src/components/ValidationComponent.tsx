@@ -19,6 +19,7 @@ interface PendingUser {
   username: string;
   email: string;
   role: string;
+  university_id: number;
 }
 
 interface PendingTeamMember {

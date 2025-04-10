@@ -79,7 +79,12 @@ const AppContent: React.FC = () => {
 
   const links = [
     ...baseLinks,
-    ...(user?.role === "superadmin" ? [{ name: "Report", href: "/Report" }, { name: "Register", href: "/register" }] : []),
+    ...(["superadmin", "aardvarkstaff"].includes(user?.role || "") 
+      ? [
+          { name: "Report", href: "/Report" },
+          { name: "Create User", href: "/register" },
+        ]
+      : []),
   ];
 
   // return <NavigationBar links={links} />;
@@ -150,7 +155,7 @@ const AppContent: React.FC = () => {
         <Route path="/success" element={<Success />} />
         <Route path="/cancel" element={<Cancel />} />
         <Route path="/viewregister" element={<ViewerSignUpPage />} />
-        <Route element={<PrivateRoute allowedRoles={["superadmin", "supportstaff"]} />}>
+        <Route element={<PrivateRoute allowedRoles={["superadmin", "aardvarkstaff"]} />}>
           <Route path="/report" element={<Reportpage />} />
         </Route>
       </Routes>

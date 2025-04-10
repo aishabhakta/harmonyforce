@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 from app.database import db
 from app.models import Team, University, User,Match
 from datetime import datetime
-from sqlalchemy import LargeBinary
+from sqlalchemy import or_, and_, not_
 from flask import send_file
 from io import BytesIO
 
@@ -189,23 +189,33 @@ def get_university_details(university_id):
 
 @university_bp.route('/<int:university_id>/matches', methods=['GET'])
 def get_university_matches(university_id):
-    # Get all team IDs for the university
+    # Get all team IDs associated with this university
     teams = Team.query.filter_by(university_id=university_id).all()
     team_ids = [team.team_id for team in teams]
 
     if not team_ids:
         return jsonify([]), 200
 
-    # Get matches where either team1 or team2 belongs to the university
+    # Get matches where either team1 or team2 belongs to this university
     matches = Match.query.filter(
-        db.or_(
+        or_(
             Match.team1_id.in_(team_ids),
             Match.team2_id.in_(team_ids)
         )
     ).all()
 
-    match_data = []
+    # Deduplicate matches using a set of unique keys
+    seen = set()
+    unique_matches = []
     for match in matches:
+        key = (match.team1_id, match.team2_id, match.start_time)
+        if key not in seen:
+            seen.add(key)
+            unique_matches.append(match)
+
+    # Format match data
+    match_data = []
+    for match in unique_matches:
         match_data.append({
             "match_id": match.match_id,
             "tournament_id": match.tournament_id,

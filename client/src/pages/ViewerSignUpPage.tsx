@@ -10,7 +10,7 @@ export default function Register() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role] = useState("viewer"); // Default role set internally
+  const [role] = useState("participant"); 
   const [university, setUniversity] = useState("");
   const [universities, setUniversities] = useState<string[]>([]);
   const navigate = useNavigate();
