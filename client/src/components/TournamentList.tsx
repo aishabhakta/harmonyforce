@@ -33,6 +33,7 @@ import {
 import TournamentModal from "./TournamentModal";
 import { dummyTournaments, Tournament } from "./dummyData/dummyTournaments";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../AuthProvider";
 
 const ITEMS_PER_PAGE = 5;
 
@@ -46,6 +47,7 @@ const TournamentList: React.FC = () => {
   const [selectedTournament, setSelectedTournament] =
     useState<Tournament | null>(null);
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const handleOpenModal = (tournament: Tournament) => {
     setSelectedTournament(tournament);
@@ -145,21 +147,25 @@ const TournamentList: React.FC = () => {
           mt: 4,
         }}
       >
-        <Button
-          variant="contained"
-          color="primary"
-          sx={{ textTransform: "none", ml: 1 }}
-          onClick={() => navigate("/TournamentRegistration")}
-        >
-          Create Tournament
-        </Button>
-
-        <Pagination
-          count={Math.ceil(filteredTournaments.length / ITEMS_PER_PAGE)}
-          page={page}
-          onChange={(_, value: number) => setPage(value)}
-          sx={{ mr: 1 }}
-        />
+        {["superadmin", "tournymod", "aardvarkstaff"].includes(user?.role || "") && (
+          <>
+            <Button
+              variant="contained"
+              color="primary"
+              sx={{ textTransform: "none", ml: 1 }}
+              onClick={() => navigate("/TournamentRegistration")}
+            >
+              Create Tournament
+            </Button>
+    
+            <Pagination
+              count={Math.ceil(filteredTournaments.length / ITEMS_PER_PAGE)}
+              page={page}
+              onChange={(_, value: number) => setPage(value)}
+              sx={{ mr: 1 }}
+            />
+          </>
+        )}
       </Box>
 
       {/* Modal */}

@@ -8,12 +8,14 @@ import {
   Typography,
   Avatar,
 } from "@mui/material";
+import { useAuth } from "../AuthProvider";
 
 const EditProfilePage: React.FC = () => {
-  const [firstName, setFirstName] = useState("John");
-  const [lastName, setLastName] = useState("Smith");
+  const { user } = useAuth();
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [bio, setBio] = useState("");
-  const [username, setUsername] = useState("johnsmith");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [profilePic, setProfilePic] = useState<File | null>(null);
 
@@ -23,17 +25,38 @@ const EditProfilePage: React.FC = () => {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Send updated info to your backend here
-    console.log({
-      firstName,
-      lastName,
-      bio,
-      username,
-      password,
-      profilePic,
+
+    const res = await fetch(`http://127.0.0.1:5000/auth/update-profile/${user?.user_id}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        first_name: firstName,
+        last_name: lastName,
+        username,
+        password,
+        bio,
+      }),
     });
+
+    let data;
+    try {
+      const text = await res.text(); // Read response as text first
+      data = text ? JSON.parse(text) : {}; // Safely parse if there's content
+    } catch (err) {
+      console.error("Failed to parse response JSON:", err);
+      alert("Something went wrong. Please try again.");
+      return;
+    }
+
+    if (res.ok) {
+      alert(data.message || "Profile updated!");
+    } else {
+      alert(data.error || "Failed to update profile.");
+    }
   };
 
   return (
@@ -65,7 +88,12 @@ const EditProfilePage: React.FC = () => {
               sx={{ mb: 2 }}
             >
               Upload Profile Picture
-              <input type="file" hidden accept="image/*" onChange={handleImageChange} />
+              <input
+                type="file"
+                hidden
+                accept="image/*"
+                onChange={handleImageChange}
+              />
             </Button>
 
             <TextField

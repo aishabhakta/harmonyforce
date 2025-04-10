@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Box, Typography, Grid, Button, Card, Skeleton } from "@mui/material";
 import MatchResultsEditor from "../components/UniversityModal"; // adjust path if needed
-import { Link } from "react-router-dom";
+import { useAuth } from "../AuthProvider"; import { Link } from "react-router-dom";
 
 
 
@@ -52,6 +52,7 @@ const UniversityPage: React.FC = () => {
     team2Score: 0,
     date: "",
   });
+  const { user } = useAuth();
 
   const getTeamName = (teamId: number) => {
     const team = teams.find((t) => t.team_id === teamId);
@@ -232,14 +233,15 @@ const UniversityPage: React.FC = () => {
             >
               Visit University Website
             </Button>
-            
-            <Button 
-            variant="contained"
-            sx={{ backgroundColor: "#1976d2" }}
-            onClick={() => window.location.href = `/UniversityRegistration?university_id=${university.university_id}`}
-            >
-              Edit Page
-            </Button>  
+            {["superadmin", "unimod", "aardvarkstaff"].includes(user?.role || "") && (
+              <Button 
+                variant="contained"
+                sx={{ backgroundColor: "#1976d2" }}
+                onClick={() => window.location.href = `/UniversityRegistration?university_id=${university.university_id}`}
+              >
+                Edit Page
+              </Button>
+            )}  
           </Box>
         </Box>
       </Box>
@@ -353,7 +355,7 @@ const UniversityPage: React.FC = () => {
                     </Box>
 
                     {/* Status and Optional Admin Button */}
-                    {isAdmin && (
+                    {["superadmin", "tournymod"].includes(user?.role || "") && (
                       <Box
                         sx={{
                           flex: 1,
@@ -361,30 +363,25 @@ const UniversityPage: React.FC = () => {
                           justifyContent: "center",
                         }}
                       >
-                        {/* <Button variant="contained" size="medium">
-                          {match.status === "Completed"
-                            ? "View Result"
-                            : "Edit Result"}
-                        </Button> */}
-
                         <Button variant="contained" size="medium" onClick={() => handleOpenEditor(match)}>
-                          {match.status === "Completed" ? "View Result" : "Edit Result"}
+                          {/* {match.status === "Completed" ? "View Result" : "Edit Result"} */}
+                          Edit Result
                         </Button>
 
-
-                        <MatchResultsEditor open={editorOpen} onClose={() => setEditorOpen(false)} 
-                        team1Name={matchFormData.team1Name}
-                        team2Name={matchFormData.team2Name}
-                        team1Score={matchFormData.team1Score}
-                        team2Score={matchFormData.team2Score}
-                        date={matchFormData.date}
-                        onChange={handleMatchChange}
-                        onSave={handleMatchSave}
+                        <MatchResultsEditor
+                          open={editorOpen}
+                          onClose={() => setEditorOpen(false)}
+                          team1Name={matchFormData.team1Name}
+                          team2Name={matchFormData.team2Name}
+                          team1Score={matchFormData.team1Score}
+                          team2Score={matchFormData.team2Score}
+                          date={matchFormData.date}
+                          onChange={handleMatchChange}
+                          onSave={handleMatchSave}
                         />
-
-
                       </Box>
                     )}
+
 
                     {/* Team 2 */}
                     <Box

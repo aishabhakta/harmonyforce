@@ -252,22 +252,36 @@ def full_university_report():
     result = []
 
     for uni in universities:
-        team_count = Team.query.filter_by(university_id=uni.university_id).count()
-        total_members = User.query.filter_by(university_id=uni.university_id).count()
-        unimod_exists = db.session.query(
-            User.query.filter_by(university_id=uni.university_id, user_type='unimod').exists()
-        ).scalar()
+        try:
+            team_count = Team.query.filter_by(university_id=uni.university_id).count()
+            total_members = User.query.filter_by(university_id=uni.university_id).count()
+            unimod_exists = db.session.query(
+                User.query.filter_by(university_id=uni.university_id, user_type='unimod').exists()
+            ).scalar()
 
-        result.append({
-            "university_id": uni.university_id,
-            "university_name": uni.university_name,
-            "country": uni.country,
-            "created_at": uni.created_at.strftime('%Y-%m-%d') if uni.created_at else None,
-            "status": uni.status,
-            "team_count": team_count,
-            "total_members": total_members,
-            "unimod_exists": unimod_exists
-        })
+            created_at = None
+            if uni.created_at:
+                if isinstance(uni.created_at, str):
+                    print(f"[WARN] created_at is string: {uni.created_at}")
+                elif isinstance(uni.created_at, datetime):
+                    created_at = uni.created_at.strftime('%Y-%m-%d')
+                else:
+                    print(f"[ERROR] Unexpected type for created_at: {type(uni.created_at)}")
+
+            result.append({
+                "university_id": uni.university_id,
+                "university_name": uni.university_name,
+                "country": uni.country,
+                "created_at": created_at,
+                "status": uni.status,
+                "team_count": team_count,
+                "total_members": total_members,
+                "unimod_exists": unimod_exists
+            })
+
+        except Exception as e:
+            print(f"Error processing university {uni.university_id}: {str(e)}")
+
 
     return jsonify(result), 200
 

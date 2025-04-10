@@ -6,6 +6,7 @@ from datetime import datetime
 import os # luke add
 from werkzeug.utils import secure_filename # luke add
 from PIL import Image    # luke add
+import base64 
 
 team_bp = Blueprint('team', __name__)
 
@@ -376,16 +377,24 @@ def remove_member(user_id):
         return jsonify({"error": "Failed to remove member", "details": str(e)}), 500
 
 #return all participants and captains
+
 @team_bp.route('/user/participants-and-captains', methods=['GET'])
 def get_participants_and_captains():
-    users = User.query.filter(User.user_type.in_(['player', 'captain','tournymod'])).all()
+    users = User.query.filter(User.user_type.in_(['participant', 'captain'])).all()
 
     result = []
     for user in users:
+        image_url = None
+        if user.profile_image:
+            try:
+                image_url = f"data:image/jpeg;base64,{base64.b64encode(user.profile_image).decode('utf-8')}"
+            except Exception as e:
+                print("Image decode error:", e)
+
         result.append({
             "user_id": user.user_id,
             "username": user.username,
-            "profile_image": user.profile_image,
+            "profile_image": image_url,
             "email": user.email,
             "university_name": user.university.university_name if user.university else None,
             "in_team": user.team_id is not None and user.team_id != 0,
