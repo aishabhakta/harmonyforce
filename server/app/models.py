@@ -58,7 +58,7 @@ class University(db.Model):
     status = db.Column(db.SmallInteger)
     description = db.Column(db.String(255))
     universitylink = db.Column(db.String(255))
-    university_image = db.Column(LargeBinary)  # store image as binary
+    university_image = db.Column(db.String(255))    # change from binary
     image_mime_type = db.Column(db.String(255))  # store content-type like 'image/png'
     created_at = db.Column(db.Date, default=datetime.utcnow)
     updated_at = db.Column(db.Date, default=datetime.utcnow, onupdate=datetime.utcnow)
