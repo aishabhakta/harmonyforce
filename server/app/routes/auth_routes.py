@@ -73,26 +73,56 @@ def register():
     return jsonify({"message": "User registered successfully!"}), 201
 
 # User Login
+# @auth_bp.route('/login', methods=['POST'])
+# def login():
+#     data = request.get_json()
+#     user = User.query.filter_by(email=data['email']).first()
+
+#     if not user or not bcrypt.check_password_hash(user.password_hash, data['password']):
+#         return jsonify({"error": "Invalid email or password"}), 401
+
+#     token = generate_jwt(user.user_id, user.user_type)  # Include role in JWT
+
+#     return jsonify({
+#         "message": "Login successful!",
+#         "token": token,
+#         "role": user.user_type,
+#         "user_id": user.user_id,
+#         "email": user.email,
+#         "username": user.username,
+#         "profile_image": user.profile_image,
+#         "team_id": user.team_id,
+#         "university_id": user.university_id,
+#     }), 200
 @auth_bp.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
-    user = User.query.filter_by(email=data['email']).first()
+    print("LOGIN DATA:", data)
 
-    if not user or not bcrypt.check_password_hash(user.password_hash, data['password']):
+    if not data or not data.get("email") or not data.get("password"):
+        return jsonify({"error": "Missing email or password"}), 400
+
+    user = User.query.filter_by(email=data["email"]).first()
+    if not user:
+        print("USER NOT FOUND")
         return jsonify({"error": "Invalid email or password"}), 401
 
-    token = generate_jwt(user.user_id, user.user_type)  # Include role in JWT
+    if not bcrypt.check_password_hash(user.password_hash, data["password"]):
+        print("PASSWORD MISMATCH")
+        return jsonify({"error": "Invalid email or password"}), 401
 
+    token = generate_jwt(user.user_id, user.user_type)
     return jsonify({
         "message": "Login successful!",
         "token": token,
-        "role": user.user_type,
-        "user_id": user.user_id,
-        "email": user.email,
-        "username": user.username,
-        "profile_image": user.profile_image,
-        "team_id": user.team_id,
-        "university_id": user.university_id,
+        "user": {
+            "user_id": user.user_id,
+            "email": user.email,
+            "role": user.user_type,
+            "username": user.username,
+            "team_id": user.team_id,
+            "university_id": user.university_id
+        }
     }), 200
 
 # Protected Route
