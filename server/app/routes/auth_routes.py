@@ -145,7 +145,7 @@ def protected():
 
 # User Logout (Blacklist Token)
 @auth_bp.route('/logout', methods=['POST'])
-@verify_jwt
+# @verify_jwt
 def logout():
     token = request.headers.get("Authorization")
 
