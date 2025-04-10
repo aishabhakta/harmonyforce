@@ -177,6 +177,7 @@ def approve_user(pending_id):
         email=pending.email,
         password_hash=pending.password_hash,
         user_type=pending.role,
+        team_id=0,
         university_id=None,  # Map based on name if needed
         status=1,
         blacklisted=0,
