@@ -5,6 +5,7 @@ import {
   Grid, Pagination, MenuItem, Select, SelectChangeEvent,
   Button,
 } from "@mui/material";
+import { useAuth } from "../AuthProvider";
 
 interface University {
   university_id: number;
@@ -21,7 +22,8 @@ const UniversityList: React.FC = () => {
   const [page, setPage] = useState(1);
   const [filter, setFilter] = useState("All");
   const navigate = useNavigate();
-
+  const { user } = useAuth();
+  
   useEffect(() => {
     fetch("http://localhost:5000/university/getAll")
       .then((res) => res.json())
@@ -88,14 +90,16 @@ const UniversityList: React.FC = () => {
 
       {/* Pagination */}
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mt: 4 }}>
-        <Button
-          variant="contained"
-          color="primary"
-          sx={{ textTransform: "none", ml: 1 }}
-          onClick={() => navigate("/UniversityRegistration")}
-        >
-          Create University
-        </Button>
+      {["superadmin", "unimod", "aardvarkstaff"].includes(user?.role || "") && (
+          <Button
+            variant="contained"
+            color="primary"
+            sx={{ textTransform: "none", ml: 1 }}
+            onClick={() => navigate("/UniversityRegistration")}
+          >
+            Create University
+          </Button>
+      )}
 
         <Pagination
           count={Math.ceil(filtered.length / ITEMS_PER_PAGE)}

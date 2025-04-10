@@ -30,7 +30,6 @@ const NavigationBar: React.FC<NavigationProps> = ({ links }) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   // Grab the user from context
-  // ✅ Include loading state from useAuth
   const { user, setUser } = useAuth();
 
 

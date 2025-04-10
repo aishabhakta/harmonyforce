@@ -51,10 +51,10 @@ const PlayerPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   
 
-  const { user } = useAuth(); // Get current logged-in user
+  const { user } = useAuth(); 
 
   const isPrivileged =
-    user && ["aardvarkstaff", "superadmin", "tournymod"].includes(user.role || "");
+    user && ["aardvarkstaff", "superadmin", "tournymod", "captain"].includes(user.role || "");
 
     useEffect(() => {
       if (!playerId) {
@@ -166,13 +166,14 @@ const PlayerPage: React.FC = () => {
                   Date Joined: {player.date_joined || "Unknown"}
                 </Typography>
 
-                {isPrivileged && (
+                {user?.user_id === player.user_id && isPrivileged && (
                   <Box sx={{ mt: 2 }}>
                     <Button variant="contained" href="/validation">
                       Go to Validation Page
                     </Button>
                   </Box>
                 )}
+
               </CardContent>
             </Card>
 

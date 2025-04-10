@@ -8,6 +8,7 @@ import {
   Card,
   Avatar,
 } from "@mui/material";
+import { useAuth } from "../AuthProvider";
 
 interface ValidationComponentProps {
   userRole: string;
@@ -66,14 +67,17 @@ const universitySections = [
 ];
 
 const ValidationComponent: React.FC<ValidationComponentProps> = ({ userRole }) => {
-  const isModerator = ["Aardvark Support Staff", "Super Admins"].includes(userRole);
-  const isUniversity = userRole === "University Tournament Moderator";
+  const { user } = useAuth();
 
-  const availableSections = isModerator
-    ? moderatorSections
-    : isUniversity
-    ? universitySections
-    : [];
+  const roleBasedSections: { [key: string]: string[] } = {
+    superadmin: ["User Accounts"],
+    aardvarkstaff: ["User Accounts"],
+    tournymod: ["User Accounts", "Team Registration Requests"],
+    participant: ["Team Member Requests"],
+    captain: ["Member Requests to Join Team"],
+  };
+
+  const availableSections = user?.role ? roleBasedSections[user.role] || [] : [];
 
   const [section, setSection] = useState(availableSections[0] || "");
   const [pendingUsers, setPendingUsers] = useState<PendingUser[]>([]);
@@ -86,7 +90,6 @@ const ValidationComponent: React.FC<ValidationComponentProps> = ({ userRole }) =
     severity: "success",
   });
   
-
   const fetchPendingUsers = async () => {
     try {
       const response = await fetch("http://127.0.0.1:5000/auth/pending-registrations");
@@ -297,6 +300,7 @@ const ValidationComponent: React.FC<ValidationComponentProps> = ({ userRole }) =
 
   const renderSectionData = () => {
     switch (section) {
+      // tournymod, superadmin, aardvarkstaff
       case "User Accounts":
         return (
           <Box>
@@ -329,6 +333,7 @@ const ValidationComponent: React.FC<ValidationComponentProps> = ({ userRole }) =
             )}
           </Box>
         );
+        // participant
         case "Team Member Requests":
           return (
             <Box>
@@ -364,6 +369,7 @@ const ValidationComponent: React.FC<ValidationComponentProps> = ({ userRole }) =
               )}
             </Box>
           );
+          // tournymod
         case "Team Registration Requests":
           return (
             <Box>
@@ -388,6 +394,7 @@ const ValidationComponent: React.FC<ValidationComponentProps> = ({ userRole }) =
               )}
             </Box>
           );
+          // captain
           case "Member Requests to Join Team":
           return (
             <Box>
@@ -427,10 +434,6 @@ const ValidationComponent: React.FC<ValidationComponentProps> = ({ userRole }) =
         return <Typography>No access</Typography>;
     }
   };
-
-  if (!isModerator && !isUniversity) {
-    return <Typography>You do not have access to this page.</Typography>;
-  }
 
   return (
     <Box sx={{ padding: 4 }}>

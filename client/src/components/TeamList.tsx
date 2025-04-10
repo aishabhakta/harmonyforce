@@ -95,7 +95,7 @@ const UserList: React.FC = () => {
   }, []);
 
   const filteredUsers = users.filter((u) =>
-    u.username.toLowerCase().includes(search.toLowerCase())
+    u.username?.toLowerCase().includes(search.toLowerCase())
   );
 
   const paginatedUsers = filteredUsers.slice(
@@ -169,7 +169,8 @@ const UserList: React.FC = () => {
             }}
           >
             {/* Show Create Team button if user is eligible */}
-            {user && user.role === "participant" && !user.team_id && (
+            {/* {user && user.role === "participant" && !user.team_id && ( */}
+            {["participant", "tournymod", "aardvarkstaff", "superadmin"].includes(user?.role || "") && (
               <Button
                 variant="contained"
                 color="primary"
@@ -178,7 +179,7 @@ const UserList: React.FC = () => {
               >
                 Create Team
               </Button>
-            )}
+            )} 
 
             <Pagination
               count={Math.ceil(filteredUsers.length / ITEMS_PER_PAGE)}
