@@ -514,8 +514,8 @@ def approve_pending_team(pending_team_id):
                 blacklisted=0,
                 created_at=datetime.utcnow(),
                 updated_at=datetime.utcnow(),
-                team_id=None,  # <-- this might be causing issues if it's NOT NULL
-                university_id=pending.university_id or 0,  # make sure this isn't None
+                # team_id=None,
+                university_id=pending.university_id or 0, 
             )
             db.session.add(existing_user)
             db.session.flush()
