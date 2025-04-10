@@ -112,18 +112,30 @@ def login():
         return jsonify({"error": "Invalid email or password"}), 401
 
     token = generate_jwt(user.user_id, user.user_type)
+    # return jsonify({
+    #     "message": "Login successful!",
+    #     "token": token,
+    #     "user": {
+    #         "user_id": user.user_id,
+    #         "email": user.email,
+    #         "role": user.user_type,
+    #         "username": user.username,
+    #         "team_id": user.team_id,
+    #         "university_id": user.university_id
+    #     }
+    # }), 200
     return jsonify({
         "message": "Login successful!",
         "token": token,
-        "user": {
-            "user_id": user.user_id,
-            "email": user.email,
-            "role": user.user_type,
-            "username": user.username,
-            "team_id": user.team_id,
-            "university_id": user.university_id
-        }
+        "user_id": user.user_id,
+        "email": user.email,
+        "role": user.user_type,
+        "username": user.username,
+        "team_id": user.team_id,
+        "university_id": user.university_id,
+        "profile_image": user.profile_image
     }), 200
+
 
 # Protected Route
 @auth_bp.route('/protected', methods=['GET'])
