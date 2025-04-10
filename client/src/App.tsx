@@ -80,7 +80,7 @@ const AppContent: React.FC = () => {
     ...(user?.role === "superadmin"
       ? [
           { name: "Report", href: "/Report" },
-          { name: "Register", href: "/register" },
+          { name: "Register", href: "/viewregister" },
         ]
       : []),
   ];
