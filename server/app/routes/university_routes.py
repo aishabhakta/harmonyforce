@@ -176,7 +176,7 @@ def get_university_details(university_id):
         "university_id": uni.university_id,
         "university_name": uni.university_name,
         "description": uni.description,
-        "university_image": f"/university/{uni.university_id}/image",
+        "university_image": uni.university_image,
         "status": "Active" if uni.status == 1 else "Inactive",
         "created_at": uni.created_at.strftime('%Y-%m-%d') if uni.created_at else None,
         "country": uni.country,
