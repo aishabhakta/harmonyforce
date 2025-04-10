@@ -27,7 +27,7 @@ export default function Register() {
   useEffect(() => {
     const fetchUniversities = async () => {
       try {
-        const data = await apiFetch("/university/getAll"); // No .json()
+        const data = await apiFetch("/university/getAll");
         setUniversities(data.map((uni: any) => uni.university_name));
       } catch (err) {
         console.error("Error fetching universities:", err);
