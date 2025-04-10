@@ -97,6 +97,8 @@ def get_all_universities():
 
         return jsonify(university_data), 200
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         return jsonify({"error": "Failed to fetch universities", "details": str(e)}), 500
 
 
