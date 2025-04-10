@@ -54,17 +54,17 @@ def update_university():
     return jsonify({"message": "University updated successfully!"}), 200
 
 
-@university_bp.route('/<int:university_id>/image', methods=['GET'])
-def get_university_image(university_id):
-    university = University.query.get(university_id)
-    if not university or not university.university_image:
-        return jsonify({"error": "Image not found"}), 404
+# @university_bp.route('/<int:university_id>/image', methods=['GET'])
+# def get_university_image(university_id):
+#     university = University.query.get(university_id)
+#     if not university or not university.university_image:
+#         return jsonify({"error": "Image not found"}), 404
 
-    return send_file(
-        BytesIO(university.university_image),
-        mimetype=university.image_mime_type,
-        as_attachment=False
-    )
+#     return send_file(
+#         BytesIO(university.university_image),
+#         mimetype=university.image_mime_type,
+#         as_attachment=False
+#     )
 
 # Function to get all teams for a given university
 @university_bp.route('/<int:university_id>/teams', methods=['GET'])
