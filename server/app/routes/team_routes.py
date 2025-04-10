@@ -151,34 +151,34 @@ def get_all_teams():
 @team_bp.route('/getPlayer/<int:user_id>', methods=['GET'])
 def get_player(user_id):
     try:
-        # Fetch player details
+        # Fetch player
         player = User.query.get(user_id)
         if not player:
             return jsonify({"error": "Player not found"}), 404
 
-        # Fetch team details
         team = Team.query.filter_by(team_id=player.team_id).first()
+        university = University.query.filter_by(university_id=team.university_id).first() if team else None
 
-        # Construct player data
         player_data = {
             "user_id": player.user_id,
             "name": player.username,
             "email": player.email,
             "role": player.user_type,
-            "profile_image": getattr(player, 'profile_image', None),  # FIXED: Prevent crash
+            "profile_image": getattr(player, 'profile_image', None),
             "about": "Experienced player with expertise in various skills.",
             "date_joined": player.created_at.strftime('%Y-%m-%d') if player.created_at else None,
             "team_name": team.team_name if team else "No Team",
             "team_logo": team.profile_image if team and team.profile_image else None,
             "university_id": team.university_id if team else None,
-            "university_name": f"University ID {team.university_id}" if team else "Unknown University",
-            "university_logo": None
+            "university_name": university.university_name if university else "Unknown University",
+            "university_logo": university.university_image if university else None
         }
 
         return jsonify(player_data), 200
 
     except Exception as e:
         return jsonify({"error": "Failed to fetch player details", "details": str(e)}), 500
+
 
 @team_bp.route('/addMember/<int:team_id>', methods=['POST'])
 def add_member(team_id):
@@ -303,8 +303,9 @@ def get_pending_team_members():
         for member in pending_members:
             result.append({
                 "id": member.id,
-                "email": member.email,
+                "email": member.user.email if member.user else None,  # pull from User
                 "team_id": member.team_id,
+                "team_name": member.team.team_name if member.team else None,
                 "game_role": member.game_role,
                 "user_id": member.user_id,
                 "status": member.status,
