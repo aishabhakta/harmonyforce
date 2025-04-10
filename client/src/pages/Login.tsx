@@ -54,38 +54,118 @@ export default function Login() {
     return isValid;
   };
 
+  // const handleLogin = async () => {
+  //   if (!validateForm()) return;
+
+  //   try {
+  //     const response = await apiFetch("/auth/login", {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({ email, password }),
+  //     });
+
+  //     const data = await response.json();
+  //     console.log(data);
+  //     if (response.ok) {
+  //       // Safely store values in localStorage
+  //       if (data.user_id !== undefined && data.user_id !== null) {
+  //         localStorage.setItem("user_id", String(data.user_id));
+  //       }
+  //       if (data.token) {
+  //         localStorage.setItem("session_token", data.token);
+  //       }
+  //       if (data.email) {
+  //         localStorage.setItem("user_email", data.email);
+  //       }
+  //       if (data.username) {
+  //         localStorage.setItem("user_displayName", data.username);
+  //       }
+  //       if (data.profile_image) {
+  //         localStorage.setItem("user_photoURL", data.profile_image);
+  //       }
+  //       if (data.role) {
+  //         localStorage.setItem("user_role", data.role);
+  //       }
+  //       if (data.team_id !== undefined && data.team_id !== null) {
+  //         localStorage.setItem("team_id", String(data.team_id));
+  //       }
+  //       if (data.university_id !== undefined && data.university_id !== null) {
+  //         localStorage.setItem("university_id", String(data.university_id));
+  //       }
+
+  //       // Set user in context
+  //       setUser({
+  //         user_id: Number(data.user_id),
+  //         email: data.email,
+  //         token: data.token,
+  //         displayName: data.username,
+  //         photoURL: data.profile_image,
+  //         role: data.role,
+  //         team_id:
+  //           data.team_id !== undefined ? Number(data.team_id) : undefined,
+  //         university_id:
+  //           data.university_id !== undefined
+  //             ? Number(data.university_id)
+  //             : undefined,
+  //       });
+
+  //       setOpenSnackbar(true);
+
+  //       // Redirect based on role
+  //       switch (data.role) {
+  //         case "superadmin":
+  //           setTimeout(() => navigate("/validation"), 1000);
+  //           break;
+  //         case "tournymod":
+  //           setTimeout(() => navigate("/"), 1000);
+  //           break;
+  //         case "unimod":
+  //           setTimeout(() => navigate("/"), 1000);
+  //           break;
+  //         case "aardvarkstaff":
+  //           setTimeout(() => navigate("/"), 1000);
+  //           break;
+  //         case "captain":
+  //           setTimeout(() => navigate("/team"), 1000);
+  //           break;
+  //         case "participant":
+  //           setTimeout(() => navigate("/"), 1000);
+  //           break;
+  //         default:
+  //           setTimeout(() => navigate("/"), 1000);
+  //           break;
+  //       }
+  //     } else {
+  //       setError(data.error || "Login failed. Please try again.");
+  //     }
+  //   } catch (err) {
+  //     console.error("Login Error:", err);
+  //     setError("An error occurred. Please try again.");
+  //   }
+  // };
   const handleLogin = async () => {
     if (!validateForm()) return;
 
     try {
-      const response = await apiFetch("/auth/login", {
+      const data = await apiFetch("/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
 
-      const data = await response.json();
       console.log(data);
-      if (response.ok) {
-        // Safely store values in localStorage
+
+      if (data.token) {
         if (data.user_id !== undefined && data.user_id !== null) {
           localStorage.setItem("user_id", String(data.user_id));
         }
-        if (data.token) {
-          localStorage.setItem("session_token", data.token);
-        }
-        if (data.email) {
-          localStorage.setItem("user_email", data.email);
-        }
-        if (data.username) {
+        localStorage.setItem("session_token", data.token);
+        if (data.email) localStorage.setItem("user_email", data.email);
+        if (data.username)
           localStorage.setItem("user_displayName", data.username);
-        }
-        if (data.profile_image) {
+        if (data.profile_image)
           localStorage.setItem("user_photoURL", data.profile_image);
-        }
-        if (data.role) {
-          localStorage.setItem("user_role", data.role);
-        }
+        if (data.role) localStorage.setItem("user_role", data.role);
         if (data.team_id !== undefined && data.team_id !== null) {
           localStorage.setItem("team_id", String(data.team_id));
         }
@@ -93,7 +173,6 @@ export default function Login() {
           localStorage.setItem("university_id", String(data.university_id));
         }
 
-        // Set user in context
         setUser({
           user_id: Number(data.user_id),
           email: data.email,
@@ -117,19 +196,13 @@ export default function Login() {
             setTimeout(() => navigate("/validation"), 1000);
             break;
           case "tournymod":
-            setTimeout(() => navigate("/"), 1000);
-            break;
           case "unimod":
-            setTimeout(() => navigate("/"), 1000);
-            break;
           case "aardvarkstaff":
+          case "participant":
             setTimeout(() => navigate("/"), 1000);
             break;
           case "captain":
             setTimeout(() => navigate("/team"), 1000);
-            break;
-          case "participant":
-            setTimeout(() => navigate("/"), 1000);
             break;
           default:
             setTimeout(() => navigate("/"), 1000);
