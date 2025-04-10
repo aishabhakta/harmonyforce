@@ -1,11 +1,12 @@
 from flask import Blueprint, request, jsonify
 from app.database import db  
 from app import bcrypt 
-from app.models import User, PendingRegistration
+from app.models import User, PendingRegistration, University
 from datetime import datetime, timedelta
 import os
 from functools import wraps
 from app.utils import generate_jwt, verify_jwt, blacklisted_tokens
+from werkzeug.utils import secure_filename
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -19,28 +20,57 @@ blacklisted_tokens = set()
 @auth_bp.route('/register', methods=['POST'])
 def register():
     data = request.get_json()
-    required_fields = ['username', 'email', 'password', 'role', 'university']
+    required_fields = ['username', 'email', 'password', 'university']
     if not all(field in data for field in required_fields):
         return jsonify({"error": "Missing required fields"}), 400
 
-    # Check if already exists
+    # Default role to participant
+    role = data.get('role', 'participant').lower()
+
+    # Convert university name to ID
+    university = University.query.filter_by(university_name=data['university']).first()
+    if not university:
+        return jsonify({"error": "University not found"}), 400
+
+    # Check if email already exists or is pending
     if User.query.filter_by(email=data['email']).first() or \
        PendingRegistration.query.filter_by(email=data['email']).first():
         return jsonify({"error": "Email already exists or is pending approval"}), 409
 
+    # Hash password
     hashed_password = bcrypt.generate_password_hash(data['password']).decode('utf-8')
 
-    pending = PendingRegistration(
+    # If role is participant → add to pending table
+    if role == 'participant':
+        pending = PendingRegistration(
+            username=data['username'],
+            email=data['email'],
+            password_hash=hashed_password,
+            role=role,
+            university=university.university_id,
+            team_id=0, 
+        )
+        db.session.add(pending)
+        db.session.commit()
+        return jsonify({"message": "Registration submitted for validation!"}), 201
+
+    # All other roles → directly create User
+    user = User(
         username=data['username'],
         email=data['email'],
         password_hash=hashed_password,
-        role=data['role'],
-        university=data['university']
+        user_type=role,
+        university_id=university.university_id,
+        status=1,
+        blacklisted=0,
+        created_at=datetime.utcnow(),
+        updated_at=datetime.utcnow(),
+        team_id=0  
     )
-    db.session.add(pending)
+    db.session.add(user)
     db.session.commit()
 
-    return jsonify({"message": "Registration submitted for validation!"}), 201
+    return jsonify({"message": "User registered successfully!"}), 201
 
 # User Login
 @auth_bp.route('/login', methods=['POST'])
@@ -58,10 +88,11 @@ def login():
         "token": token,
         "role": user.user_type,
         "user_id": user.user_id,
-    "email": user.email,
-    "username": user.username,
-    "profile_image": user.profile_image,
-    "team_id": user.team_id,
+        "email": user.email,
+        "username": user.username,
+        "profile_image": user.profile_image,
+        "team_id": user.team_id,
+        "university_id": user.university_id,
     }), 200
 
 # Protected Route
@@ -126,3 +157,25 @@ def reject_user(pending_id):
 
     return jsonify({"message": "User registration rejected and removed."}), 200
 
+@auth_bp.route('/update-profile/<int:user_id>', methods=['POST'])
+def update_profile(user_id):
+    data = request.get_json()
+
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    try:
+        user.first_name = data.get("first_name")
+        user.last_name = data.get("last_name")
+        user.username = data.get("username")
+        user.password_hash = data.get("password")  # hash in real use
+        user.bio = data.get("bio")
+        user.updated_at = datetime.utcnow()
+
+        db.session.commit()
+        return jsonify({"message": "Profile updated successfully!"}), 200
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
