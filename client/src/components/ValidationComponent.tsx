@@ -29,6 +29,7 @@ interface PendingTeamMember {
   game_role: string;
   user_id: number;
   status: string;
+  team_name: string;
 }
 
 interface PendingTeam {
@@ -53,21 +54,7 @@ interface TeamRequest {
   last_name?: string;
 }
 
-
-const moderatorSections = [
-  "Moderator Accounts",
-  "Moderator Accounts Validation",
-  "Current Moderator Accounts",
-];
-
-const universitySections = [
-  "User Accounts",
-  "Team Member Requests",
-  "Team Registration Requests",
-  "Member Requests to Join Team",
-];
-
-const ValidationComponent: React.FC<ValidationComponentProps> = ({ userRole }) => {
+const ValidationComponent: React.FC<ValidationComponentProps> = () => {
   const { user } = useAuth();
 
   const roleBasedSections: { [key: string]: string[] } = {
@@ -338,38 +325,44 @@ const ValidationComponent: React.FC<ValidationComponentProps> = ({ userRole }) =
         case "Team Member Requests":
           return (
             <Box>
-              {pendingMembers.length === 0 ? (
+              {pendingMembers.filter((member) => member.user_id === user?.user_id).length === 0 ? (
                 <Typography>No pending member requests.</Typography>
               ) : (
-                pendingMembers.map((member) => (
-                  <Card key={member.id} sx={{ display: "flex", alignItems: "center", p: 2, mb: 2 }}>
-                    <Avatar sx={{ width: 56, height: 56, mr: 2 }} />
-                    <Box sx={{ flexGrow: 1 }}>
-                      <Typography>{member.email}</Typography>
-                      <Typography color="text.secondary">
-                        Team ID: {member.team_id} — Role: {member.game_role}
-                      </Typography>
-                    </Box>
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      onClick={() => handleApproveMember(member.id)}
-                      sx={{ mr: 1 }}
-                    >
-                      ACCEPT
-                    </Button>
-                    <Button
-                      variant="contained"
-                      color="error"
-                      onClick={() => handleRejectMember(member.id)}
-                    >
-                      DENY
-                    </Button>
-                  </Card>
-                ))
+                pendingMembers
+                  .filter((member) => member.user_id === user?.user_id)
+                  .map((member) => (
+                    <Card key={member.id} sx={{ display: "flex", alignItems: "center", p: 2, mb: 2 }}>
+                      <Avatar sx={{ width: 56, height: 56, mr: 2 }} />
+                      <Box sx={{ flexGrow: 1 }}>
+                        <Typography>{member.email}</Typography>
+                        <Typography color="text.secondary">
+                          Team Name: {member.team_name} 
+                        </Typography>
+                        <Typography color="text.secondary">
+                          Role: {member.game_role}
+                        </Typography>
+                      </Box>
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={() => handleApproveMember(member.id)}
+                        sx={{ mr: 1 }}
+                      >
+                        ACCEPT
+                      </Button>
+                      <Button
+                        variant="contained"
+                        color="error"
+                        onClick={() => handleRejectMember(member.id)}
+                      >
+                        DENY
+                      </Button>
+                    </Card>
+                  ))
               )}
             </Box>
           );
+
           // tournymod
         case "Team Registration Requests":
           return (
@@ -397,39 +390,42 @@ const ValidationComponent: React.FC<ValidationComponentProps> = ({ userRole }) =
           );
           // captain
           case "Member Requests to Join Team":
-          return (
-            <Box>
-              {joinRequests.length === 0 ? (
-                <Typography>No pending member join requests.</Typography>
-              ) : (
-                joinRequests.map((req) => (
-                  <Card key={req.request_id} sx={{ display: "flex", alignItems: "center", p: 2, mb: 2 }}>
-                    <Box sx={{ flexGrow: 1 }}>
-                      <Typography>{req.first_name} {req.last_name} wants to join {req.team_name}</Typography>
-                      <Typography color="text.secondary">
-                        Requested At: {new Date(req.created_at).toLocaleString()}
-                      </Typography>
-                    </Box>
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      onClick={() => handleApproveJoinRequest(req.request_id)}
-                      sx={{ mr: 1 }}
-                    >
-                      ACCEPT
-                    </Button>
-                    <Button
-                      variant="contained"
-                      color="error"
-                      onClick={() => handleRejectJoinRequest(req.request_id)}
-                    >
-                      DENY
-                    </Button>
-                  </Card>
-                ))
-              )}
-            </Box>
-          );
+            return (
+              <Box>
+                {joinRequests.filter((req) => req.team_id === user?.team_id).length === 0 ? (
+                  <Typography>No pending member join requests for your team.</Typography>
+                ) : (
+                  joinRequests
+                    .filter((req) => req.team_id === user?.team_id)
+                    .map((req) => (
+                      <Card key={req.request_id} sx={{ display: "flex", alignItems: "center", p: 2, mb: 2 }}>
+                        <Box sx={{ flexGrow: 1 }}>
+                          <Typography>{req.first_name} {req.last_name} wants to join {req.team_name}</Typography>
+                          <Typography color="text.secondary">
+                            Requested At: {new Date(req.created_at).toLocaleString()}
+                          </Typography>
+                        </Box>
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          onClick={() => handleApproveJoinRequest(req.request_id)}
+                          sx={{ mr: 1 }}
+                        >
+                          ACCEPT
+                        </Button>
+                        <Button
+                          variant="contained"
+                          color="error"
+                          onClick={() => handleRejectJoinRequest(req.request_id)}
+                        >
+                          DENY
+                        </Button>
+                      </Card>
+                  ))
+                )}
+              </Box>
+            );
+
 
       default:
         return <Typography>No access</Typography>;

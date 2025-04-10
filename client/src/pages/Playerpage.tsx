@@ -20,7 +20,7 @@ interface Player {
   name: string;
   email: string;
   role: string;
-  team_id: number; // <-- Added this
+  team_id: number; 
   team_name: string;
   team_logo?: string;
   university_name: string;
@@ -54,7 +54,7 @@ const PlayerPage: React.FC = () => {
   const { user } = useAuth();
 
   const isPrivileged =
-    user && ["aardvarkstaff", "superadmin", "tournymod", "captain"].includes(user.role || "");
+    user && ["aardvarkstaff", "superadmin", "tournymod", "captain", "participant"].includes(user.role || "");
 
   useEffect(() => {
     if (!playerId) {
@@ -103,6 +103,8 @@ const PlayerPage: React.FC = () => {
   }
 
   if (!player) return null;
+  console.log(player.university_name)
+
 
   return (
     <Box
