@@ -37,7 +37,7 @@ class User(db.Model):
     status = db.Column(db.Integer, default=1)
     blacklisted = db.Column(db.Integer, default=0)
     university_id = db.Column(db.Integer, db.ForeignKey('aardvark.universities.university_id'), nullable=True)
-    team = db.relationship('Team', backref='members', lazy=True) 
+    team = db.relationship('Team', backref='members', lazy=True)
 
 class TeamRequest(db.Model):
     __tablename__ = 'team_requests'
@@ -140,6 +140,7 @@ class PendingRegistration(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, nullable=False)
+    team_id = db.Column(db.Integer, default=0)
     username = db.Column(db.String(45))
     email = db.Column(db.String(45), unique=True)
     password_hash = db.Column(db.String(255))

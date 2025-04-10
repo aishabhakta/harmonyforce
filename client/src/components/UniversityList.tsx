@@ -90,24 +90,25 @@ const UniversityList: React.FC = () => {
 
       {/* Pagination */}
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mt: 4 }}>
-      {["superadmin", "unimod", "aardvarkstaff"].includes(user?.role || "") && (
-          <Button
-            variant="contained"
-            color="primary"
-            sx={{ textTransform: "none", ml: 1 }}
-            onClick={() => navigate("/UniversityRegistration")}
-          >
-            Create University
-          </Button>
-      )}
+          {["superadmin", "unimod", "aardvarkstaff"].includes(user?.role || "") &&
+            user?.university_id == 0 && (
+              <Button
+                variant="contained"
+                color="primary"
+                sx={{ textTransform: "none", ml: 1 }}
+                onClick={() => navigate("/UniversityRegistration")}
+              >
+                Create University
+              </Button>
+          )}
 
-        <Pagination
-          count={Math.ceil(filtered.length / ITEMS_PER_PAGE)}
-          page={page}
-          onChange={(_, value) => setPage(value)}
-          sx={{ mr: 1 }}
-        />
-      </Box>
+          <Pagination
+            count={Math.ceil(filtered.length / ITEMS_PER_PAGE)}
+            page={page}
+            onChange={(_, value) => setPage(value)}
+            sx={{ mr: 1 }}
+          />
+        </Box>
     </Box>
   );
 };
