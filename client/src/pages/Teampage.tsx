@@ -86,14 +86,8 @@ const TeamPage: React.FC = () => {
       }
 
       try {
-        const response = await apiFetch(`/teams/getTeam/${id}`);
-        const data = await response.json();
-
-        if (response.ok) {
-          setTeam(data);
-        } else {
-          setError(data.error || "Failed to fetch team details.");
-        }
+        const data = await apiFetch(`/teams/getTeam/${id}`);
+        setTeam(data);
       } catch (err) {
         setError("An error occurred while fetching team details.");
       } finally {
