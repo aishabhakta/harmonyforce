@@ -77,7 +77,17 @@ const TournamentList: React.FC = () => {
       (filter === "All" || t.university === filter)
   );
 
-  const paginatedTournaments = filteredTournaments.slice(
+  const sortedTournaments = [...filteredTournaments].sort((a, b) => {
+    const statusPriority = {
+      APPLY: 0,
+      UPCOMING: 1,
+      VIEW: 2,
+    };
+
+    return statusPriority[a.status] - statusPriority[b.status];
+  });
+
+  const paginatedTournaments = sortedTournaments.slice(
     (page - 1) * ITEMS_PER_PAGE,
     page * ITEMS_PER_PAGE
   );
