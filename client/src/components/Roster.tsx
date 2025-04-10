@@ -159,20 +159,32 @@ const Roster: React.FC<RosterProps> = ({ members, captain, teamId }) => {
               variant="contained"
               disabled={teamSize >= 7}
               title={teamSize >= 7 ? "This team already has 7 members." : ""}
-              onClick={() => {
-                apiFetch("/team_requests/request_join", {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({
-                    user_id: user?.user_id,
-                    team_id: teamId,
-                  }),
-                })
-                  .then((res) => res.json())
-                  .then((data) => {
-                    if (data.message) alert(data.message);
-                    else alert(data.error || "Failed to send request.");
+              onClick={async () => {
+                try {
+                  const data = await apiFetch("/team_requests/request_join", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                      user_id: user?.user_id,
+                      team_id: teamId,
+                    }),
                   });
+
+                  setSnackbar({
+                    open: true,
+                    message: data.message || "Join request sent!",
+                    severity: "success",
+                  });
+                } catch (err: any) {
+                  setSnackbar({
+                    open: true,
+                    message:
+                      err?.error === "Join request already sent"
+                        ? "You have already requested to join this team."
+                        : err?.error || "Failed to send join request.",
+                    severity: "error",
+                  });
+                }
               }}
             >
               Request to Join
