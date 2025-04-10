@@ -1,4 +1,3 @@
-// src/pages/PaymentPage.tsx
 import React, { useEffect, useState } from "react";
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
@@ -18,6 +17,7 @@ const PaymentPage: React.FC = () => {
   useEffect(() => {
     apiFetch("/stripe/create-payment-intent", {
       method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         amount: 1000,
         currency: "usd",
@@ -25,8 +25,7 @@ const PaymentPage: React.FC = () => {
       }),
     })
       .then((res) => res.json())
-      .then((data) => setClientSecret(data.clientSecret || data.client_secret))
-      .catch((err) => console.error("Failed to fetch payment intent", err));
+      .then((data) => setClientSecret(data.clientSecret || data.client_secret));
   }, []);
 
   const appearance = { theme: "stripe" } as const;
