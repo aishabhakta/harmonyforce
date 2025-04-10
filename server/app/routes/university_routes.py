@@ -86,7 +86,7 @@ def get_all_universities():
                 "university_id": uni.university_id,
                 "university_name": uni.university_name,
                 "description": uni.description,
-                "university_image": f"/university/{uni.university_id}/image", 
+                "university_image": uni.university_image, 
                 "country": uni.country,
                 "universitylink": uni.universitylink,
                 "status": uni.status,
