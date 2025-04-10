@@ -3,7 +3,6 @@ import {
   Button,
   TextField,
   Typography,
-  Link,
   Box,
   InputLabel,
   FormControl,
@@ -12,6 +11,7 @@ import {
 } from "@mui/material";
 import heroImg from "../assets/images/hero-image.jpg";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../AuthProvider";
 import { apiFetch } from "../api";
 
 export default function Register() {
@@ -22,17 +22,13 @@ export default function Register() {
   const [university, setUniversity] = useState("");
   const [universities, setUniversities] = useState<string[]>([]);
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   useEffect(() => {
     const fetchUniversities = async () => {
       try {
-        const response = await apiFetch("/university/getAll");
-        const data = await response.json();
-        if (response.ok) {
-          setUniversities(data.map((uni: any) => uni.university_name));
-        } else {
-          console.error("Failed to fetch universities:", data.error);
-        }
+        const data = await apiFetch("/university/getAll"); // No .json()
+        setUniversities(data.map((uni: any) => uni.university_name));
       } catch (err) {
         console.error("Error fetching universities:", err);
       }
@@ -41,20 +37,20 @@ export default function Register() {
   }, []);
 
   const handleRegister = async () => {
-    const data = { username, email, password, role, university };
+    const payload = { username, email, password, role, university };
 
     try {
-      const response = await apiFetch("/auth/register", {
+      const result = await apiFetch("/auth/register", {
         method: "POST",
-        body: JSON.stringify(data),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
       });
 
-      const result = await response.json();
-      if (response.ok) {
+      if (result.message) {
         alert(result.message);
         navigate("/login");
       } else {
-        alert(result.error);
+        alert(result.error || "Registration failed");
       }
     } catch (error) {
       console.error("Error:", error);
@@ -77,7 +73,7 @@ export default function Register() {
         }}
       >
         <Box sx={{ width: "100%", maxWidth: 400 }}>
-          <Typography variant="h3">Register</Typography>
+          <Typography variant="h3">Create User</Typography>
 
           <TextField
             label="Username"
@@ -120,7 +116,11 @@ export default function Register() {
               <MenuItem value="tournymod">Tournament Moderator</MenuItem>
               <MenuItem value="unimod">University Moderator</MenuItem>
               <MenuItem value="aardvarkstaff">Aardvark Support Staff</MenuItem>
-              <MenuItem value="superadmin">Super Admin</MenuItem>
+
+              {/* Only show this if the current user is a superadmin */}
+              {user?.role === "superadmin" && (
+                <MenuItem value="superadmin">Super Admin</MenuItem>
+              )}
             </Select>
           </FormControl>
 
@@ -148,13 +148,6 @@ export default function Register() {
           >
             Register
           </Button>
-
-          <Typography variant="body2">
-            Already have an account?{" "}
-            <Link href="/login" underline="hover">
-              Login
-            </Link>
-          </Typography>
         </Box>
       </Box>
 

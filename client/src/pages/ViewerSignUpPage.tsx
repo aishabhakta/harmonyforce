@@ -18,7 +18,7 @@ export default function Register() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role] = useState("viewer"); // Default role set internally
+  const [role] = useState("participant");
   const [university, setUniversity] = useState("");
   const [universities, setUniversities] = useState<string[]>([]);
   const navigate = useNavigate();
@@ -26,14 +26,12 @@ export default function Register() {
   useEffect(() => {
     const fetchUniversities = async () => {
       try {
-        const res = await apiFetch("/university/getAll");
-        const data = await res.json();
+        const data = await apiFetch("/university/getAll");
         setUniversities(data.map((uni: any) => uni.university_name));
       } catch (err) {
         console.error("Error fetching universities:", err);
       }
     };
-
     fetchUniversities();
   }, []);
 
@@ -41,22 +39,17 @@ export default function Register() {
     const data = { username, email, password, role, university };
 
     try {
-      const response = await apiFetch("/auth/register", {
+      const result = await apiFetch("/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
 
-      const result = await response.json();
-      if (response.ok) {
-        alert(result.message);
-        navigate("/login");
-      } else {
-        alert(result.error);
-      }
-    } catch (error) {
+      alert(result.message);
+      navigate("/login");
+    } catch (error: any) {
       console.error("Error:", error);
-      alert("An error occurred during registration.");
+      alert(error.message || "An error occurred during registration.");
     }
   };
 

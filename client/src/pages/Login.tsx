@@ -89,6 +89,9 @@ export default function Login() {
         if (data.team_id !== undefined && data.team_id !== null) {
           localStorage.setItem("team_id", String(data.team_id));
         }
+        if (data.university_id !== undefined && data.university_id !== null) {
+          localStorage.setItem("university_id", String(data.university_id));
+        }
 
         // Set user in context
         setUser({
@@ -100,6 +103,10 @@ export default function Login() {
           role: data.role,
           team_id:
             data.team_id !== undefined ? Number(data.team_id) : undefined,
+          university_id:
+            data.university_id !== undefined
+              ? Number(data.university_id)
+              : undefined,
         });
 
         setOpenSnackbar(true);
@@ -110,13 +117,13 @@ export default function Login() {
             setTimeout(() => navigate("/validation"), 1000);
             break;
           case "tournymod":
-            setTimeout(() => navigate("/tournament/moderator"), 1000);
+            setTimeout(() => navigate("/"), 1000);
             break;
           case "unimod":
-            setTimeout(() => navigate("/university/moderator"), 1000);
+            setTimeout(() => navigate("/"), 1000);
             break;
           case "aardvarkstaff":
-            setTimeout(() => navigate("/support"), 1000);
+            setTimeout(() => navigate("/"), 1000);
             break;
           case "captain":
             setTimeout(() => navigate("/team"), 1000);
@@ -190,7 +197,7 @@ export default function Login() {
           </Button>
           <Typography variant="body2">
             Don't have an account?{" "}
-            <Link href="/register" underline="hover">
+            <Link href="/viewregister" underline="hover">
               Register for one
             </Link>
           </Typography>
