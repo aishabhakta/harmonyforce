@@ -1,14 +1,28 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Box, Alert } from "@mui/material";
 import GeneralTeamInfo from "../components/GeneralTeamInfo";
 import TeamMembers from "../components/TeamMembers";
-
+import { useParams } from "react-router-dom";
 
 const TeamRegistration: React.FC = () => {
-
+  const { id } = useParams(); // Correct param name
+  const teamId = id;
   const [success] = useState("");
   const [error] = useState("");
+  const [teamData, setTeamData] = useState<any>(null);
 
+  useEffect(() => {
+    if (teamId) {
+      console.log("🛠️ Fetching team data for teamId:", teamId);
+      fetch(`http://127.0.0.1:5000/teams/getTeam/${teamId}`)
+        .then((res) => res.json())
+        .then((data) => {
+          console.log("🎯 Retrieved team data from backend:", data);
+          setTeamData(data);
+        })
+        .catch((err) => console.error(" Failed to fetch team data:", err));
+    }
+  }, [teamId]);
 
   return (
     <Box
@@ -34,26 +48,10 @@ const TeamRegistration: React.FC = () => {
           boxSizing: "border-box",
         }}
       >
-        <GeneralTeamInfo/>
-
-        <TeamMembers captainId={0} currentUserId={0} members={[]} setMembers={function (): void {
-          throw new Error("Function not implemented.");
-        } }/>
-
+        <GeneralTeamInfo teamData={teamData} />
+        <TeamMembers members={teamData?.members || []} />
         {success && <Alert severity="success" sx={{ mt: 2 }}>{success}</Alert>}
         {error && <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>}
-
-        <Box sx={{ marginTop: "2rem", maxWidth: "800px", width: "100%" }}>
-          {/* <Button
-            variant="contained"
-            color="primary"
-            fullWidth
-            onClick={handleRegister}
-          >
-            Register Team
-          </Button> */}
-          {/* <RegisterButton /> */}
-        </Box>
       </Box>
     </Box>
   );

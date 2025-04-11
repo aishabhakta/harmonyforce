@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Typography,
@@ -8,16 +8,33 @@ import {
   Alert,
 } from "@mui/material";
 
-const GeneralTeamInfo: React.FC = () => {
+interface GeneralTeamInfoProps {
+  teamData?: any;
+}
+
+const GeneralTeamInfo: React.FC<GeneralTeamInfoProps> = ({ teamData }) => {
   const [teamName, setTeamName] = useState("");
   const [teamBio, setTeamBio] = useState("");
   const [teamLeaderName, setTeamLeaderName] = useState("");
   const [teamLeaderEmail, setTeamLeaderEmail] = useState("");
-  const [profileImage] = useState(""); // Placeholder for image URL or base64 string
+  const [profileImage, setProfileImage] = useState("");
 
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState<"success" | "error">("success");
+
+  useEffect(() => {
+    if (teamData) {
+      console.log("GeneralTeamInfo received:", teamData); // Debug log
+  
+      setTeamName(teamData.team_name || "");
+      setTeamBio(teamData.description || "");
+      setTeamLeaderName(teamData.captain?.name || "");
+      setTeamLeaderEmail(teamData.captain?.email || "");
+      setProfileImage(teamData.profile_image || "");
+    }
+  }, [teamData]);
+  
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,49 +44,49 @@ const GeneralTeamInfo: React.FC = () => {
       captain_name: teamLeaderName,
       captain_email: teamLeaderEmail,
       team_bio: teamBio,
-      university_id: 1, // Adjust as necessary
+      university_id: teamData?.university_id || 1,
       profile_image: profileImage,
-      members: [],
+      members: teamData?.members || [],
     };
 
+    const url = teamData
+      ? `http://127.0.0.1:5000/teams/updateTeam/${teamData.team_id}` // ← you'll need to implement this PUT route
+      : "http://127.0.0.1:5000/teams/registerTeam";
+
+    const method = teamData ? "PUT" : "POST";
+
     try {
-      const response = await fetch("http://127.0.0.1:5000/teams/registerTeam", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+      const response = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
 
+      const data = await response.json();
       if (!response.ok) {
-        const errorData = await response.json();
-        console.error("Error registering team:", errorData);
-        setSnackbarMessage(errorData.message || "Failed to register team.");
+        setSnackbarMessage(data.message || "Failed to submit team.");
         setSnackbarSeverity("error");
-        setOpenSnackbar(true);
       } else {
-        const data = await response.json();
-        console.log("Team registered:", data);
-        setSnackbarMessage("Team registered successfully!");
+        setSnackbarMessage(
+          teamData ? "Team updated successfully!" : "Team registered successfully!"
+        );
         setSnackbarSeverity("success");
-        setOpenSnackbar(true);
-        // Optionally clear form:
-        setTeamName("");
-        setTeamBio("");
-        setTeamLeaderName("");
-        setTeamLeaderEmail("");
+
+        if (!teamData) {
+          setTeamName("");
+          setTeamBio("");
+          setTeamLeaderName("");
+          setTeamLeaderEmail("");
+        }
       }
+      setOpenSnackbar(true);
     } catch (error) {
-      console.error("Error registering team:", error);
+      console.error("Error submitting team:", error);
       setSnackbarMessage("An error occurred. Please try again.");
       setSnackbarSeverity("error");
       setOpenSnackbar(true);
     }
   };
-
-  function setImage(_file: File) {
-    throw new Error("Function not implemented.");
-  }
 
   return (
     <Box
@@ -89,6 +106,7 @@ const GeneralTeamInfo: React.FC = () => {
       <Typography variant="h6" sx={{ marginBottom: "1rem" }}>
         General Team Information
       </Typography>
+
       <TextField
         fullWidth
         label="Team Name *"
@@ -133,7 +151,6 @@ const GeneralTeamInfo: React.FC = () => {
       <Typography variant="h6" sx={{ marginBottom: "1rem", marginTop: "2rem" }}>
         Team Image
       </Typography>
-
       <Box
         sx={{
           border: "1px dashed #1976d2",
@@ -148,16 +165,18 @@ const GeneralTeamInfo: React.FC = () => {
           accept="image/*"
           onChange={(e) => {
             const file = e.target.files?.[0];
-            if (file) setImage(file);
+            if (file) {
+              const reader = new FileReader();
+              reader.onloadend = () => setProfileImage(reader.result as string);
+              reader.readAsDataURL(file);
+            }
           }}
         />
-        <Typography variant="caption">
-          SVG, PNG, JPG or GIF (max. 3MB)
-        </Typography>
+        <Typography variant="caption">SVG, PNG, JPG or GIF (max. 3MB)</Typography>
       </Box>
 
       <Button type="submit" variant="contained" sx={{ marginTop: "1rem" }}>
-        Register Team
+        {teamData ? "Update Team" : "Register Team"}
       </Button>
 
       <Snackbar
