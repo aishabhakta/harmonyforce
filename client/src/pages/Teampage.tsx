@@ -88,8 +88,11 @@ const TeamPage: React.FC = () => {
       try {
         const data = await apiFetch(`/teams/getTeam/${id}`);
         setTeam(data);
-      } catch (err) {
-        setError("An error occurred while fetching team details.");
+      } catch (err: any) {
+        console.error("Fetch error:", err);
+        setError(
+          err.message || "An error occurred while fetching team details."
+        );
       } finally {
         setLoading(false);
       }
@@ -122,7 +125,6 @@ const TeamPage: React.FC = () => {
         overflowX: "hidden",
       }}
     >
-      {/* Team Header */}
       <TeamHeader
         teamName={team.team_name}
         universityName={
@@ -131,11 +133,10 @@ const TeamPage: React.FC = () => {
         description={team.description || "No description available."}
       />
 
-      {/* Roster */}
       <Box sx={{ width: "100%", marginBottom: "2rem" }}>
         <Roster
           teamId={team.team_id}
-          teamSize={1 + team.members.length} // captain + members
+          teamSize={1 + team.members.length}
           members={team.members.map((member) => ({
             id: member.user_id.toString(),
             name: member.name,
