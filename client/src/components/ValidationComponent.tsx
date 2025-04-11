@@ -8,7 +8,9 @@ import {
   Card,
   Avatar,
 } from "@mui/material";
+import { useAuth } from "../AuthProvider";
 import { apiFetch } from "../api";
+
 interface ValidationComponentProps {
   userRole: string;
 }
@@ -18,6 +20,7 @@ interface PendingUser {
   username: string;
   email: string;
   role: string;
+  university_id: number;
 }
 
 interface PendingTeamMember {
@@ -27,6 +30,7 @@ interface PendingTeamMember {
   game_role: string;
   user_id: number;
   status: string;
+  team_name: string;
 }
 
 interface PendingTeam {
@@ -51,31 +55,19 @@ interface TeamRequest {
   last_name?: string;
 }
 
-const moderatorSections = [
-  "Moderator Accounts",
-  "Moderator Accounts Validation",
-  "Current Moderator Accounts",
-];
+const ValidationComponent: React.FC<ValidationComponentProps> = () => {
+  const { user } = useAuth();
 
-const universitySections = [
-  "User Accounts",
-  "Team Member Requests",
-  "Team Registration Requests",
-  "Member Requests to Join Team",
-];
+  const roleBasedSections: { [key: string]: string[] } = {
+    superadmin: ["User Accounts"],
+    aardvarkstaff: ["User Accounts"],
+    tournymod: ["User Accounts", "Team Registration Requests"],
+    participant: ["Team Member Requests"],
+    captain: ["Member Requests to Join Team"],
+  };
 
-const ValidationComponent: React.FC<ValidationComponentProps> = ({
-  userRole,
-}) => {
-  const isModerator = ["Aardvark Support Staff", "Super Admins"].includes(
-    userRole
-  );
-  const isUniversity = userRole === "University Tournament Moderator";
-
-  const availableSections = isModerator
-    ? moderatorSections
-    : isUniversity
-    ? universitySections
+  const availableSections = user?.role
+    ? roleBasedSections[user.role] || []
     : [];
 
   const [section, setSection] = useState(availableSections[0] || "");
@@ -98,7 +90,7 @@ const ValidationComponent: React.FC<ValidationComponentProps> = ({
       const data = await apiFetch("/auth/pending-registrations");
       setPendingUsers(data);
     } catch (err: any) {
-      console.error("Error fetching pending users:", err.message || err);
+      console.error("Error fetching pending users:", err.message);
     }
   };
 
@@ -107,7 +99,7 @@ const ValidationComponent: React.FC<ValidationComponentProps> = ({
       const data = await apiFetch("/teams/pendingTeams");
       setPendingTeams(data);
     } catch (err: any) {
-      console.error("Error fetching pending teams:", err.message || err);
+      console.error("Error fetching pending teams:", err.message);
     }
   };
 
@@ -140,28 +132,28 @@ const ValidationComponent: React.FC<ValidationComponentProps> = ({
       const data = await apiFetch("/teams/pendingMembers");
       setPendingMembers(data);
     } catch (err: any) {
-      console.error("Error fetching pending members:", err.message || err);
+      console.error("Error fetching pending members:", err.message);
     }
   };
 
-  const handleApproveMember = async (memberId: number) => {
+  const handleApproveMember = async (id: number) => {
     try {
-      const data = await apiFetch(`/teams/approve-member/${memberId}`, {
+      const data = await apiFetch(`/teams/approve-member/${id}`, {
         method: "POST",
       });
-      setPendingMembers((prev) => prev.filter((m) => m.id !== memberId));
+      setPendingMembers((prev) => prev.filter((m) => m.id !== id));
       setSnackbar({ open: true, message: data.message, severity: "success" });
     } catch (err: any) {
       alert(err.message || "Approval failed.");
     }
   };
 
-  const handleRejectMember = async (memberId: number) => {
+  const handleRejectMember = async (id: number) => {
     try {
-      const data = await apiFetch(`/teams/reject-member/${memberId}`, {
+      const data = await apiFetch(`/teams/reject-member/${id}`, {
         method: "POST",
       });
-      setPendingMembers((prev) => prev.filter((m) => m.id !== memberId));
+      setPendingMembers((prev) => prev.filter((m) => m.id !== id));
       setSnackbar({ open: true, message: data.message, severity: "success" });
     } catch (err: any) {
       alert(err.message || "Rejection failed.");
@@ -197,7 +189,7 @@ const ValidationComponent: React.FC<ValidationComponentProps> = ({
       const data = await apiFetch("/team_requests/pending-join-requests");
       setJoinRequests(data);
     } catch (err: any) {
-      console.error("Error fetching join requests:", err.message || err);
+      console.error("Error fetching join requests:", err.message);
     }
   };
 
@@ -245,6 +237,7 @@ const ValidationComponent: React.FC<ValidationComponentProps> = ({
 
   const renderSectionData = () => {
     switch (section) {
+      // tournymod, superadmin, aardvarkstaff
       case "User Accounts":
         return (
           <Box>
@@ -284,44 +277,53 @@ const ValidationComponent: React.FC<ValidationComponentProps> = ({
             )}
           </Box>
         );
+      // participant
       case "Team Member Requests":
         return (
           <Box>
-            {pendingMembers.length === 0 ? (
+            {pendingMembers.filter((member) => member.user_id === user?.user_id)
+              .length === 0 ? (
               <Typography>No pending member requests.</Typography>
             ) : (
-              pendingMembers.map((member) => (
-                <Card
-                  key={member.id}
-                  sx={{ display: "flex", alignItems: "center", p: 2, mb: 2 }}
-                >
-                  <Avatar sx={{ width: 56, height: 56, mr: 2 }} />
-                  <Box sx={{ flexGrow: 1 }}>
-                    <Typography>{member.email}</Typography>
-                    <Typography color="text.secondary">
-                      Team ID: {member.team_id} — Role: {member.game_role}
-                    </Typography>
-                  </Box>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={() => handleApproveMember(member.id)}
-                    sx={{ mr: 1 }}
+              pendingMembers
+                .filter((member) => member.user_id === user?.user_id)
+                .map((member) => (
+                  <Card
+                    key={member.id}
+                    sx={{ display: "flex", alignItems: "center", p: 2, mb: 2 }}
                   >
-                    ACCEPT
-                  </Button>
-                  <Button
-                    variant="contained"
-                    color="error"
-                    onClick={() => handleRejectMember(member.id)}
-                  >
-                    DENY
-                  </Button>
-                </Card>
-              ))
+                    <Avatar sx={{ width: 56, height: 56, mr: 2 }} />
+                    <Box sx={{ flexGrow: 1 }}>
+                      <Typography>{member.email}</Typography>
+                      <Typography color="text.secondary">
+                        Team Name: {member.team_name}
+                      </Typography>
+                      <Typography color="text.secondary">
+                        Role: {member.game_role}
+                      </Typography>
+                    </Box>
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={() => handleApproveMember(member.id)}
+                      sx={{ mr: 1 }}
+                    >
+                      ACCEPT
+                    </Button>
+                    <Button
+                      variant="contained"
+                      color="error"
+                      onClick={() => handleRejectMember(member.id)}
+                    >
+                      DENY
+                    </Button>
+                  </Card>
+                ))
             )}
           </Box>
         );
+
+      // tournymod
       case "Team Registration Requests":
         return (
           <Box>
@@ -368,43 +370,50 @@ const ValidationComponent: React.FC<ValidationComponentProps> = ({
             )}
           </Box>
         );
+      // captain
       case "Member Requests to Join Team":
         return (
           <Box>
-            {joinRequests.length === 0 ? (
-              <Typography>No pending member join requests.</Typography>
+            {joinRequests.filter((req) => req.team_id === user?.team_id)
+              .length === 0 ? (
+              <Typography>
+                No pending member join requests for your team.
+              </Typography>
             ) : (
-              joinRequests.map((req) => (
-                <Card
-                  key={req.request_id}
-                  sx={{ display: "flex", alignItems: "center", p: 2, mb: 2 }}
-                >
-                  <Box sx={{ flexGrow: 1 }}>
-                    <Typography>
-                      {req.first_name} {req.last_name} wants to join{" "}
-                      {req.team_name}
-                    </Typography>
-                    <Typography color="text.secondary">
-                      Requested At: {new Date(req.created_at).toLocaleString()}
-                    </Typography>
-                  </Box>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={() => handleApproveJoinRequest(req.request_id)}
-                    sx={{ mr: 1 }}
+              joinRequests
+                .filter((req) => req.team_id === user?.team_id)
+                .map((req) => (
+                  <Card
+                    key={req.request_id}
+                    sx={{ display: "flex", alignItems: "center", p: 2, mb: 2 }}
                   >
-                    ACCEPT
-                  </Button>
-                  <Button
-                    variant="contained"
-                    color="error"
-                    onClick={() => handleRejectJoinRequest(req.request_id)}
-                  >
-                    DENY
-                  </Button>
-                </Card>
-              ))
+                    <Box sx={{ flexGrow: 1 }}>
+                      <Typography>
+                        {req.first_name} {req.last_name} wants to join{" "}
+                        {req.team_name}
+                      </Typography>
+                      <Typography color="text.secondary">
+                        Requested At:{" "}
+                        {new Date(req.created_at).toLocaleString()}
+                      </Typography>
+                    </Box>
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={() => handleApproveJoinRequest(req.request_id)}
+                      sx={{ mr: 1 }}
+                    >
+                      ACCEPT
+                    </Button>
+                    <Button
+                      variant="contained"
+                      color="error"
+                      onClick={() => handleRejectJoinRequest(req.request_id)}
+                    >
+                      DENY
+                    </Button>
+                  </Card>
+                ))
             )}
           </Box>
         );
@@ -413,10 +422,6 @@ const ValidationComponent: React.FC<ValidationComponentProps> = ({
         return <Typography>No access</Typography>;
     }
   };
-
-  if (!isModerator && !isUniversity) {
-    return <Typography>You do not have access to this page.</Typography>;
-  }
 
   return (
     <Box sx={{ padding: 4 }}>
