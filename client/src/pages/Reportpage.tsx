@@ -12,7 +12,6 @@ import {
   TableFooter,
   Paper,
 } from "@mui/material";
-// import axios from "axios";
 import { useAuth } from "../AuthProvider";
 import { apiFetch } from "../api";
 
@@ -62,24 +61,32 @@ const Reports = () => {
 
   const fetchReports = async () => {
     try {
-      const [collegeRes, totalCollegeRes, tournamentRes, totalTournamentRes] =
-        await Promise.all([
-          apiFetch("/university/report/full_statistics"),
-          apiFetch("/university/report/total_counts"),
-          apiFetch("/tournament/report/full_statistics"),
-          apiFetch("/tournament/report/total_tournament_statistics"),
-        ]);
+      const params: any = {};
+      if (startDate) params.start_date = startDate;
+      if (endDate) params.end_date = endDate;
 
-      setCollegeStats(await collegeRes.json());
-      const collegeTotalsData = await totalCollegeRes.json();
+      const [
+        collegeStatsData,
+        collegeTotalsData,
+        tournamentStatsData,
+        tournamentTotalsData,
+      ] = await Promise.all([
+        apiFetch("/university/report/full_statistics", { method: "GET" }),
+        apiFetch("/university/report/total_counts", { method: "GET" }),
+        apiFetch("/tournament/report/full_statistics", { method: "GET" }),
+        apiFetch("/tournament/report/total_tournament_statistics", {
+          method: "GET",
+        }),
+      ]);
+
+      setCollegeStats(collegeStatsData);
       setCollegeTotals({
         colleges: collegeTotalsData.total_universities,
         teams: collegeTotalsData.total_teams,
         members: collegeTotalsData.total_team_members,
       });
 
-      setTournamentStats(await tournamentRes.json());
-      const tournamentTotalsData = await totalTournamentRes.json();
+      setTournamentStats(tournamentStatsData);
       setTournamentTotals({
         colleges: tournamentTotalsData.active_universities,
         matchesPlanned: tournamentTotalsData.matches_yet_to_play,
