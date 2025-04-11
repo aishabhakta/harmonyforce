@@ -199,7 +199,7 @@ const NavigationBar: React.FC<NavigationProps> = ({ links }) => {
                   color: "#1976d2",
                   fontSize: { xs: "0.85rem", sm: "1rem" },
                 }}
-                onClick={() => navigate("/viewregister")}
+                onClick={() => navigate("/register")}
               >
                 Sign Up
               </Button>

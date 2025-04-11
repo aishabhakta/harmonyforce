@@ -81,7 +81,7 @@ const AppContent: React.FC = () => {
     ...(["superadmin", "aardvarkstaff"].includes(user?.role || "")
       ? [
           { name: "Report", href: "/Report" },
-          { name: "Create User", href: "/viewregister" },
+          { name: "Create User", href: "/register" },
         ]
       : []),
   ];
@@ -148,7 +148,7 @@ const AppContent: React.FC = () => {
           /> */}
         <Route path="/success" element={<Success />} />
         <Route path="/cancel" element={<Cancel />} />
-        <Route path="/register" element={<Register />} />
+        <Route path="/viewregister" element={<ViewerSignUpPage />} />
         <Route
           element={
             <PrivateRoute allowedRoles={["superadmin", "aardvarkstaff"]} />
