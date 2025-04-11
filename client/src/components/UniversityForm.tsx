@@ -16,7 +16,6 @@ const UniversityForm: React.FC<UniversityFormProps> = ({ universityId }) => {
   useEffect(() => {
     if (universityId) {
       apiFetch(`/university/${universityId}`)
-        .then((res) => res.json())
         .then((data) => {
           setName(data.university_name || "");
           setBio(data.description || "");
@@ -32,30 +31,36 @@ const UniversityForm: React.FC<UniversityFormProps> = ({ universityId }) => {
     e.preventDefault();
 
     const formData = new FormData();
-    formData.append("university_id", universityId ?? "");
     formData.append("university_name", name);
     formData.append("description", bio);
     formData.append("universitylink", link);
     if (image) {
-      formData.append("university_image", image); // actual file
+      formData.append("university_image", image);
+    }
+
+    const endpoint = universityId
+      ? "/university/update"
+      : "/university/register";
+
+    if (universityId) {
+      formData.append("university_id", universityId);
     }
 
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/university/update`,
-        {
-          method: "POST",
-          body: formData, // no JSON.stringify here!
-        }
-      );
+      const data = await apiFetch(endpoint, {
+        method: "POST",
+        body: formData,
+      });
 
-      if (!response.ok) throw new Error("Failed to update university.");
-      const data = await response.json();
-      console.log("University updated:", data);
-      alert("University updated successfully!");
+      if (!data || data.error) {
+        throw new Error("Failed to submit university form.");
+      }
+
+      console.log("University saved:", data);
+      alert(`University ${universityId ? "updated" : "created"} successfully!`);
     } catch (error) {
       console.error("Error:", error);
-      alert("Error updating university.");
+      alert(`Error ${universityId ? "updating" : "creating"} university.`);
     }
   };
 
