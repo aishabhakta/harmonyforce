@@ -116,10 +116,6 @@ const TournamentList: React.FC = () => {
                   <Grid container alignItems="center" spacing={2}>
                     <Grid item xs={2}>
                       <Box
-                        component="img"
-                        src={tournament.logo}
-                        alt={tournament.name}
-                        sx={{ width: 50, height: 50 }}
                       />
                     </Grid>
                     <Grid item xs={6}>
