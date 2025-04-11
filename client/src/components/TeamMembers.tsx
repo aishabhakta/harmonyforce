@@ -37,7 +37,7 @@ const TeamMembers: React.FC<TeamMembersProps> = () => {
     }
 
     try {
-      const response = await apiFetch(`/teams/requestAddMember`, {
+      const data = await apiFetch(`/teams/requestAddMember`, {
         method: "POST",
         body: JSON.stringify({
           email,
@@ -46,20 +46,14 @@ const TeamMembers: React.FC<TeamMembersProps> = () => {
         }),
       });
 
-      const data = await response.json();
-
-      if (response.ok) {
-        setSuccess("Member request sent for approval!");
-        setError("");
-        setName("");
-        setEmail("");
-        setRole("participant");
-      } else {
-        setError(data.error || "Failed to submit request.");
-        setSuccess("");
-      }
-    } catch (err) {
-      setError("An unexpected error occurred.");
+      setSuccess("Member request sent for approval!");
+      setError("");
+      setName("");
+      setEmail("");
+      setRole("participant");
+    } catch (err: any) {
+      console.error("Add member error:", err);
+      setError(err.message || "Failed to submit request.");
       setSuccess("");
     }
   };
@@ -68,8 +62,7 @@ const TeamMembers: React.FC<TeamMembersProps> = () => {
     if (!teamId) return;
 
     apiFetch(`/teams/getTeam/${teamId}`)
-      .then(async (res) => {
-        const data = await res.json();
+      .then((data) => {
         setTeamData(data);
         setLoading(false);
       })
