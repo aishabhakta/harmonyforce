@@ -1,13 +1,26 @@
 import React, { useState } from "react";
-import { Box, Typography, TextField, Button } from "@mui/material";
+import {
+  Box,
+  Typography,
+  TextField,
+  Button,
+  Snackbar,
+  Alert,
+} from "@mui/material";
+import { apiFetch } from "../api";
 
 const GeneralTeamInfo: React.FC = () => {
   const [teamName, setTeamName] = useState("");
   const [teamBio, setTeamBio] = useState("");
   const [teamLeaderName, setTeamLeaderName] = useState("");
   const [teamLeaderEmail, setTeamLeaderEmail] = useState("");
-  // const [profileImage] = useState(""); // Placeholder for image URL or base64 string
-  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [profileImage] = useState(""); // Placeholder for image URL or base64 string
+
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState<"success" | "error">(
+    "success"
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -17,62 +30,47 @@ const GeneralTeamInfo: React.FC = () => {
       captain_name: teamLeaderName,
       captain_email: teamLeaderEmail,
       team_bio: teamBio,
-      university_id: 1,
-      profile_image: "", // Will be uploaded separately
+      university_id: 1, // Adjust as necessary
+      profile_image: profileImage,
       members: [],
     };
 
     try {
-      const registerRes = await fetch(
-        "http://18.218.163.17:5000/teams/registerTeam",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(payload),
-        }
-      );
+      const response = await apiFetch("/teams/registerTeam", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
 
-      const registerData = await registerRes.json();
+      const data = await response.json();
 
-      if (!registerRes.ok) {
-        console.error("Error registering team:", registerData);
-        return;
-      }
-
-      console.log("Team registered:", registerData);
-
-      // Now upload the image, if selected
-      if (imageFile) {
-        const teamId = registerData.team_id || registerData.id; // depending on your backend response
-
-        const formData = new FormData();
-        formData.append("image", imageFile);
-
-        const uploadRes = await fetch(
-          `http://18.218.163.17:5000/team/${teamId}/upload_image`,
-          {
-            method: "POST",
-            body: formData,
-          }
-        );
-
-        const uploadData = await uploadRes.json();
-
-        if (!uploadRes.ok) {
-          console.error("Image upload failed:", uploadData);
-        } else {
-          console.log("Image uploaded:", uploadData.image_url);
-        }
+      if (!response.ok) {
+        setSnackbarMessage(data.message || "Failed to register team.");
+        setSnackbarSeverity("error");
+        setOpenSnackbar(true);
+      } else {
+        setSnackbarMessage("Team registered successfully!");
+        setSnackbarSeverity("success");
+        setOpenSnackbar(true);
+        // Optionally clear form:
+        setTeamName("");
+        setTeamBio("");
+        setTeamLeaderName("");
+        setTeamLeaderEmail("");
       }
     } catch (error) {
-      console.error("Unexpected error:", error);
+      console.error("Error registering team:", error);
+      setSnackbarMessage("An error occurred. Please try again.");
+      setSnackbarSeverity("error");
+      setOpenSnackbar(true);
     }
   };
 
   function setImage(_file: File) {
-    setImageFile(_file);
+    // You can implement this if you want to handle uploads later
+    console.warn("Image upload not implemented yet.");
   }
 
   return (
@@ -133,7 +131,8 @@ const GeneralTeamInfo: React.FC = () => {
           onChange={(e) => setTeamLeaderEmail(e.target.value)}
         />
       </Box>
-      <Typography variant="h6" sx={{ marginBottom: "1rem" }}>
+
+      <Typography variant="h6" sx={{ marginBottom: "1rem", marginTop: "2rem" }}>
         Team Image
       </Typography>
 
@@ -158,9 +157,25 @@ const GeneralTeamInfo: React.FC = () => {
           SVG, PNG, JPG or GIF (max. 3MB)
         </Typography>
       </Box>
+
       <Button type="submit" variant="contained" sx={{ marginTop: "1rem" }}>
         Register Team
       </Button>
+
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={6000}
+        onClose={() => setOpenSnackbar(false)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          onClose={() => setOpenSnackbar(false)}
+          severity={snackbarSeverity}
+          sx={{ width: "100%" }}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

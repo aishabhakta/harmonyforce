@@ -3,12 +3,9 @@ import { Box, Alert } from "@mui/material";
 import GeneralTeamInfo from "../components/GeneralTeamInfo";
 import TeamMembers from "../components/TeamMembers";
 
-
 const TeamRegistration: React.FC = () => {
-
   const [success] = useState("");
   const [error] = useState("");
-
 
   return (
     <Box
@@ -34,26 +31,29 @@ const TeamRegistration: React.FC = () => {
           boxSizing: "border-box",
         }}
       >
-        <GeneralTeamInfo/>
+        <GeneralTeamInfo />
 
-        <TeamMembers captainId={0} currentUserId={0} members={[]} setMembers={function (): void {
-          throw new Error("Function not implemented.");
-        } }/>
+        <TeamMembers
+          captainId={0}
+          currentUserId={0}
+          members={[]}
+          setMembers={function (): void {
+            throw new Error("Function not implemented.");
+          }}
+        />
 
-        {success && <Alert severity="success" sx={{ mt: 2 }}>{success}</Alert>}
-        {error && <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>}
+        {success && (
+          <Alert severity="success" sx={{ mt: 2 }}>
+            {success}
+          </Alert>
+        )}
+        {error && (
+          <Alert severity="error" sx={{ mt: 2 }}>
+            {error}
+          </Alert>
+        )}
 
-        <Box sx={{ marginTop: "2rem", maxWidth: "800px", width: "100%" }}>
-          {/* <Button
-            variant="contained"
-            color="primary"
-            fullWidth
-            onClick={handleRegister}
-          >
-            Register Team
-          </Button> */}
-          {/* <RegisterButton /> */}
-        </Box>
+        <Box sx={{ marginTop: "2rem", maxWidth: "800px", width: "100%" }}></Box>
       </Box>
     </Box>
   );
