@@ -31,6 +31,8 @@ const TournamentModal: React.FC<TournamentModalProps> = ({
   tournament,
   matches,
 }) => {
+  console.log("🧩 TournamentModal matches:", matches);
+
   const [hasPaid, setHasPaid] = useState(false);
   const [checkingPayment, setCheckingPayment] = useState(true);
 
@@ -54,12 +56,9 @@ const TournamentModal: React.FC<TournamentModalProps> = ({
     }
   }, [open, userId]);
 
-  const finalMatch = matches.find(
-    (m) => m.match_id === 31 && m.tournament_id === tournament.id
-  );
-  const otherMatches = matches.filter(
-    (m) => m.tournament_id === tournament.id && m.match_id !== 31
-  );
+  const finalMatch = matches[matches.length - 1]; // last match
+  const otherMatches = matches.slice(0, -1); // all but last
+
   const isViewMode = tournament.status === "VIEW";
 
   const renderMatch = (match: Match) => {

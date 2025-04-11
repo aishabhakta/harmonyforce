@@ -62,7 +62,7 @@ const TournamentList: React.FC = () => {
 
   const handleOpenModal = async (tournament: Tournament) => {
     try {
-      const matchData = await apiFetch(`/university/${tournament.id}/matches`);
+      const matchData = await apiFetch(`/tournament/${tournament.id}/matches`);
       const formattedMatches = matchData.map((m: any) => ({
         match_id: m.match_id,
         tournament_id: m.tournament_id,
