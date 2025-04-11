@@ -76,7 +76,9 @@ def check_user_paid(user_id):
     )
 
     if not latest_payment:
-        return jsonify({"status": "not_found"}), 404
+        return jsonify({
+            "status": "not_paid"
+        }), 200
 
     return jsonify({
         "email": latest_payment.email,
