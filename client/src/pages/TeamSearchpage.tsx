@@ -1,6 +1,6 @@
 import React from "react";
 import { Box, Container, Typography } from "@mui/material";
-import TeamList from "../components/TeamList";
+import UserList from "../components/TeamList";
 
 const TeamSearchPage: React.FC = () => {
   return (
@@ -15,17 +15,6 @@ const TeamSearchPage: React.FC = () => {
         overflowX: "hidden",
       }}
     >
-      {/* Navigation Bar
-      <NavigationBar
-        links={[
-          { name: "Home", href: "/" },
-          { name: "About", href: "/about" },
-          { name: "Tournaments", href: "/tournaments" },
-          { name: "Teams", href: "/teams" },
-          { name: "Universities", href: "/universities" },
-        ]}
-      /> */}
-
       {/* Main Content */}
       <Container
         sx={{
@@ -49,7 +38,7 @@ const TeamSearchPage: React.FC = () => {
 
         {/* Team Search Component */}
         <Box sx={{ width: "100%", maxWidth: "900px" }}>
-          <TeamList />
+          <UserList />
         </Box>
       </Container>
 
