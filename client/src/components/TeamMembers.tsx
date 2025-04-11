@@ -1,24 +1,44 @@
 import React, { useEffect, useState } from "react";
-import { Box, Typography, TextField, MenuItem, Button, Alert } from "@mui/material";
+import {
+  Box,
+  Typography,
+  TextField,
+  MenuItem,
+  Button,
+  Alert,
+  Avatar,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemAvatar,
+} from "@mui/material";
 import { useParams } from "react-router-dom";
 
 interface TeamMembersProps {
-  captainId: number;
-  currentUserId: number;
   members: any[];
-  setMembers: React.Dispatch<React.SetStateAction<any[]>>;
 }
 
-const TeamMembers: React.FC<TeamMembersProps> = () => {
-  const { id } = useParams<{ id: string }>();
-  const teamId = parseInt(id || "0");
-  const [teamData, setTeamData] = useState<any>(null);
+const TeamMembers: React.FC<TeamMembersProps> = ({ members }) => {
+  const { teamId } = useParams<{ teamId: string }>();
   const [, setLoading] = useState(true);
-  const teamSize = (teamData?.members?.length || 0) + 1;
+  const teamSize = (members?.length || 0) + 1;
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [role, setRole] = useState("participant");
+
+  const roleOptions = [
+    "Expedition Leader",
+    "Resource Specialist",
+    "Scientist",
+    "Technician",
+    "Chronicler",
+    "Weapons Specialist",
+    "Physician",
+    "Strategist",
+    "Medic",
+  ];
+
+  const [role, setRole] = useState(roleOptions[0]);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
@@ -29,12 +49,12 @@ const TeamMembers: React.FC<TeamMembersProps> = () => {
     }
 
     try {
-      const response = await fetch(`http://127.0.0.1:5000/teams/requestAddMember`, {
+      const response = await fetch("http://127.0.0.1:5000/teams/requestAddMember", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email,
-          team_id: teamId,
+          team_id: parseInt(teamId || "0"),
           game_role: role,
         }),
       });
@@ -46,31 +66,34 @@ const TeamMembers: React.FC<TeamMembersProps> = () => {
         setError("");
         setName("");
         setEmail("");
-        setRole("participant");
+        setRole(roleOptions[0]);
       } else {
         setError(data.error || "Failed to submit request.");
         setSuccess("");
       }
     } catch (err) {
+      console.error("Add member error:", err);
       setError("An unexpected error occurred.");
       setSuccess("");
     }
   };
 
   useEffect(() => {
+    console.log("👥 TeamMembers received props:", members);
     if (!teamId) return;
 
+    // Optional fetch if needed (currently unused)
     fetch(`http://127.0.0.1:5000/teams/getTeam/${teamId}`)
-      .then(res => res.json())
-      .then(data => {
-        setTeamData(data);
+      .then((res) => res.json())
+      .then((data) => {
+        console.log("📡 TeamMembers fetched team data:", data);
         setLoading(false);
       })
-      .catch(err => {
+      .catch((err) => {
         console.error("Failed to fetch team", err);
         setLoading(false);
       });
-  }, [teamId]);
+  }, [teamId, members]);
 
   return (
     <Box
@@ -92,10 +115,35 @@ const TeamMembers: React.FC<TeamMembersProps> = () => {
         Each team must have between 5 – 7 members.
       </Typography>
 
+      {/* Show list of current members */}
+      <List sx={{ mb: 2 }}>
+        {members.map((member) => (
+          <ListItem key={member.user_id}>
+            <ListItemAvatar>
+              <Avatar src={member.profile_image || undefined}>
+                {member.name?.charAt(0)}
+              </Avatar>
+            </ListItemAvatar>
+            <ListItemText
+              primary={`${member.name} (${member.game_role || "No Role"})`}
+              secondary={member.email}
+            />
+          </ListItem>
+        ))}
+      </List>
+
       {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
       {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
 
-      <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: "1rem", marginBottom: "1rem" }}>
+      {/* Add new member */}
+      <Box
+        sx={{
+          display: "grid",
+          gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
+          gap: "1rem",
+          marginBottom: "1rem",
+        }}
+      >
         <TextField label="Name *" variant="outlined" fullWidth value={name} onChange={(e) => setName(e.target.value)} />
         <TextField label="Email Address *" variant="outlined" fullWidth value={email} onChange={(e) => setEmail(e.target.value)} />
       </Box>
@@ -106,26 +154,25 @@ const TeamMembers: React.FC<TeamMembersProps> = () => {
         label="Role"
         variant="outlined"
         sx={{ marginBottom: "1rem" }}
-        value={role}
+        value={roleOptions.includes(role) ? role : ""}
         onChange={(e) => setRole(e.target.value)}
       >
-        {["Expedition Leader", "Resource Specialist", "Scientist", "Technician", "Chronicler", "Weapons Specialist", "Physician"].map((roleOption) => (
+        {roleOptions.map((roleOption) => (
           <MenuItem key={roleOption} value={roleOption}>
-            {roleOption.charAt(0).toUpperCase() + roleOption.slice(1)}
+            {roleOption}
           </MenuItem>
         ))}
       </TextField>
 
-
-        <Button
-          variant="contained"
-          color="primary"
-          sx={{ marginTop: "1rem", width: "100%" }}
-          onClick={handleAddMember}
-          disabled={teamSize >= 7}
-        >
-          Add Member
-        </Button>      
+      <Button
+        variant="contained"
+        color="primary"
+        sx={{ marginTop: "1rem", width: "100%" }}
+        onClick={handleAddMember}
+        disabled={teamSize >= 7}
+      >
+        Add Member
+      </Button>
     </Box>
   );
 };
