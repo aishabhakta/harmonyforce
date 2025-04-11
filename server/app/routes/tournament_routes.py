@@ -298,8 +298,8 @@ def get_all_tournaments():
             "logo": f"/university/{university.university_id}/image" if university else "https://via.placeholder.com/50",
             "status": (
                 "APPLY" if t.name == "A New World Tournament"
-                else "UPCOMING" if t.end_date >= datetime.utcnow().date()
-                else "VIEW"
+                else "VIEW" if t.end_date >= datetime.utcnow().date()
+                else "RESULTS"
             ),
             "description": t.description,
             "start_date": t.start_date.strftime("%Y-%m-%d") if t.start_date else None,
