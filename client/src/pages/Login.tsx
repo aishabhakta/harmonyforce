@@ -232,7 +232,7 @@ export default function Login() {
         }}
       >
         <Box sx={{ width: "100%", maxWidth: 400 }}>
-          <Typography variant="h3">Sign In</Typography>
+          <Typography variant="h3">Login</Typography>
           <TextField
             label="Email Address"
             variant="outlined"
@@ -266,7 +266,7 @@ export default function Login() {
             sx={{ mt: 3, mb: 2 }}
             onClick={handleLogin}
           >
-            Login
+            Sign In
           </Button>
           <Typography variant="body2">
             Don't have an account?{" "}
