@@ -107,7 +107,6 @@ const UniversityPage: React.FC = () => {
     try {
       const response = await apiFetch(`/matches/${selectedMatch.match_id}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updatedMatch),
       });
 
@@ -140,21 +139,15 @@ const UniversityPage: React.FC = () => {
 
     apiFetch(`/university/${universityId}`)
       .then((data) => setUniversity(data))
-      .catch((err) => {
-        console.error("Failed to fetch university", err);
-      });
+      .catch((err) => console.error("Failed to fetch university", err));
 
     apiFetch(`/university/${universityId}/teams`)
       .then((data) => setTeams(data))
-      .catch((err) => {
-        console.error("Failed to fetch teams", err);
-      });
+      .catch((err) => console.error("Failed to fetch teams", err));
 
     apiFetch(`/university/${universityId}/matches`)
       .then((data) => setMatches(data))
-      .catch((err) => {
-        console.error("Failed to fetch matches", err);
-      });
+      .catch((err) => console.error("Failed to fetch matches", err));
   }, [universityId]);
 
   if (!university) {

@@ -89,7 +89,12 @@ const MatchResultsEditor: React.FC<MatchResultsEditorProps> = ({
         />
 
         <Box mt={3}>
-          <Button variant="contained" color="primary" fullWidth onClick={onSave}>
+          <Button
+            variant="contained"
+            color="primary"
+            fullWidth
+            onClick={onSave}
+          >
             Save Results
           </Button>
         </Box>
