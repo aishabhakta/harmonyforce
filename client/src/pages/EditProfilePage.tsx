@@ -65,7 +65,12 @@ const EditProfilePage: React.FC = () => {
               sx={{ mb: 2 }}
             >
               Upload Profile Picture
-              <input type="file" hidden accept="image/*" onChange={handleImageChange} />
+              <input
+                type="file"
+                hidden
+                accept="image/*"
+                onChange={handleImageChange}
+              />
             </Button>
 
             <TextField
