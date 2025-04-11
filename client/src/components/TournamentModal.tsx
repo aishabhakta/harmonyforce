@@ -12,9 +12,9 @@ import {
   CircularProgress,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import { Match, Tournament } from "./dummyData/dummyTournaments";
 import { Link } from "react-router-dom";
 import RegisterButton from "../components/RegisterButton";
+import { Match, Tournament } from "../types";
 import { useAuth } from "../AuthProvider";
 import { apiFetch } from "../api";
 
@@ -37,10 +37,6 @@ const TournamentModal: React.FC<TournamentModalProps> = ({
   const userId = localStorage.getItem("user_id");
   const userRole = localStorage.getItem("user_role");
   const { user } = useAuth();
-
-  console.log("👤 userId:", userId);
-  console.log("🔐 userRole:", userRole);
-  console.log("🔥 TournamentModal file loaded");
 
   useEffect(() => {
     if (open && userId) {
