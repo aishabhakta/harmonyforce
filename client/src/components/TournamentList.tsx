@@ -100,8 +100,8 @@ const TournamentList: React.FC = () => {
   const sortedTournaments = [...filteredTournaments].sort((a, b) => {
     const statusPriority = {
       APPLY: 0,
-      VIEW: 1,
-      RESULTS: 2,
+      RESULTS: 1,
+      VIEW: 2,
     };
     return statusPriority[a.status] - statusPriority[b.status];
   });
