@@ -45,6 +45,12 @@ const UniversityForm: React.FC<UniversityFormProps> = ({ universityId }) => {
     if (universityId) {
       formData.append("university_id", universityId);
     }
+    console.log("📦 Submitting university form with data:");
+    console.log("→ universityId:", universityId);
+    console.log("→ university_name:", name);
+    console.log("→ description:", bio);
+    console.log("→ universitylink:", link);
+    console.log("→ image:", image);
 
     try {
       const data = await apiFetch(endpoint, {
