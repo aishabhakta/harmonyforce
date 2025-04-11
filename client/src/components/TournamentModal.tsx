@@ -32,12 +32,16 @@ const TournamentModal: React.FC<TournamentModalProps> = ({
   const [hasPaid, setHasPaid] = useState(false);
   const [checkingPayment, setCheckingPayment] = useState(true);
 
+  const userId = localStorage.getItem("user_id");
+  const userRole = localStorage.getItem("user_role");
+
+  console.log("👤 userId:", userId);
+  console.log("🔐 userRole:", userRole);
   console.log("🔥 TournamentModal file loaded");
 
   useEffect(() => {
     console.log("🎯 useEffect triggered! Modal open =", open);
-    const userId = localStorage.getItem("user_id");
-    console.log("👤 userId from localStorage:", userId);
+    console.log("👤 userId from outer scope:", userId);
 
     if (open && userId) {
       console.log("🔍 Modal is open. Attempting to fetch payment...");
@@ -54,7 +58,7 @@ const TournamentModal: React.FC<TournamentModalProps> = ({
         })
         .finally(() => setCheckingPayment(false));
     }
-  }, [open]);
+  }, [open, userId]);
 
   const finalMatch = matches.find(
     (m) => m.match_id === 31 && m.tournament_id === tournament.id
@@ -157,20 +161,30 @@ const TournamentModal: React.FC<TournamentModalProps> = ({
               </Button>
             </Link>
 
-            {checkingPayment ? (
-              <CircularProgress />
-            ) : hasPaid ? (
-              <>
-                <Button variant="contained" color="success" disabled>
-                  Already Paid
-                </Button>
-                <Typography variant="subtitle2" color="textSecondary">
-                  ALREADY APPLIED
-                </Typography>
-              </>
-            ) : (
-              <RegisterButton />
-            )}
+            {!userId ? null : checkingPayment ? (
+  <CircularProgress />
+) : hasPaid ? (
+  <>
+    <Button variant="contained" color="success" disabled>
+      Already Paid
+    </Button>
+    <Typography variant="subtitle2" color="textSecondary">
+      ALREADY APPLIED
+    </Typography>
+  </>
+) : userRole === "participant" || userRole === "captain" ? (
+  <RegisterButton />
+) : (
+  <>
+    <Button variant="contained" disabled>
+      Register
+    </Button>
+    <Typography variant="subtitle2" color="error">
+      You must be a participant or team captain to register.
+    </Typography>
+  </>
+)}
+
           </Box>
         )}
       </DialogContent>
