@@ -6,27 +6,40 @@ import {
   MenuItem,
   Button,
   Alert,
+  Avatar,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemAvatar,
 } from "@mui/material";
 import { useParams } from "react-router-dom";
 import { apiFetch } from "../api";
 
 interface TeamMembersProps {
-  captainId: number;
-  currentUserId: number;
   members: any[];
-  setMembers: React.Dispatch<React.SetStateAction<any[]>>;
 }
 
-const TeamMembers: React.FC<TeamMembersProps> = () => {
-  const { id } = useParams<{ id: string }>();
-  const teamId = parseInt(id || "0");
-  const [teamData, setTeamData] = useState<any>(null);
+const TeamMembers: React.FC<TeamMembersProps> = ({ members }) => {
+  const { teamId } = useParams<{ teamId: string }>();
   const [, setLoading] = useState(true);
-  const teamSize = (teamData?.members?.length || 0) + 1;
+  const teamSize = (members?.length || 0) + 1;
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [role, setRole] = useState("participant");
+
+  const roleOptions = [
+    "Expedition Leader",
+    "Resource Specialist",
+    "Scientist",
+    "Technician",
+    "Chronicler",
+    "Weapons Specialist",
+    "Physician",
+    "Strategist",
+    "Medic",
+  ];
+
+  const [role, setRole] = useState(roleOptions[0]);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
@@ -37,21 +50,20 @@ const TeamMembers: React.FC<TeamMembersProps> = () => {
     }
 
     try {
-      const data = await apiFetch(`/teams/requestAddMember`, {
+      const data = await apiFetch("/teams/requestAddMember", {
         method: "POST",
         body: JSON.stringify({
           email,
-          team_id: teamId,
+          team_id: parseInt(teamId || "0"),
           game_role: role,
         }),
       });
 
-      // If API sends a message back, display it
       setSuccess(data.message || "Member request sent for approval!");
       setError("");
       setName("");
       setEmail("");
-      setRole("participant");
+      setRole(roleOptions[0]);
     } catch (err: any) {
       console.error("Add member error:", err);
       setError(err.message || "Failed to submit request.");
@@ -60,18 +72,20 @@ const TeamMembers: React.FC<TeamMembersProps> = () => {
   };
 
   useEffect(() => {
+    console.log("👥 TeamMembers received props:", members);
     if (!teamId) return;
 
+    // Optional fetch if needed (currently unused)
     apiFetch(`/teams/getTeam/${teamId}`)
       .then((data) => {
-        setTeamData(data);
+        console.log("📡 TeamMembers fetched team data:", data);
         setLoading(false);
       })
       .catch((err) => {
         console.error("Failed to fetch team", err);
         setLoading(false);
       });
-  }, [teamId]);
+  }, [teamId, members]);
 
   return (
     <Box
@@ -93,6 +107,23 @@ const TeamMembers: React.FC<TeamMembersProps> = () => {
         Each team must have between 5 – 7 members.
       </Typography>
 
+      {/* Show list of current members */}
+      <List sx={{ mb: 2 }}>
+        {members.map((member) => (
+          <ListItem key={member.user_id}>
+            <ListItemAvatar>
+              <Avatar src={member.profile_image || undefined}>
+                {member.name?.charAt(0)}
+              </Avatar>
+            </ListItemAvatar>
+            <ListItemText
+              primary={`${member.name} (${member.game_role || "No Role"})`}
+              secondary={member.email}
+            />
+          </ListItem>
+        ))}
+      </List>
+
       {error && (
         <Alert severity="error" sx={{ mb: 2 }}>
           {error}
@@ -104,6 +135,7 @@ const TeamMembers: React.FC<TeamMembersProps> = () => {
         </Alert>
       )}
 
+      {/* Add new member */}
       <Box
         sx={{
           display: "grid",
@@ -134,20 +166,12 @@ const TeamMembers: React.FC<TeamMembersProps> = () => {
         label="Role"
         variant="outlined"
         sx={{ marginBottom: "1rem" }}
-        value={role}
+        value={roleOptions.includes(role) ? role : ""}
         onChange={(e) => setRole(e.target.value)}
       >
-        {[
-          "Expedition Leader",
-          "Resource Specialist",
-          "Scientist",
-          "Technician",
-          "Chronicler",
-          "Weapons Specialist",
-          "Physician",
-        ].map((roleOption) => (
+        {roleOptions.map((roleOption) => (
           <MenuItem key={roleOption} value={roleOption}>
-            {roleOption.charAt(0).toUpperCase() + roleOption.slice(1)}
+            {roleOption}
           </MenuItem>
         ))}
       </TextField>
