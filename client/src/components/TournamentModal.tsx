@@ -59,7 +59,7 @@ const TournamentModal: React.FC<TournamentModalProps> = ({
   const finalMatch = matches[matches.length - 1]; // last match
   const otherMatches = matches.slice(0, -1); // all but last
 
-  const isViewMode = tournament.status === "RESULTS";
+  const isViewMode = tournament.status === "VIEW";
 
   const renderMatch = (match: Match) => {
     const isTeam1Winner = isViewMode && match.team1 === match.winner;
