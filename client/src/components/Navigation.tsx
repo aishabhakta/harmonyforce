@@ -32,6 +32,11 @@ const NavigationBar: React.FC<NavigationProps> = ({ links }) => {
 
   const { user, setUser } = useAuth();
 
+  console.log("📦 localStorage user_id:", localStorage.getItem("user_id"));
+  console.log("📧 localStorage email:", localStorage.getItem("user_email"));
+  console.log("🔑 localStorage token:", localStorage.getItem("session_token"));
+  console.log("🔍 Auth Context User:", user);
+
   console.log("user.photoURL in NavigationBar:", user?.photoURL);
   console.log("Current User in NavigationBar:", user);
 
@@ -41,9 +46,10 @@ const NavigationBar: React.FC<NavigationProps> = ({ links }) => {
       await apiFetch("/auth/logout", {
         method: "POST",
         headers: {
-          Authorization: token || "",
+          Authorization: `Bearer ${token}`,
         },
       });
+
       setUser(null);
       localStorage.clear();
       navigate("/login");
@@ -89,7 +95,6 @@ const NavigationBar: React.FC<NavigationProps> = ({ links }) => {
         >
           {isMobile ? (
             <>
-              {/* Left: Hamburger */}
               <IconButton
                 edge="start"
                 color="inherit"
@@ -98,7 +103,6 @@ const NavigationBar: React.FC<NavigationProps> = ({ links }) => {
                 <MenuIcon />
               </IconButton>
 
-              {/* Center: Logo */}
               <IconButton
                 color="inherit"
                 onClick={() => navigate("/")}
@@ -117,7 +121,6 @@ const NavigationBar: React.FC<NavigationProps> = ({ links }) => {
             </>
           ) : (
             <>
-              {/* Logo */}
               <IconButton
                 edge="start"
                 color="inherit"
@@ -132,7 +135,6 @@ const NavigationBar: React.FC<NavigationProps> = ({ links }) => {
                 />
               </IconButton>
 
-              {/* Nav links */}
               <Box sx={{ display: "flex", flexGrow: 1 }}>
                 {links.map((link, index) => (
                   <Button
@@ -153,7 +155,6 @@ const NavigationBar: React.FC<NavigationProps> = ({ links }) => {
             </>
           )}
 
-          {/* Right: login/signup section */}
           {user ? (
             <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
               <Avatar
@@ -198,7 +199,7 @@ const NavigationBar: React.FC<NavigationProps> = ({ links }) => {
                   color: "#1976d2",
                   fontSize: { xs: "0.85rem", sm: "1rem" },
                 }}
-                onClick={() => navigate("/register")}
+                onClick={() => navigate("/viewregister")}
               >
                 Sign Up
               </Button>
@@ -207,7 +208,6 @@ const NavigationBar: React.FC<NavigationProps> = ({ links }) => {
         </Toolbar>
       </AppBar>
 
-      {/* Mobile Drawer */}
       <Drawer
         anchor="left"
         open={drawerOpen}
