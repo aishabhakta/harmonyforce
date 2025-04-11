@@ -95,7 +95,7 @@ const AppContent: React.FC = () => {
       <Routes>
         <Route path="/" element={<Homepage />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/viewregister" element={<Register />} />
+        <Route path="/register" element={<ViewerSignUpPage />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/team/:id" element={<TeamPage />} />
         <Route path="/team/:id/registration" element={<TeamRegistration />} />
@@ -148,7 +148,7 @@ const AppContent: React.FC = () => {
           /> */}
         <Route path="/success" element={<Success />} />
         <Route path="/cancel" element={<Cancel />} />
-        <Route path="/viewregister" element={<ViewerSignUpPage />} />
+        <Route path="/viewregister" element={<Register />} />
         <Route
           element={
             <PrivateRoute allowedRoles={["superadmin", "aardvarkstaff"]} />
