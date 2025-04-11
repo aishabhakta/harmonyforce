@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   Box,
@@ -11,7 +11,7 @@ import {
 import { useAuth } from "../AuthProvider";
 import { apiFetch } from "../api";
 
-const USE_DUMMY_DATA = false; // change to false when using live backend
+const USE_DUMMY_DATA = false;
 
 interface TeamMember {
   id: string;
@@ -20,6 +20,7 @@ interface TeamMember {
   game_role: string;
   imageUrl: string;
   isCaptain?: boolean;
+  paymentStatus?: string;
 }
 
 interface RosterProps {
@@ -31,9 +32,6 @@ interface RosterProps {
 
 const Roster: React.FC<RosterProps> = ({ members, captain, teamId }) => {
   const teamSize = members.length + (captain ? 1 : 0);
-  const allMembers = captain
-    ? [captain, ...members.filter((m) => m.id !== captain.id)]
-    : members;
   const { user } = useAuth();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
@@ -46,6 +44,37 @@ const Roster: React.FC<RosterProps> = ({ members, captain, teamId }) => {
     message: "",
     severity: "success",
   });
+
+  const [allMembers, setAllMembers] = useState<TeamMember[]>(() => {
+    const combined = captain
+      ? [captain, ...members.filter((m) => m.id !== captain.id)]
+      : members;
+    return combined.map((m) => ({ ...m, paymentStatus: "Checking..." }));
+  });
+
+  useEffect(() => {
+    const fetchStatuses = async () => {
+      const updated = await Promise.all(
+        allMembers.map(async (member) => {
+          try {
+            const data = await apiFetch(`/stripe/check-user-paid/${member.id}`);
+            return {
+              ...member,
+              paymentStatus: data.status === "succeeded" ? "Paid" : "Not Paid",
+            };
+          } catch (err) {
+            return {
+              ...member,
+              paymentStatus: "Not Paid",
+            };
+          }
+        })
+      );
+      setAllMembers(updated);
+    };
+
+    fetchStatuses();
+  }, [teamId]);
 
   const handleClick = (
     event: React.MouseEvent<HTMLElement>,
@@ -64,32 +93,20 @@ const Roster: React.FC<RosterProps> = ({ members, captain, teamId }) => {
     if (!selectedMemberId) return;
 
     try {
-      const res = await apiFetch(`/teams/removeMember/${selectedMemberId}`, {
+      const data = await apiFetch(`/teams/removeMember/${selectedMemberId}`, {
         method: "POST",
       });
 
-      const data = await res.json();
-
-      if (res.ok) {
-        setSnackbar({
-          open: true,
-          message: "Member removed successfully!",
-          severity: "success",
-        });
-
-        // Optionally reload or update state here
-        setTimeout(() => window.location.reload(), 1000);
-      } else {
-        setSnackbar({
-          open: true,
-          message: data.error || "Failed to remove member",
-          severity: "error",
-        });
-      }
-    } catch (err) {
       setSnackbar({
         open: true,
-        message: "Something went wrong",
+        message: data.message || "Member removed successfully!",
+        severity: "success",
+      });
+      setTimeout(() => window.location.reload(), 1000);
+    } catch (err: any) {
+      setSnackbar({
+        open: true,
+        message: err.message || "Failed to remove member",
         severity: "error",
       });
     } finally {
@@ -101,17 +118,15 @@ const Roster: React.FC<RosterProps> = ({ members, captain, teamId }) => {
 
   const canEditTeam =
     user &&
-    ["captain", "tournymod", "aardvarkstaff", "superadmin"].includes(
-      user.role || ""
-    );
+    ((user.role === "captain" && user.team_id === teamId) ||
+      ["tournymod", "aardvarkstaff", "superadmin"].includes(user.role || ""));
 
   const canRequestJoin = user && user.role === "participant" && !user.team_id;
 
   const canRemoveMembers =
     user &&
-    ["captain", "tournymod", "aardvarkstaff", "superadmin"].includes(
-      user.role || ""
-    );
+    ((user.role === "captain" && user.team_id === teamId) ||
+      ["tournymod", "aardvarkstaff", "superadmin"].includes(user.role || ""));
 
   return (
     <>
@@ -122,7 +137,6 @@ const Roster: React.FC<RosterProps> = ({ members, captain, teamId }) => {
           backgroundColor: "#f9f9f9",
         }}
       >
-        {/* Edit Team Button */}
         {canEditTeam && (
           <div
             style={{
@@ -146,7 +160,6 @@ const Roster: React.FC<RosterProps> = ({ members, captain, teamId }) => {
           </div>
         )}
 
-        {/* Request to Join Button */}
         {canRequestJoin && (
           <div
             style={{
@@ -163,7 +176,6 @@ const Roster: React.FC<RosterProps> = ({ members, captain, teamId }) => {
                 try {
                   const data = await apiFetch("/team_requests/request_join", {
                     method: "POST",
-                    headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
                       user_id: user?.user_id,
                       team_id: teamId,
@@ -178,10 +190,7 @@ const Roster: React.FC<RosterProps> = ({ members, captain, teamId }) => {
                 } catch (err: any) {
                   setSnackbar({
                     open: true,
-                    message:
-                      err?.error === "Join request already sent"
-                        ? "You have already requested to join this team."
-                        : err?.error || "Failed to send join request.",
+                    message: err?.message || "Failed to send join request.",
                     severity: "error",
                   });
                 }
@@ -198,10 +207,6 @@ const Roster: React.FC<RosterProps> = ({ members, captain, teamId }) => {
             fontWeight: "bold",
             color: "#333",
             marginBottom: "2rem",
-            textAlign: "left",
-            marginLeft: "auto",
-            marginRight: "auto",
-            maxWidth: "1200px",
           }}
         >
           Roster
@@ -212,8 +217,6 @@ const Roster: React.FC<RosterProps> = ({ members, captain, teamId }) => {
             display: "grid",
             gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
             gap: "2rem",
-            maxWidth: "1200px",
-            margin: "0 auto",
           }}
         >
           {allMembers.map((member) => (
@@ -228,10 +231,7 @@ const Roster: React.FC<RosterProps> = ({ members, captain, teamId }) => {
                   borderRadius: "8px",
                   overflow: "hidden",
                   boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-                  transition: "transform 0.2s",
-                  cursor: "pointer",
                   position: "relative",
-                  border: member.isCaptain ? "" : "none",
                 }}
               >
                 <div
@@ -257,7 +257,6 @@ const Roster: React.FC<RosterProps> = ({ members, captain, teamId }) => {
                       fontSize: "1rem",
                       color: "#666",
                       marginTop: "0.5rem",
-                      fontWeight: member.isCaptain ? "bold" : "normal",
                     }}
                   >
                     {member.isCaptain ? "Team Captain" : member.role}
@@ -271,15 +270,22 @@ const Roster: React.FC<RosterProps> = ({ members, captain, teamId }) => {
                   >
                     {member.game_role}
                   </p>
+                  <p
+                    style={{
+                      fontSize: "0.9rem",
+                      marginTop: "0.4rem",
+                      color: member.paymentStatus === "Paid" ? "green" : "red",
+                    }}
+                  >
+                    {member.paymentStatus}
+                  </p>
 
-                  {/* Remove Button - shown only for non-captains */}
                   {canRemoveMembers && !member.isCaptain && (
                     <div
                       style={{
                         position: "absolute",
                         bottom: "1rem",
                         right: "1rem",
-                        zIndex: 10,
                       }}
                     >
                       <Button
@@ -298,10 +304,7 @@ const Roster: React.FC<RosterProps> = ({ members, captain, teamId }) => {
                         open={open && selectedMemberId === member.id}
                         anchorEl={anchorEl}
                         onClose={handleClose}
-                        anchorOrigin={{
-                          vertical: "top",
-                          horizontal: "left",
-                        }}
+                        anchorOrigin={{ vertical: "top", horizontal: "left" }}
                       >
                         <Box sx={{ p: 2 }}>
                           <Typography>
@@ -315,24 +318,13 @@ const Roster: React.FC<RosterProps> = ({ members, captain, teamId }) => {
                               gap: 1,
                             }}
                           >
-                            <Button
-                              size="small"
-                              onClick={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                handleClose();
-                              }}
-                            >
+                            <Button size="small" onClick={handleClose}>
                               Cancel
                             </Button>
                             <Button
                               size="small"
                               color="error"
-                              onClick={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                handleConfirmRemove();
-                              }}
+                              onClick={handleConfirmRemove}
                             >
                               Remove
                             </Button>
@@ -347,6 +339,7 @@ const Roster: React.FC<RosterProps> = ({ members, captain, teamId }) => {
           ))}
         </div>
       </div>
+
       <Snackbar
         open={snackbar.open}
         autoHideDuration={4000}
