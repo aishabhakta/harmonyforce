@@ -266,7 +266,7 @@ export default function Login() {
             sx={{ mt: 3, mb: 2 }}
             onClick={handleLogin}
           >
-            Sign In
+            Login
           </Button>
           <Typography variant="body2">
             Don't have an account?{" "}

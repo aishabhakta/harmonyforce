@@ -72,7 +72,7 @@ export default function Register() {
         }}
       >
         <Box sx={{ width: "100%", maxWidth: 400 }}>
-          <Typography variant="h3">Register</Typography>
+          <Typography variant="h3">Sign Up</Typography>
 
           <TextField
             label="Username"
