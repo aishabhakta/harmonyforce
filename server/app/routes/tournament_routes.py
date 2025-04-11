@@ -311,30 +311,29 @@ def get_all_tournaments():
 
 # Route to fetch all matches for a given tournament
 @tournament_bp.route('/<int:tournament_id>/matches', methods=['GET'])
-def get_tournament_matches(tournament_id):
+def get_matches_by_tournament(tournament_id):
     matches = Match.query.filter_by(tournament_id=tournament_id).all()
 
     if not matches:
         return jsonify([]), 200
 
-    match_list = []
-    for m in matches:
-        team1 = Team.query.get(m.team1_id)
-        team2 = Team.query.get(m.team2_id)
-        winner = Team.query.get(m.winner_id) if m.winner_id else None
-
-        match_list.append({
-            "match_id": m.match_id,
-            "tournament_id": m.tournament_id,
-            "team1": team1.team_name if team1 else f"Team {m.team1_id}",
-            "team2": team2.team_name if team2 else f"Team {m.team2_id}",
-            "score_team1": m.score_team1,
-            "score_team2": m.score_team2,
-            "winner": winner.team_name if winner else None,
-            "start_time": m.start_time.strftime("%Y-%m-%d %H:%M") if m.start_time else None,
+    match_data = []
+    for match in matches:
+        match_data.append({
+            "match_id": match.match_id,
+            "tournament_id": match.tournament_id,
+            "team1_id": match.team1_id,
+            "team2_id": match.team2_id,
+            "start_time": match.start_time.strftime("%Y-%m-%d") if match.start_time else None,
+            "end_time": match.end_time.strftime("%Y-%m-%d") if match.end_time else None,
+            "score_team1": match.score_team1,
+            "score_team2": match.score_team2,
+            "status": "Completed" if match.status == 1 else "Scheduled",
+            "winner_id": match.winner_id
         })
 
-    return jsonify(match_list), 200
+    return jsonify(match_data), 200
+
 
 
 @tournament_bp.route('/report/full_statistics', methods=['GET'])
