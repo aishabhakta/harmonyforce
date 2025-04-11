@@ -11,7 +11,7 @@ import {
   Grid,
   Button,
 } from "@mui/material";
-import { useAuth } from "../AuthProvider"; // Make sure this path is correct
+import { useAuth } from "../AuthProvider";
 import { apiFetch } from "../api";
 
 // Toggle this to true to use dummy data
@@ -22,6 +22,7 @@ interface Player {
   name: string;
   email: string;
   role: string;
+  team_id: number;
   team_name: string;
   team_logo?: string;
   university_name: string;
@@ -36,6 +37,7 @@ const dummyPlayer: Player = {
   name: "Jane Doe",
   email: "jane.doe@example.com",
   role: "aardvarkstaff",
+  team_id: 0,
   team_name: "Team Alpha",
   team_logo: "https://via.placeholder.com/50",
   university_name: "Cornell University",
@@ -55,7 +57,13 @@ const PlayerPage: React.FC = () => {
 
   const isPrivileged =
     user &&
-    ["aardvarkstaff", "superadmin", "tournymod"].includes(user.role || "");
+    [
+      "aardvarkstaff",
+      "superadmin",
+      "tournymod",
+      "captain",
+      "participant",
+    ].includes(user.role || "");
 
   useEffect(() => {
     if (!playerId) {
@@ -65,7 +73,6 @@ const PlayerPage: React.FC = () => {
     }
 
     if (USE_DUMMY_DATA) {
-      // Dynamically return the dummy player based on playerId
       const dummy = {
         ...dummyPlayer,
         user_id: parseInt(playerId),
@@ -81,7 +88,10 @@ const PlayerPage: React.FC = () => {
         const data = await apiFetch(`/teams/getPlayer/${playerId}`);
         setPlayer(data);
       } catch (err: any) {
-        setError(err.message || "Failed to fetch player details.");
+        console.error("Failed to fetch player details:", err);
+        setError(
+          err.message || "An error occurred while fetching player details."
+        );
       } finally {
         setLoading(false);
       }
@@ -107,6 +117,7 @@ const PlayerPage: React.FC = () => {
   }
 
   if (!player) return null;
+  console.log(player.university_name);
 
   return (
     <Box
@@ -145,6 +156,41 @@ const PlayerPage: React.FC = () => {
                 </Button>
               </Box>
             )}
+
+            {/* Request to Join Button */}
+            {user &&
+              user.role === "participant" &&
+              user.user_id !== player.user_id &&
+              user.team_id === 0 &&
+              player.team_id === 0 && (
+                <Box sx={{ mt: 2 }}>
+                  <Button
+                    variant="contained"
+                    color="secondary"
+                    onClick={async () => {
+                      try {
+                        const data = await apiFetch(
+                          "/team_requests/request_join",
+                          {
+                            method: "POST",
+                            body: JSON.stringify({
+                              user_id: user.user_id,
+                              team_id: player.user_id, // Replace with actual team_id if applicable
+                            }),
+                          }
+                        );
+
+                        alert(data.message || "Request sent!");
+                      } catch (err: any) {
+                        console.error("Join request failed:", err);
+                        alert(err.message || "Failed to send request.");
+                      }
+                    }}
+                  >
+                    Request to Join
+                  </Button>
+                </Box>
+              )}
           </Grid>
 
           {/* Info Card */}
@@ -169,7 +215,7 @@ const PlayerPage: React.FC = () => {
                   Date Joined: {player.date_joined || "Unknown"}
                 </Typography>
 
-                {isPrivileged && (
+                {user?.user_id === player.user_id && isPrivileged && (
                   <Box sx={{ mt: 2 }}>
                     <Button variant="contained" href="/validation">
                       Go to Validation Page
