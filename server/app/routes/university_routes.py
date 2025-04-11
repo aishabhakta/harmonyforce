@@ -286,34 +286,18 @@ def full_university_report():
     
     
 @university_bp.route('/report/total_counts', methods=['GET'])
-def university_total_counts():
-    start_date = request.args.get("start_date")
-    end_date = request.args.get("end_date")
+def get_total_counts():
+    university_count = db.session.query(University).count()
+    team_count = db.session.query(Team).count()
+   
+    # Count only users whose user_type is 'captain' or 'participant'
+    team_member_count = db.session.query(User).filter(User.user_type.in_(['captain', 'participant'])).count()
 
-    query = University.query
-
-    try:
-        if start_date:
-            start_date_obj = datetime.strptime(start_date, "%Y-%m-%d").date()
-            query = query.filter(University.created_at >= start_date_obj)
-        if end_date:
-            end_date_obj = datetime.strptime(end_date, "%Y-%m-%d").date()
-            query = query.filter(University.created_at <= end_date_obj)
-    except ValueError:
-        return jsonify({"error": "Invalid date format. Use YYYY-MM-DD"}), 400
-
-    universities = query.all()
-    total_teams = 0
-    total_team_members = 0
-
-    for uni in universities:
-        total_teams += Team.query.filter_by(university_id=uni.university_id).count()
-        total_team_members += User.query.filter_by(university_id=uni.university_id).count()
 
     return jsonify({
-        "total_universities": len(universities),
-        "total_teams": total_teams,
-        "total_team_members": total_team_members
+        "total_universities": university_count,
+        "total_teams": team_count,
+        "total_team_members": team_member_count
     }), 200
 
 

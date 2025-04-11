@@ -61,36 +61,33 @@ const Reports = () => {
 
   const fetchReports = async () => {
     try {
-      const params: any = {};
+      const params: Record<string, string> = {};
       if (startDate) params.start_date = startDate;
       if (endDate) params.end_date = endDate;
 
-      const [
-        collegeStatsData,
-        collegeTotalsData,
-        tournamentStatsData,
-        tournamentTotalsData,
-      ] = await Promise.all([
-        apiFetch("/university/report/full_statistics", { method: "GET" }),
-        apiFetch("/university/report/total_counts", { method: "GET" }),
-        apiFetch("/tournament/report/full_statistics", { method: "GET" }),
-        apiFetch("/tournament/report/total_tournament_statistics", {
-          method: "GET",
-        }),
-      ]);
+      const queryString = new URLSearchParams(params).toString();
+      const query = queryString ? `?${queryString}` : "";
 
-      setCollegeStats(collegeStatsData);
+      const [collegeRes, totalCollegeRes, tournamentRes, totalTournamentRes] =
+        await Promise.all([
+          apiFetch(`/university/report/full_statistics${query}`),
+          apiFetch(`/university/report/total_counts${query}`),
+          apiFetch(`/tournament/report/full_statistics${query}`),
+          apiFetch(`/tournament/report/total_tournament_statistics${query}`),
+        ]);
+
+      setCollegeStats(collegeRes);
       setCollegeTotals({
-        colleges: collegeTotalsData.total_universities,
-        teams: collegeTotalsData.total_teams,
-        members: collegeTotalsData.total_team_members,
+        colleges: totalCollegeRes.total_universities,
+        teams: totalCollegeRes.total_teams,
+        members: totalCollegeRes.total_team_members,
       });
 
-      setTournamentStats(tournamentStatsData);
+      setTournamentStats(tournamentRes);
       setTournamentTotals({
-        colleges: tournamentTotalsData.active_universities,
-        matchesPlanned: tournamentTotalsData.matches_yet_to_play,
-        matchesCompleted: tournamentTotalsData.matches_completed,
+        colleges: totalTournamentRes.active_universities,
+        matchesPlanned: totalTournamentRes.matches_yet_to_play,
+        matchesCompleted: totalTournamentRes.matches_completed,
       });
     } catch (err) {
       console.error("Failed to fetch reports:", err);
