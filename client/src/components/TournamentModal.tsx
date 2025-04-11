@@ -14,7 +14,8 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import { Match, Tournament } from "./dummyData/dummyTournaments";
 import { Link } from "react-router-dom";
-import RegisterButton from "../components/RegisterButton";
+import RegisterButton from "../components/RegisterButton";import { useAuth } from "../AuthProvider";
+
 
 interface TournamentModalProps {
   open: boolean;
@@ -67,6 +68,7 @@ const TournamentModal: React.FC<TournamentModalProps> = ({
     (m) => m.tournament_id === tournament.id && m.match_id !== 31
   );
   const isViewMode = tournament.status === "VIEW";
+  const {user} = useAuth();
 
   const renderMatch = (match: Match) => {
     const isTeam1Winner = isViewMode && match.team1 === match.winner;
@@ -185,6 +187,24 @@ const TournamentModal: React.FC<TournamentModalProps> = ({
   </>
 )}
 
+            {["participant", "captain"].includes(user?.role || "") && (
+                <Box>
+                  {checkingPayment ? (
+                    <CircularProgress />
+                  ) : hasPaid ? (
+                    <>
+                      <Button variant="contained" color="success" disabled>
+                        Already Paid
+                      </Button>
+                      <Typography variant="subtitle2" color="textSecondary">
+                        ALREADY APPLIED
+                      </Typography>
+                    </>
+                  ) : (
+                    <RegisterButton />
+                  )}
+                </Box>
+              )}
           </Box>
         )}
       </DialogContent>
