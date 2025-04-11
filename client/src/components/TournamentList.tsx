@@ -100,8 +100,8 @@ const TournamentList: React.FC = () => {
   const sortedTournaments = [...filteredTournaments].sort((a, b) => {
     const statusPriority = {
       APPLY: 0,
-      UPCOMING: 1,
-      VIEW: 2,
+      VIEW: 1,
+      RESULTS: 2,
     };
     return statusPriority[a.status] - statusPriority[b.status];
   });
@@ -177,7 +177,7 @@ const TournamentList: React.FC = () => {
                             ? isPaid
                               ? "success"
                               : "primary"
-                            : tournament.status === "UPCOMING"
+                            : tournament.status === "VIEW"
                             ? "secondary"
                             : "error"
                         }

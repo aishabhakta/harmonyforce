@@ -13,7 +13,7 @@ export interface Tournament {
   name: string;
   university: string;
   logo: string;
-  status: "VIEW" | "UPCOMING" | "APPLY";
+  status: "RESULTS" | "VIEW" | "APPLY";
   start_date?: string;
   end_date?: string;
   description?: string;
