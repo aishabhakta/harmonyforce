@@ -27,9 +27,13 @@ export default function Register() {
     const fetchUniversities = async () => {
       try {
         const data = await apiFetch("/university/getAll");
-        setUniversities(data.map((uni: any) => uni.university_name));
-      } catch (err) {
-        console.error("Error fetching universities:", err);
+        if (Array.isArray(data)) {
+          setUniversities(data.map((uni: any) => uni.university_name));
+        } else {
+          console.error("Failed to fetch universities:", data.error);
+        }
+      } catch (err: any) {
+        console.error("Error fetching universities:", err.message || err);
       }
     };
     fetchUniversities();
@@ -41,7 +45,7 @@ export default function Register() {
     try {
       const result = await apiFetch("/auth/register", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        // headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
 
