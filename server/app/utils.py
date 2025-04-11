@@ -18,6 +18,7 @@ def generate_jwt(user_id, role):
         "exp": datetime.utcnow() + timedelta(days=1),  # Token expires in 1 day
         "iat": datetime.utcnow()
     }
+    print(f"SECRET_KEY type: {type(SECRET_KEY)} -> {SECRET_KEY}")
     return jwt.encode(payload, SECRET_KEY, algorithm="HS256")
 
 # JWT Verification Middleware
