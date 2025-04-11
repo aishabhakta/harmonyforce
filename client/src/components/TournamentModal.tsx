@@ -15,7 +15,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import { Link } from "react-router-dom";
 import RegisterButton from "../components/RegisterButton";
 import { Match, Tournament } from "../types";
-import { useAuth } from "../AuthProvider";
+// import { useAuth } from "../AuthProvider";
 import { apiFetch } from "../api";
 
 interface TournamentModalProps {
@@ -38,7 +38,7 @@ const TournamentModal: React.FC<TournamentModalProps> = ({
 
   const userId = localStorage.getItem("user_id");
   const userRole = localStorage.getItem("user_role");
-  const { user } = useAuth();
+  // const { user } = useAuth();
 
   useEffect(() => {
     if (open && userId) {
