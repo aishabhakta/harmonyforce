@@ -15,6 +15,7 @@ import {
   SelectChangeEvent,
   Button,
 } from "@mui/material";
+import { useAuth } from "../AuthProvider";
 import { apiFetch } from "../api";
 
 interface University {
@@ -32,6 +33,7 @@ const UniversityList: React.FC = () => {
   const [page, setPage] = useState(1);
   const [filter, setFilter] = useState("All");
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   useEffect(() => {
     apiFetch("/university/getAll")
@@ -122,14 +124,17 @@ const UniversityList: React.FC = () => {
           mt: 4,
         }}
       >
-        <Button
-          variant="contained"
-          color="primary"
-          sx={{ textTransform: "none", ml: 1 }}
-          onClick={() => navigate("/UniversityRegistration")}
-        >
-          Create University
-        </Button>
+        {["superadmin", "unimod", "aardvarkstaff"].includes(user?.role || "") &&
+          user?.university_id == 0 && (
+            <Button
+              variant="contained"
+              color="primary"
+              sx={{ textTransform: "none", ml: 1 }}
+              onClick={() => navigate("/UniversityRegistration")}
+            >
+              Create University
+            </Button>
+          )}
 
         <Pagination
           count={Math.ceil(filtered.length / ITEMS_PER_PAGE)}
