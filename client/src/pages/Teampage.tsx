@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useSearchParams } from "react-router-dom";
+import { useParams, useSearchParams,useNavigate } from "react-router-dom";
 import { Box, CircularProgress, Alert } from "@mui/material";
 import TeamHeader from "../components/TeamHeader";
 import Roster from "../components/Roster";
+
 
 interface Member {
   user_id: number;
@@ -39,6 +40,7 @@ const TeamPage: React.FC = () => {
 
   const [searchParams] = useSearchParams();
   const USE_DUMMY_DATA = searchParams.get("dummy") === "true";
+  const navigate = useNavigate();
 
   const dummyTeam: Team = {
     team_id: 1,
@@ -76,6 +78,13 @@ const TeamPage: React.FC = () => {
     ],
   };
 
+  useEffect(() => {
+    if (id === "0") {
+      navigate("/universities"); // or "/" or wherever
+      return;
+    }
+  }, [id, navigate]);
+  
   useEffect(() => {
     const fetchTeam = async () => {
       if (USE_DUMMY_DATA && id === "1") {

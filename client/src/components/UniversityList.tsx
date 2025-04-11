@@ -33,6 +33,7 @@ const UniversityList: React.FC = () => {
 
   const filtered = universities.filter(
     (u) =>
+      u.university_id !== 0 && 
       u.university_name.toLowerCase().includes(search.toLowerCase()) &&
       (filter === "All" || u.country === filter)
   );
