@@ -15,7 +15,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import { Link } from "react-router-dom";
 import RegisterButton from "../components/RegisterButton";
 import { Match, Tournament } from "../types";
-// import { useAuth } from "../AuthProvider";
+import { useAuth } from "../AuthProvider";
 import { apiFetch } from "../api";
 
 interface TournamentModalProps {
@@ -60,6 +60,7 @@ const TournamentModal: React.FC<TournamentModalProps> = ({
   const otherMatches = matches.slice(0, -1); // all but last
 
   const isViewMode = tournament.status === "RESULTS";
+  useAuth();
 
   const renderMatch = (match: Match) => {
     const isTeam1Winner = isViewMode && match.team1 === match.winner;

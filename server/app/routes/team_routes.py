@@ -302,8 +302,9 @@ def get_pending_team_members():
         for member in pending_members:
             result.append({
                 "id": member.id,
-                "email": member.email,
+                "email": member.user.email if member.user else None,  # pull from User
                 "team_id": member.team_id,
+                "team_name": member.team.team_name if member.team else None,
                 "game_role": member.game_role,
                 "user_id": member.user_id,
                 "status": member.status,

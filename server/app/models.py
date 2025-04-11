@@ -157,15 +157,16 @@ class PendingTeamMember(db.Model):
     __tablename__ = 'pending_team_members'
     __table_args__ = {'schema': 'aardvark'}
 
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    email = db.Column(db.String(100), nullable=False)
-    team_id = db.Column(db.Integer, nullable=False)
-    game_role = db.Column(db.String(100), nullable=True)
-    user_id = db.Column(db.Integer, nullable=True)  
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(100), nullable=False)  # Optional, or remove if pulling from User
+    team_id = db.Column(db.Integer, db.ForeignKey('aardvark.teams.team_id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('aardvark.users.user_id'), nullable=False)
+    game_role = db.Column(db.String(100))
+    status = db.Column(db.String(50), default='pending')
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow) 
-    status = db.Column(db.Integer, default='pending')  # 0 = Pending, 1 = Approved, 2 = Rejected
-
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    team = db.relationship("Team", backref="pending_members", lazy="joined")
+    user = db.relationship("User", backref="pending_requests", lazy="joined")  # 👈 add this
 
 class PendingTeamRegistration(db.Model):
     __tablename__ = 'pending_team_registrations'

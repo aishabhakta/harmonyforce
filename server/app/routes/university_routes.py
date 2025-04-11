@@ -35,7 +35,7 @@ def register_university():
 # Function to update university details
 @university_bp.route('/update', methods=['POST'])
 def update_university():
-    university_id = request.form.get('university_id')
+    university_id = int(request.form.get('university_id', 0))
     university = University.query.get(university_id)
 
     if not university:
