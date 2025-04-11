@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import {
   Box,
   Typography,
@@ -65,6 +65,7 @@ const UniversityPage: React.FC = () => {
   });
 
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   const getTeamName = (teamId: number) => {
     const team = teams.find((t) => t.team_id === teamId);
@@ -127,6 +128,14 @@ const UniversityPage: React.FC = () => {
       setSnackbar({ open: true, message: "Failed to update match", severity: "error" });
     }
   };
+
+  useEffect(() => {
+    if (universityId === "0") {
+      navigate("/universities");
+      return;
+    }
+  }, [universityId, navigate]);
+  
 
   useEffect(() => {
     if (!universityId) return;
@@ -237,7 +246,7 @@ const UniversityPage: React.FC = () => {
         {/* Teams Tab */}
         {selectedTab === "teams" && (
           <Grid container spacing={2}>
-            {teams.map((team) => (
+            {teams.filter((team) => team.team_id !== 0).map((team) => (
               <Grid item xs={12} key={team.team_id}>
                 <Link to={`/team/${team.team_id}`} style={{ textDecoration: "none" }}>
                   <Card sx={{ display: "flex", alignItems: "center", p: 2 }}>
