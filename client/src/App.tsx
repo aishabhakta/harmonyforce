@@ -40,6 +40,7 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import ViewerSignUpPage from "./pages/ViewerSignUpPage";
 import Reportpage from "./pages/Reportpage";
 import { useAuth } from "./AuthProvider";
+import CheckoutPage from "./pages/CheckoutPage";
 
 const AppContent: React.FC = () => {
   const location = useLocation();
@@ -77,10 +78,10 @@ const AppContent: React.FC = () => {
 
   const links = [
     ...baseLinks,
-    ...(user?.role === "superadmin"
+    ...(["superadmin", "aardvarkstaff"].includes(user?.role || "")
       ? [
           { name: "Report", href: "/Report" },
-          { name: "Register", href: "/viewregister" },
+          { name: "Create User", href: "/register" },
         ]
       : []),
   ];
@@ -90,6 +91,7 @@ const AppContent: React.FC = () => {
   return (
     <>
       {!hideNavigationAndFooter && <NavigationBar links={links} />}
+
       <Routes>
         <Route path="/" element={<Homepage />} />
         <Route path="/login" element={<Login />} />
@@ -122,12 +124,7 @@ const AppContent: React.FC = () => {
         <Route path="/gateway-timeout" element={<ErrorPage />} />
 
         <Route path="/faqpage" element={<FaqPage />} />
-        {/* <Route element={<PrivateRoute allowedRoles={["superadmin"]} />}>
-          <Route path="/validation" element={<ValidationPage />} />
-        </Route> */}
         <Route path="/validation" element={<ValidationPage />} />
-
-        {/* how are we monitoring access to validation pages + where to access reports */}
 
         <Route
           path="/UniversityRegistration"
@@ -138,7 +135,7 @@ const AppContent: React.FC = () => {
           element={<TournamentRegistration />}
         />
         <Route path="/edit-profile" element={<EditProfilePage />} />
-        <Route path="/checkoutform" element={<PaymentPage />} />
+        <Route path="/checkout" element={<PaymentPage />} />
         <Route path="/tournaments/bracket" element={<TournamentBracket />} />
 
         {/* <Route
@@ -154,11 +151,12 @@ const AppContent: React.FC = () => {
         <Route path="/viewregister" element={<Register />} />
         <Route
           element={
-            <PrivateRoute allowedRoles={["superadmin", "supportstaff"]} />
+            <PrivateRoute allowedRoles={["superadmin", "aardvarkstaff"]} />
           }
         >
           <Route path="/report" element={<Reportpage />} />
         </Route>
+        <Route path="/checkoutform" element={<CheckoutPage />} />
       </Routes>
 
       {!hideNavigationAndFooter && <Footer />}
