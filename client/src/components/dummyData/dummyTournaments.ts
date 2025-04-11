@@ -131,7 +131,7 @@ export interface Tournament {
   description: string;
   start_date: string;
   end_date: string;
-  status: "APPLY" | "VIEW" | "UPCOMING";
+  status: "APPLY" | "RESULTS" | "VIEW";
   matches: Match[];
 }
 
@@ -172,7 +172,7 @@ export const dummyTournaments: Tournament[] = [
     description: "Battle of minds and reflexes.",
     start_date: "2025-04-15",
     end_date: "2025-04-17",
-    status: "UPCOMING",
+    status: "VIEW",
     matches: [
       {
         match_id: 1,
@@ -192,7 +192,7 @@ export const dummyTournaments: Tournament[] = [
     description: "Where legends are born.",
     start_date: "2024-12-10",
     end_date: "2024-12-12",
-    status: "VIEW",
+    status: "RESULTS",
     matches: [
       {
         match_id: 31,
@@ -231,7 +231,7 @@ export const dummyTournaments: Tournament[] = [
     description: "NYU's annual battle royale.",
     start_date: "2025-05-01",
     end_date: "2025-05-03",
-    status: "UPCOMING",
+    status: "VIEW",
     matches: [],
   },
   {
@@ -242,7 +242,7 @@ export const dummyTournaments: Tournament[] = [
     description: "Coders compete, only the best survive.",
     start_date: "2025-06-10",
     end_date: "2025-06-12",
-    status: "UPCOMING",
+    status: "VIEW",
     matches: [],
   },
 ];
