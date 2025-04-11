@@ -46,7 +46,8 @@ const TeamMembers: React.FC<TeamMembersProps> = () => {
         }),
       });
 
-      setSuccess("Member request sent for approval!");
+      // If API sends a message back, display it
+      setSuccess(data.message || "Member request sent for approval!");
       setError("");
       setName("");
       setEmail("");
