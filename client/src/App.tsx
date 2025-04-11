@@ -81,7 +81,7 @@ const AppContent: React.FC = () => {
     ...(["superadmin", "aardvarkstaff"].includes(user?.role || "")
       ? [
           { name: "Report", href: "/Report" },
-          { name: "Create User", href: "/viewregister" },
+          { name: "Create User", href: "/register" },
         ]
       : []),
   ];
