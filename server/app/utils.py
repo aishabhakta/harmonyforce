@@ -5,7 +5,7 @@ import os
 from datetime import datetime, timedelta
 
 # Load secret key from environment variables
-SECRET_KEY = os.getenv('SECRET_KEY')
+SECRET_KEY = os.getenv('SECRET_KEY', 'super-secret-dev-key')
 
 # Use a set to store blacklisted tokens
 blacklisted_tokens = set()
