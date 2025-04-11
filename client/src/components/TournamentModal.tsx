@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -9,11 +9,14 @@ import {
   Button,
   Card,
   CardContent,
+  CircularProgress,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
+import { Match, Tournament } from "./dummyData/dummyTournaments";
 import { Link } from "react-router-dom";
-import RegisterButton from "../components/RegisterButton"; // adjust path if needed
-import { Match, Tournament } from "../types";
+import RegisterButton from "../components/RegisterButton";
+import { useAuth } from "../AuthProvider";
+import { apiFetch } from "../api";
 
 interface TournamentModalProps {
   open: boolean;
@@ -28,6 +31,33 @@ const TournamentModal: React.FC<TournamentModalProps> = ({
   tournament,
   matches,
 }) => {
+  const [hasPaid, setHasPaid] = useState(false);
+  const [checkingPayment, setCheckingPayment] = useState(true);
+
+  const userId = localStorage.getItem("user_id");
+  const userRole = localStorage.getItem("user_role");
+  const { user } = useAuth();
+
+  console.log("👤 userId:", userId);
+  console.log("🔐 userRole:", userRole);
+  console.log("🔥 TournamentModal file loaded");
+
+  useEffect(() => {
+    if (open && userId) {
+      setCheckingPayment(true);
+      apiFetch(`/stripe/check-user-paid/${userId}`)
+        .then((data) => {
+          console.log("✅ Payment check response:", data);
+          setHasPaid(data.status === "succeeded");
+        })
+        .catch((err) => {
+          console.error("❌ Payment check failed", err);
+          setHasPaid(false);
+        })
+        .finally(() => setCheckingPayment(false));
+    }
+  }, [open, userId]);
+
   const finalMatch = matches.find(
     (m) => m.match_id === 31 && m.tournament_id === tournament.id
   );
@@ -113,6 +143,7 @@ const TournamentModal: React.FC<TournamentModalProps> = ({
         <Box sx={{ maxHeight: 300, overflowY: "auto" }}>
           {otherMatches.map(renderMatch)}
         </Box>
+
         {tournament.name === "A New World Tournament" && (
           <Box
             mt={4}
@@ -128,7 +159,48 @@ const TournamentModal: React.FC<TournamentModalProps> = ({
               </Button>
             </Link>
 
-            <RegisterButton />
+            {!userId ? null : checkingPayment ? (
+              <CircularProgress />
+            ) : hasPaid ? (
+              <>
+                <Button variant="contained" color="success" disabled>
+                  Already Paid
+                </Button>
+                <Typography variant="subtitle2" color="textSecondary">
+                  ALREADY APPLIED
+                </Typography>
+              </>
+            ) : userRole === "participant" || userRole === "captain" ? (
+              <RegisterButton />
+            ) : (
+              <>
+                <Button variant="contained" disabled>
+                  Register
+                </Button>
+                <Typography variant="subtitle2" color="error">
+                  You must be a participant or team captain to register.
+                </Typography>
+              </>
+            )}
+
+            {["participant", "captain"].includes(user?.role || "") && (
+              <Box>
+                {checkingPayment ? (
+                  <CircularProgress />
+                ) : hasPaid ? (
+                  <>
+                    <Button variant="contained" color="success" disabled>
+                      Already Paid
+                    </Button>
+                    <Typography variant="subtitle2" color="textSecondary">
+                      ALREADY APPLIED
+                    </Typography>
+                  </>
+                ) : (
+                  <RegisterButton />
+                )}
+              </Box>
+            )}
           </Box>
         )}
       </DialogContent>
