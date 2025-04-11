@@ -7,6 +7,7 @@ import os
 from functools import wraps
 from app.utils import generate_jwt, verify_jwt, blacklisted_tokens
 from werkzeug.utils import secure_filename
+from app.models import Payment
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -69,6 +70,19 @@ def register():
     )
     db.session.add(user)
     db.session.commit()
+
+    existing_payment = Payment.query.filter_by(email=user.email).first()
+    if not existing_payment:
+        placeholder_payment = Payment(
+            email=user.email,
+            amount=0,
+            currency="usd",
+            status="pending",
+            payment_intent_id=f"placeholder_user_{user.user_id}"
+        )
+        db.session.add(placeholder_payment)
+        db.session.commit()
+        print(f"📝 Placeholder payment created for {user.email}")
 
     return jsonify({"message": "User registered successfully!"}), 201
 
@@ -186,6 +200,20 @@ def approve_user(pending_id):
     db.session.add(user)
     db.session.delete(pending)
     db.session.commit()
+
+    # ✅ Add placeholder payment after approval
+    existing_payment = Payment.query.filter_by(email=user.email).first()
+    if not existing_payment:
+        placeholder_payment = Payment(
+            email=user.email,
+            amount=0,
+            currency="usd",
+            status="pending",
+            payment_intent_id=f"placeholder_user_{user.user_id}"
+        )
+        db.session.add(placeholder_payment)
+        db.session.commit()
+        print(f"🧾 Placeholder created after approval for {user.email}")
 
     return jsonify({"message": "User approved and registered!"}), 201
 

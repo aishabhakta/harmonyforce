@@ -150,19 +150,6 @@ const TournamentList: React.FC = () => {
               <Card sx={{ width: "100%", borderRadius: 0, height: 60 }}>
                 <CardContent>
                   <Grid container alignItems="center" spacing={2}>
-                    <Grid item xs={2}>
-                      <Box
-                        component="img"
-                        src={tournament.logo}
-                        alt={tournament.name}
-                        sx={{
-                          width: 50,
-                          height: 50,
-                          objectFit: "contain",
-                          mx: "auto",
-                        }}
-                      />
-                    </Grid>
                     <Grid item xs={6}>
                       <ListItemText primary={tournament.name} />
                     </Grid>

@@ -60,7 +60,11 @@ def get_university_image(university_id):
     if not university or not university.university_image:
         return jsonify({"error": "Image not found"}), 404
 
-    return redirect(university.university_image)
+    return send_file(
+        BytesIO(university.university_image),
+        mimetype=university.image_mime_type,
+        as_attachment=False
+    )
 
 # Function to get all teams for a given university
 @university_bp.route('/<int:university_id>/teams', methods=['GET'])
@@ -122,23 +126,6 @@ def get_university_report(university_id):
     }), 200
 
 
-# Report to get the total counts of universities, teams, and members
-@university_bp.route('/report/total_counts', methods=['GET'])
-def get_total_counts():
-    university_count = db.session.query(University).count()
-    team_count = db.session.query(Team).count()
-   
-    # Count only users whose user_type is 'captain' or 'participant'
-    team_member_count = db.session.query(User).filter(User.user_type.in_(['captain', 'participant'])).count()
-
-
-    return jsonify({
-        "total_universities": university_count,
-        "total_teams": team_count,
-        "total_team_members": team_member_count
-    }), 200
-
-
 # Function to get university statistics with optional date range filtering
 @university_bp.route('/statistics', methods=['GET'])
 def get_university_statistics():
@@ -187,23 +174,33 @@ def get_university_details(university_id):
 
 @university_bp.route('/<int:university_id>/matches', methods=['GET'])
 def get_university_matches(university_id):
-    # Get all team IDs for the university
+    # Get all team IDs associated with this university
     teams = Team.query.filter_by(university_id=university_id).all()
     team_ids = [team.team_id for team in teams]
 
     if not team_ids:
         return jsonify([]), 200
 
-    # Get matches where either team1 or team2 belongs to the university
+    # Get matches where either team1 or team2 belongs to this university
     matches = Match.query.filter(
-        db.or_(
+        or_(
             Match.team1_id.in_(team_ids),
             Match.team2_id.in_(team_ids)
         )
     ).all()
 
-    match_data = []
+    # Deduplicate matches using a set of unique keys
+    seen = set()
+    unique_matches = []
     for match in matches:
+        key = (match.team1_id, match.team2_id, match.start_time)
+        if key not in seen:
+            seen.add(key)
+            unique_matches.append(match)
+
+    # Format match data
+    match_data = []
+    for match in unique_matches:
         match_data.append({
             "match_id": match.match_id,
             "tournament_id": match.tournament_id,
@@ -246,15 +243,31 @@ def assign_tournymod_to_university():
 
 @university_bp.route('/report/full_statistics', methods=['GET'])
 def full_university_report():
-    universities = University.query.all()
+    start_date = request.args.get("start_date")
+    end_date = request.args.get("end_date")
+
+    print("==== University Report Filter ====")
+    print(f"Start: {start_date if start_date else 'N/A'}")
+    print(f"End: {end_date if end_date else 'N/A'}")
+
+    query = University.query
+
+    try:
+        if start_date:
+            start_date_obj = datetime.strptime(start_date, "%Y-%m-%d").date()
+            query = query.filter(University.created_at >= start_date_obj)
+        if end_date:
+            end_date_obj = datetime.strptime(end_date, "%Y-%m-%d").date()
+            query = query.filter(University.created_at <= end_date_obj)
+    except ValueError:
+        return jsonify({"error": "Invalid date format. Use YYYY-MM-DD"}), 400
+
+    universities = query.all()
     result = []
 
     for uni in universities:
         team_count = Team.query.filter_by(university_id=uni.university_id).count()
-        total_members = User.query.filter_by(university_id=uni.university_id).count()
-        unimod_exists = db.session.query(
-            User.query.filter_by(university_id=uni.university_id, user_type='unimod').exists()
-        ).scalar()
+        member_count = User.query.filter_by(university_id=uni.university_id).count()
 
         result.append({
             "university_id": uni.university_id,
@@ -263,10 +276,44 @@ def full_university_report():
             "created_at": uni.created_at.strftime('%Y-%m-%d') if uni.created_at else None,
             "status": uni.status,
             "team_count": team_count,
-            "total_members": total_members,
-            "unimod_exists": unimod_exists
+            "total_members": member_count,
+            "unimod_exists": db.session.query(
+                db.session.query(User).filter_by(university_id=uni.university_id, user_type='unimod').exists()
+            ).scalar()
         })
 
     return jsonify(result), 200
+    
+    
+@university_bp.route('/report/total_counts', methods=['GET'])
+def university_total_counts():
+    start_date = request.args.get("start_date")
+    end_date = request.args.get("end_date")
+
+    query = University.query
+
+    try:
+        if start_date:
+            start_date_obj = datetime.strptime(start_date, "%Y-%m-%d").date()
+            query = query.filter(University.created_at >= start_date_obj)
+        if end_date:
+            end_date_obj = datetime.strptime(end_date, "%Y-%m-%d").date()
+            query = query.filter(University.created_at <= end_date_obj)
+    except ValueError:
+        return jsonify({"error": "Invalid date format. Use YYYY-MM-DD"}), 400
+
+    universities = query.all()
+    total_teams = 0
+    total_team_members = 0
+
+    for uni in universities:
+        total_teams += Team.query.filter_by(university_id=uni.university_id).count()
+        total_team_members += User.query.filter_by(university_id=uni.university_id).count()
+
+    return jsonify({
+        "total_universities": len(universities),
+        "total_teams": total_teams,
+        "total_team_members": total_team_members
+    }), 200
 
 

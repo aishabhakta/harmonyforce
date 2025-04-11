@@ -177,25 +177,6 @@ const TournamentModal: React.FC<TournamentModalProps> = ({
                 </Typography>
               </>
             )}
-
-            {["participant", "captain"].includes(user?.role || "") && (
-              <Box>
-                {checkingPayment ? (
-                  <CircularProgress />
-                ) : hasPaid ? (
-                  <>
-                    <Button variant="contained" color="success" disabled>
-                      Already Paid
-                    </Button>
-                    <Typography variant="subtitle2" color="textSecondary">
-                      ALREADY APPLIED
-                    </Typography>
-                  </>
-                ) : (
-                  <RegisterButton />
-                )}
-              </Box>
-            )}
           </Box>
         )}
       </DialogContent>

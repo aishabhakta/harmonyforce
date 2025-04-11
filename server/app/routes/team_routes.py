@@ -6,6 +6,7 @@ from datetime import datetime
 import os # luke add
 from werkzeug.utils import secure_filename # luke add
 from PIL import Image    # luke add
+import base64 
 
 team_bp = Blueprint('team', __name__)
 
@@ -150,35 +151,34 @@ def get_all_teams():
 @team_bp.route('/getPlayer/<int:user_id>', methods=['GET'])
 def get_player(user_id):
     try:
-        # Fetch player details
+        # Fetch player
         player = User.query.get(user_id)
         if not player:
             return jsonify({"error": "Player not found"}), 404
 
-        # Fetch team details
         team = Team.query.filter_by(team_id=player.team_id).first()
+        university = University.query.filter_by(university_id=team.university_id).first() if team else None
 
-        # Construct player data
         player_data = {
             "user_id": player.user_id,
             "name": player.username,
             "email": player.email,
             "role": player.user_type,
-            "profile_image": getattr(player, 'profile_image', None),  # FIXED: Prevent crash
+            "profile_image": getattr(player, 'profile_image', None),
             "about": "Experienced player with expertise in various skills.",
             "date_joined": player.created_at.strftime('%Y-%m-%d') if player.created_at else None,
             "team_name": team.team_name if team else "No Team",
             "team_logo": team.profile_image if team and team.profile_image else None,
             "university_id": team.university_id if team else None,
-            "university_name": f"University ID {team.university_id}" if team else "Unknown University",
-            "university_logo": None
+            "university_name": university.university_name if university else "Unknown University",
+            "university_logo": university.university_image if university else None
         }
 
         return jsonify(player_data), 200
 
     except Exception as e:
         return jsonify({"error": "Failed to fetch player details", "details": str(e)}), 500
-
+    
 @team_bp.route('/addMember/<int:team_id>', methods=['POST'])
 def add_member(team_id):
     try:
@@ -378,21 +378,37 @@ def remove_member(user_id):
 #return all participants and captains
 @team_bp.route('/user/participants-and-captains', methods=['GET'])
 def get_participants_and_captains():
-    users = User.query.filter(User.user_type.in_(['player', 'captain','tournymod'])).all()
+    users = User.query.filter(User.user_type.in_(['participant', 'captain'])).all()
+
     result = []
     for user in users:
+        image_url = None
+        if user.profile_image:
+            try:
+                image_url = f"data:image/jpeg;base64,{base64.b64encode(user.profile_image).decode('utf-8')}"
+            except Exception as e:
+                print("Image decode error:", e)
+
+        # Safely fetch university name based on ID
+        university_name = None
+        if user.university_id:
+            uni = University.query.get(user.university_id)
+            university_name = uni.university_name if uni else None
+
         result.append({
             "user_id": user.user_id,
             "username": user.username,
-            "profile_image": user.profile_image,
+            "profile_image": image_url,
             "email": user.email,
-            "university_name": user.university.university_name if user.university else None,
+            "university_id": user.university_id,
+            "university_name": university_name,
             "in_team": user.team_id is not None and user.team_id != 0,
             "role": user.user_type,
             "team_name": user.team.team_name if user.team else None,
         })
 
     return jsonify(result), 200
+
     
 @team_bp.route('/pendingTeams', methods=['GET'])
 def get_pending_teams():
