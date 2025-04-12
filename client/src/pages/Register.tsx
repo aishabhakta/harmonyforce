@@ -10,7 +10,7 @@ import {
   MenuItem,
 } from "@mui/material";
 import heroImg from "../assets/images/hero-image.jpg";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 import { useAuth } from "../AuthProvider";
 import { apiFetch } from "../api";
 
@@ -21,7 +21,7 @@ export default function Register() {
   const [role, setRole] = useState("");
   const [university, setUniversity] = useState("");
   const [universities, setUniversities] = useState<string[]>([]);
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const { user } = useAuth();
 
   useEffect(() => {
@@ -52,7 +52,6 @@ export default function Register() {
 
       if (result.message) {
         alert(result.message);
-        navigate("/login");
       } else {
         alert(result.error || "Registration failed");
       }
