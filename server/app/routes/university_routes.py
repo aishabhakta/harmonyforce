@@ -31,8 +31,10 @@ def register_university():
     )
     db.session.add(new_university)
     db.session.commit()
-    return jsonify({"message": "University registered successfully!"}), 201
-
+    return jsonify({
+            "message": "University registered successfully!",
+            "university_id": new_university.university_id
+        }), 201
 
 # Function to update university details
 @university_bp.route('/update', methods=['POST'])

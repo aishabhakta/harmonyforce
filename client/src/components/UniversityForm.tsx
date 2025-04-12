@@ -81,11 +81,12 @@ const UniversityForm: React.FC<UniversityFormProps> = ({ universityId }) => {
       formData.append("university_image", image);
     }
 
-    const endpoint = universityId
-      ? "/university/update"
-      : "/university/register";
+    const endpoint =
+      universityId && universityId !== "null"
+        ? "/university/update"
+        : "/university/register";
 
-    if (universityId) {
+    if (universityId && universityId !== "null") {
       formData.append("university_id", universityId);
     }
     console.log("📦 Submitting university form with data:");
@@ -107,6 +108,9 @@ const UniversityForm: React.FC<UniversityFormProps> = ({ universityId }) => {
       }
 
       console.log("University saved:", data);
+      if (!universityId && data.university_id) {
+        console.log("🎉 New University ID:", data.university_id);
+      }
       alert(`University ${universityId ? "updated" : "created"} successfully!`);
     } catch (error) {
       console.error("Error:", error);
