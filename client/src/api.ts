@@ -6,9 +6,13 @@ export async function apiFetch(
 ): Promise<any> {
   const url = `${API_BASE_URL}${endpoint}`;
 
-  const defaultHeaders: HeadersInit = {
-    "Content-Type": "application/json",
-  };
+  const isFormData = options.body instanceof FormData;
+
+  const defaultHeaders: HeadersInit = isFormData
+    ? {} // let browser set it
+    : {
+        "Content-Type": "application/json",
+      };
 
   const config: RequestInit = {
     ...options,
