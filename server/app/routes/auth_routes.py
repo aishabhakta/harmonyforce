@@ -228,23 +228,50 @@ def reject_user(pending_id):
 
     return jsonify({"message": "User registration rejected and removed."}), 200
 
+# @auth_bp.route('/update-profile/<int:user_id>', methods=['POST'])
+# def update_profile(user_id):
+#     data = request.get_json()
+
+#     user = User.query.get(user_id)
+#     if not user:
+#         return jsonify({"error": "User not found"}), 404
+
+#     try:
+#         user.first_name = data.get("first_name")
+#         user.last_name = data.get("last_name")
+#         user.username = data.get("username")
+#         user.password_hash = data.get("password")  # hash in real use
+#         user.bio = data.get("bio")
+#         user.updated_at = datetime.utcnow()
+
+#         db.session.commit()
+#         return jsonify({"message": "Profile updated successfully!"}), 200
+
+#     except Exception as e:
+#         db.session.rollback()
+#         return jsonify({"error": str(e)}), 500
+
 @auth_bp.route('/update-profile/<int:user_id>', methods=['POST'])
 def update_profile(user_id):
     data = request.get_json()
-
     user = User.query.get(user_id)
+
     if not user:
         return jsonify({"error": "User not found"}), 404
 
     try:
-        user.first_name = data.get("first_name")
-        user.last_name = data.get("last_name")
-        user.username = data.get("username")
-        user.password_hash = data.get("password")  # hash in real use
-        user.bio = data.get("bio")
-        user.updated_at = datetime.utcnow()
+        user.first_name = data.get("first_name") or user.first_name
+        user.last_name = data.get("last_name") or user.last_name
+        user.username = data.get("username") or user.username
+        user.bio = data.get("bio") or user.bio
 
+        # Only update password if it's actually passed
+        if data.get("password"):
+            user.password_hash = bcrypt.generate_password_hash(data["password"]).decode("utf-8")
+
+        user.updated_at = datetime.utcnow()
         db.session.commit()
+
         return jsonify({"message": "Profile updated successfully!"}), 200
 
     except Exception as e:
