@@ -7,6 +7,7 @@ import os # luke add
 from werkzeug.utils import secure_filename # luke add
 from PIL import Image    # luke add
 import base64 
+import traceback
 
 team_bp = Blueprint('team', __name__)
 
@@ -180,6 +181,8 @@ def get_player(user_id):
         return jsonify(player_data), 200
 
     except Exception as e:
+        print("🔥 Error in /getPlayer route:")
+        print(traceback.format_exc())  # ⬅️ Logs the full error stack trace in your server
         return jsonify({"error": "Failed to fetch player details", "details": str(e)}), 500
     
 @team_bp.route('/addMember/<int:team_id>', methods=['POST'])
