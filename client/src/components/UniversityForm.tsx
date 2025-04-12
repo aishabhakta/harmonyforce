@@ -169,14 +169,13 @@ const UniversityForm: React.FC<UniversityFormProps> = ({ universityId }) => {
 
       <Select
         fullWidth
-        label="Country *"
         value={country}
         onChange={(e) => setCountry(e.target.value)}
         displayEmpty
         sx={{ marginBottom: "1rem" }}
       >
         <MenuItem value="" disabled>
-          Select a country
+          Select a country *
         </MenuItem>
         {countryOptions.map((c) => (
           <MenuItem key={c} value={c}>
