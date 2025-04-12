@@ -157,7 +157,7 @@ def get_player(user_id):
             return jsonify({"error": "Player not found"}), 404
 
         team = Team.query.filter_by(team_id=player.team_id).first()
-        university = University.query.filter_by(university_id=team.university_id).first() if team else None
+        university = University.query.get(player.university_id) if player.university_id else None
 
         player_data = {
             "user_id": player.user_id,
@@ -165,13 +165,16 @@ def get_player(user_id):
             "email": player.email,
             "role": player.user_type,
             "profile_image": getattr(player, 'profile_image', None),
-            "about": "Experienced player with expertise in various skills.",
+            "about": player.bio,
             "date_joined": player.created_at.strftime('%Y-%m-%d') if player.created_at else None,
-            "team_name": team.team_name if team else "No Team",
-            "team_logo": team.profile_image if team and team.profile_image else None,
-            "university_id": team.university_id if team else None,
+            "team_id": player.team_id,
+            "team_name": team.team_name if team else None,
+            "team_logo": team.profile_image if team else None,
+            "university_id": player.university_id,
             "university_name": university.university_name if university else "Unknown University",
-            "university_logo": university.university_image if university else None
+            "university_logo": university.university_image if university else None,
+            "first_name": player.first_name,
+            "last_name": player.last_name,
         }
 
         return jsonify(player_data), 200
@@ -586,28 +589,28 @@ def reject_team(team_id):
     db.session.commit()
     return jsonify({"message": "Team registration rejected and removed."}), 200
 
-@team_bp.route('/getUser/<int:user_id>', methods=['GET'])
-def get_user_details(user_id):
-    user = User.query.get(user_id)
-    if not user:
-        return jsonify({"error": "User not found"}), 404
+# @team_bp.route('/getUser/<int:user_id>', methods=['GET'])
+# def get_user_details(user_id):
+#     user = User.query.get(user_id)
+#     if not user:
+#         return jsonify({"error": "User not found"}), 404
 
-    university = University.query.get(user.university_id)
-    team = Team.query.get(user.team_id)
+#     university = University.query.get(user.university_id)
+#     team = Team.query.get(user.team_id)
 
-    return jsonify({
-        "user_id": user.user_id,
-        "email": user.email,
-        "username": user.username,
-        "user_type": user.user_type,
-        "profile_image": user.profile_image,
-        "team_id": user.team_id,
-        "team_name": team.team_name if team else None,
-        "team_logo": team.profile_image if team else None,
-        "university_name": university.university_name if university else None,
-        "university_logo": university.university_image if university else None,
-        "about": user.bio,
-        "first_name": user.first_name,
-        "last_name": user.last_name,
-        "date_joined": user.created_at.strftime('%Y-%m-%d') if user.created_at else None
-    }), 200
+#     return jsonify({
+#         "user_id": user.user_id,
+#         "email": user.email,
+#         "username": user.username,
+#         "user_type": user.user_type,
+#         "profile_image": user.profile_image,
+#         "team_id": user.team_id,
+#         "team_name": team.team_name if team else None,
+#         "team_logo": team.profile_image if team else None,
+#         "university_name": university.university_name if university else None,
+#         "university_logo": university.university_image if university else None,
+#         "about": user.bio,
+#         "first_name": user.first_name,
+#         "last_name": user.last_name,
+#         "date_joined": user.created_at.strftime('%Y-%m-%d') if user.created_at else None
+#     }), 200

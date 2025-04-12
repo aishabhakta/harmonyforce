@@ -85,7 +85,7 @@ const PlayerPage: React.FC = () => {
 
     const fetchPlayer = async () => {
       try {
-        const data = await apiFetch(`/teams/getUser/${playerId}`);
+        const data = await apiFetch(`/teams/getPlayer/${playerId}`);
         setPlayer(data);
       } catch (err: any) {
         console.error("Failed to fetch player details:", err);
