@@ -15,6 +15,7 @@ university_bp = Blueprint('university', __name__)
 def register_university():
     university_name = request.form.get('university_name')
     description = request.form.get('description', '')
+    country = request.form.get('country', '')
     university_image = request.files.get('university_image')
     
     image_data = university_image.read() if university_image else None
@@ -23,6 +24,7 @@ def register_university():
     new_university = University(
         university_name=university_name,
         description=description,
+        country=country,
         university_image=image_data,
         image_mime_type=mime_type,
         created_at=datetime.utcnow()
@@ -44,6 +46,8 @@ def update_university():
     university.university_name = request.form.get('university_name', university.university_name)
     university.description = request.form.get('description', university.description)
     university.universitylink = request.form.get('universitylink', university.universitylink)
+    university.country = request.form.get('country', university.country)
+
 
     university_image = request.files.get('university_image')
     if university_image:

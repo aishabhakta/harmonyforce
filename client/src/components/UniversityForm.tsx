@@ -1,5 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { Box, Button, TextField, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  TextField,
+  Typography,
+  MenuItem,
+  Select,
+} from "@mui/material";
 import { apiFetch } from "../api";
 
 interface UniversityFormProps {
@@ -11,6 +18,40 @@ const UniversityForm: React.FC<UniversityFormProps> = ({ universityId }) => {
   const [bio, setBio] = useState("");
   const [link, setLink] = useState("");
   const [image, setImage] = useState<File | null>(null);
+  const [country, setCountry] = useState("");
+  const countryOptions = [
+    "USA",
+    "UK",
+    "Canada",
+    "Australia",
+    "India",
+    "Germany",
+    "France",
+    "Italy",
+    "Spain",
+    "Mexico",
+    "Brazil",
+    "Japan",
+    "South Korea",
+    "China",
+    "Netherlands",
+    "Sweden",
+    "Norway",
+    "Denmark",
+    "Switzerland",
+    "New Zealand",
+    "South Africa",
+    "Singapore",
+    "Indonesia",
+    "Turkey",
+    "Argentina",
+    "Russia",
+    "Poland",
+    "Portugal",
+    "UAE",
+    "Saudi Arabia",
+    "Other",
+  ];
 
   // Fetch university data if editing
   useEffect(() => {
@@ -20,6 +61,7 @@ const UniversityForm: React.FC<UniversityFormProps> = ({ universityId }) => {
           setName(data.university_name || "");
           setBio(data.description || "");
           setLink(data.universitylink || "");
+          setCountry(data.country || "");
         })
         .catch((err) => {
           console.error("Failed to fetch university for editing", err);
@@ -34,6 +76,7 @@ const UniversityForm: React.FC<UniversityFormProps> = ({ universityId }) => {
     formData.append("university_name", name);
     formData.append("description", bio);
     formData.append("universitylink", link);
+    formData.append("country", country);
     if (image) {
       formData.append("university_image", image);
     }
@@ -50,6 +93,7 @@ const UniversityForm: React.FC<UniversityFormProps> = ({ universityId }) => {
     console.log("→ university_name:", name);
     console.log("→ description:", bio);
     console.log("→ universitylink:", link);
+    console.log("→ country:", country);
     console.log("→ image:", image);
 
     try {
@@ -123,6 +167,24 @@ const UniversityForm: React.FC<UniversityFormProps> = ({ universityId }) => {
         sx={{ marginBottom: "1rem" }}
       />
 
+      <Select
+        fullWidth
+        label="Country *"
+        value={country}
+        onChange={(e) => setCountry(e.target.value)}
+        displayEmpty
+        sx={{ marginBottom: "1rem" }}
+      >
+        <MenuItem value="" disabled>
+          Select a country
+        </MenuItem>
+        {countryOptions.map((c) => (
+          <MenuItem key={c} value={c}>
+            {c}
+          </MenuItem>
+        ))}
+      </Select>
+
       <Typography variant="h6" sx={{ marginBottom: "0.5rem" }}>
         University Image
       </Typography>
@@ -154,6 +216,7 @@ const UniversityForm: React.FC<UniversityFormProps> = ({ universityId }) => {
         variant="contained"
         fullWidth
         sx={{ marginTop: "1rem" }}
+        disabled={!name || !country}
       >
         {universityId ? "Update University" : "Submit"}
       </Button>
