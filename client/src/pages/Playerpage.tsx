@@ -19,13 +19,13 @@ const USE_DUMMY_DATA = false;
 
 interface Player {
   user_id: number;
-  name: string;
+  username: string;
   email: string;
   role: string;
-  team_id: number;
+  team_id: number | null;
   team_name: string;
   team_logo?: string;
-  university_name: string;
+  university_name?: string;
   university_logo?: string;
   profile_image?: string;
   about?: string;
@@ -34,7 +34,7 @@ interface Player {
 
 const dummyPlayer: Player = {
   user_id: 1,
-  name: "Jane Doe",
+  username: "Jane Doe",
   email: "jane.doe@example.com",
   role: "aardvarkstaff",
   team_id: 0,
@@ -85,7 +85,7 @@ const PlayerPage: React.FC = () => {
 
     const fetchPlayer = async () => {
       try {
-        const data = await apiFetch(`/teams/getPlayer/${playerId}`);
+        const data = await apiFetch(`/teams/getUser/${playerId}`);
         setPlayer(data);
       } catch (err: any) {
         console.error("Failed to fetch player details:", err);
@@ -139,7 +139,7 @@ const PlayerPage: React.FC = () => {
           <Grid item xs={12} md={4}>
             <Avatar
               src={player.profile_image || "https://via.placeholder.com/150"}
-              alt={player.name}
+              alt={player.username}
               sx={{ width: 200, height: 200, border: "3px solid #1976d2" }}
             />
 
@@ -198,7 +198,7 @@ const PlayerPage: React.FC = () => {
             <Card sx={{ width: "100%", boxShadow: 2, borderRadius: 2 }}>
               <CardContent>
                 <Typography variant="h5" sx={{ fontWeight: "bold", mb: 1 }}>
-                  {player.name}
+                  {player.username}
                 </Typography>
                 <Typography sx={{ fontWeight: "bold", display: "inline" }}>
                   Role:{" "}

@@ -585,3 +585,29 @@ def reject_team(team_id):
     db.session.delete(team)
     db.session.commit()
     return jsonify({"message": "Team registration rejected and removed."}), 200
+
+@team_bp.route('/getUser/<int:user_id>', methods=['GET'])
+def get_user_details(user_id):
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    university = University.query.get(user.university_id)
+    team = Team.query.get(user.team_id)
+
+    return jsonify({
+        "user_id": user.user_id,
+        "email": user.email,
+        "username": user.username,
+        "user_type": user.user_type,
+        "profile_image": user.profile_image,
+        "team_id": user.team_id,
+        "team_name": team.team_name if team else None,
+        "team_logo": team.profile_image if team else None,
+        "university_name": university.university_name if university else None,
+        "university_logo": university.university_image if university else None,
+        "about": user.bio,
+        "first_name": user.first_name,
+        "last_name": user.last_name,
+        "date_joined": user.created_at.strftime('%Y-%m-%d') if user.created_at else None
+    }), 200
