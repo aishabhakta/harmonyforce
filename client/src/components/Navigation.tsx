@@ -73,13 +73,6 @@ const NavigationBar: React.FC<NavigationProps> = ({ links }) => {
             </ListItemButton>
           </ListItem>
         ))}
-        {user && (
-          <ListItem disablePadding>
-            <ListItemButton onClick={handleLogout}>
-              <ListItemText primary="Logout" />
-            </ListItemButton>
-          </ListItem>
-        )}
       </List>
     </Box>
   );
