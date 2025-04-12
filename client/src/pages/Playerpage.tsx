@@ -19,7 +19,7 @@ const USE_DUMMY_DATA = false;
 
 interface Player {
   user_id: number;
-  username: string;
+  name: string;
   email: string;
   role: string;
   team_id: number | null;
@@ -34,7 +34,7 @@ interface Player {
 
 const dummyPlayer: Player = {
   user_id: 1,
-  username: "Jane Doe",
+  name: "Jane Doe",
   email: "jane.doe@example.com",
   role: "aardvarkstaff",
   team_id: 0,
@@ -139,7 +139,7 @@ const PlayerPage: React.FC = () => {
           <Grid item xs={12} md={4}>
             <Avatar
               src={player.profile_image || "https://via.placeholder.com/150"}
-              alt={player.username}
+              alt={player.name}
               sx={{ width: 200, height: 200, border: "3px solid #1976d2" }}
             />
 
@@ -198,7 +198,7 @@ const PlayerPage: React.FC = () => {
             <Card sx={{ width: "100%", boxShadow: 2, borderRadius: 2 }}>
               <CardContent>
                 <Typography variant="h5" sx={{ fontWeight: "bold", mb: 1 }}>
-                  {player.username}
+                  {player.name}
                 </Typography>
                 <Typography sx={{ fontWeight: "bold", display: "inline" }}>
                   Role:{" "}
