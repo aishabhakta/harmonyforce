@@ -311,7 +311,7 @@ def get_all_tournaments():
 
 
 # Route to fetch all matches for a given tournament
-@tournament_bp.route('/<int:tournament_id>/matches', methods=['GET'])
+@tournament_bp.route('/<int:tournament_id>/matches', methods=['GET', 'OPTIONS'])
 def get_matches_by_tournament(tournament_id):
     matches = Match.query.filter_by(tournament_id=tournament_id).all()
 
