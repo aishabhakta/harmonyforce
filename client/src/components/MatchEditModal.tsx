@@ -65,28 +65,42 @@ const MatchEditModal: React.FC<MatchEditModalProps> = ({
   }, []);
 
   useEffect(() => {
-    const info1 = teams.find(
-      (team) =>
-        team1Name && team.team_name.toLowerCase() === team1Name.toLowerCase()
-    );
-    const info2 = teams.find(
-      (team) =>
-        team2Name && team.team_name.toLowerCase() === team2Name.toLowerCase()
-    );
+    const info1 = Array.isArray(teams)
+      ? teams.find(
+          (team) =>
+            team1Name &&
+            team.team_name.toLowerCase() === team1Name.toLowerCase()
+        )
+      : undefined;
+
+    const info2 = Array.isArray(teams)
+      ? teams.find(
+          (team) =>
+            team2Name &&
+            team.team_name.toLowerCase() === team2Name.toLowerCase()
+        )
+      : undefined;
 
     setTeam1University(info1?.university_name || "Placeholder University");
     setTeam2University(info2?.university_name || "Placeholder University");
   }, [team1Name, team2Name, teams]);
 
   const handleSave = async () => {
-    const info1 = teams.find(
-      (team) =>
-        team1Name && team.team_name.toLowerCase() === team1Name.toLowerCase()
-    );
-    const info2 = teams.find(
-      (team) =>
-        team2Name && team.team_name.toLowerCase() === team2Name.toLowerCase()
-    );
+    const info1 = Array.isArray(teams)
+      ? teams.find(
+          (team) =>
+            team1Name &&
+            team.team_name.toLowerCase() === team1Name.toLowerCase()
+        )
+      : undefined;
+
+    const info2 = Array.isArray(teams)
+      ? teams.find(
+          (team) =>
+            team2Name &&
+            team.team_name.toLowerCase() === team2Name.toLowerCase()
+        )
+      : undefined;
 
     const safeInfo1 = info1 || {
       team_id: 0,
