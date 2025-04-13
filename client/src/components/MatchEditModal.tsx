@@ -54,7 +54,7 @@ const MatchEditModal: React.FC<MatchEditModalProps> = ({
   useEffect(() => {
     const fetchTeams = async () => {
       try {
-        const data = await apiFetch("/teams/getAll");
+        const data = await apiFetch("/teams/getAllTeams");
         setTeams(data);
       } catch (err) {
         console.error("Failed to fetch teams", err);
