@@ -33,7 +33,7 @@ const TournamentBracket = () => {
   useEffect(() => {
     const fetchMatches = async () => {
       try {
-        const data = await apiFetch("/tournaments/9/matches");
+        const data = await apiFetch("/tournament/9/matches");
         setMatches(data);
       } catch (error) {
         console.error("Failed to fetch matches:", error);
