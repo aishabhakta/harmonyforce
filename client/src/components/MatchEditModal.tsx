@@ -31,13 +31,13 @@ const MatchEditModal: React.FC<MatchEditModalProps> = ({
   onSave,
 }) => {
   const [teams, setTeams] = useState<Team[]>([]);
-  const [team1Name, setTeam1Name] = useState(match.team1_name || "");
-  const [team2Name, setTeam2Name] = useState(match.team2_name || "");
+  const [team1Name, setTeam1Name] = useState(match.team1_name || "No Team");
+  const [team2Name, setTeam2Name] = useState(match.team2_name || "No Team");
   const [team1University, setTeam1University] = useState(
-    match.team1_university || ""
+    match.team1_university || "Placeholder University"
   );
   const [team2University, setTeam2University] = useState(
-    match.team2_university || ""
+    match.team2_university || "Placeholder University"
   );
   const [team1Score, setTeam1Score] = useState(match.score_team1 ?? "");
   const [team2Score, setTeam2Score] = useState(match.score_team2 ?? "");
@@ -66,44 +66,54 @@ const MatchEditModal: React.FC<MatchEditModalProps> = ({
 
   useEffect(() => {
     const info1 = teams.find(
-      (team) => team.team_name.toLowerCase() === team1Name.toLowerCase()
+      (team) =>
+        team1Name && team.team_name.toLowerCase() === team1Name.toLowerCase()
     );
     const info2 = teams.find(
-      (team) => team.team_name.toLowerCase() === team2Name.toLowerCase()
+      (team) =>
+        team2Name && team.team_name.toLowerCase() === team2Name.toLowerCase()
     );
 
-    setTeam1University(info1?.university_name || "");
-    setTeam2University(info2?.university_name || "");
+    setTeam1University(info1?.university_name || "Placeholder University");
+    setTeam2University(info2?.university_name || "Placeholder University");
   }, [team1Name, team2Name, teams]);
 
   const handleSave = async () => {
     const info1 = teams.find(
-      (team) => team.team_name.toLowerCase() === team1Name.toLowerCase()
+      (team) =>
+        team1Name && team.team_name.toLowerCase() === team1Name.toLowerCase()
     );
     const info2 = teams.find(
-      (team) => team.team_name.toLowerCase() === team2Name.toLowerCase()
+      (team) =>
+        team2Name && team.team_name.toLowerCase() === team2Name.toLowerCase()
     );
 
-    if (!info1 || !info2) {
-      setError("One or both team names are invalid.");
-      return;
-    }
+    const safeInfo1 = info1 || {
+      team_id: 0,
+      team_name: "No Team",
+      university_name: "Placeholder University",
+    };
+    const safeInfo2 = info2 || {
+      team_id: 0,
+      team_name: "No Team",
+      university_name: "Placeholder University",
+    };
 
     const updatedMatch: Match = {
       ...match,
-      team1_id: info1.team_id,
-      team2_id: info2.team_id,
-      team1_name: info1.team_name,
-      team2_name: info2.team_name,
-      team1_university: info1.university_name,
-      team2_university: info2.university_name,
+      team1_id: safeInfo1.team_id,
+      team2_id: safeInfo2.team_id,
+      team1_name: safeInfo1.team_name,
+      team2_name: safeInfo2.team_name,
+      team1_university: safeInfo1.university_name,
+      team2_university: safeInfo2.university_name,
       score_team1: Number(team1Score),
       score_team2: Number(team2Score),
       winner_id:
         winner === "team1"
-          ? info1.team_id
+          ? safeInfo1.team_id
           : winner === "team2"
-          ? info2.team_id
+          ? safeInfo2.team_id
           : null,
       start_time: date,
     };
