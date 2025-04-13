@@ -5,6 +5,7 @@ from datetime import datetime
 from sqlalchemy import LargeBinary
 from flask import send_file
 from io import BytesIO
+from sqlalchemy import or_
 
 
 university_bp = Blueprint('university', __name__)
