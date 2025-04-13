@@ -2,10 +2,9 @@ import { useState, useEffect } from "react";
 import { Box, Typography, Card, CardContent } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import MatchEditModal from "../../components/MatchEditModal";
-// import axios from "axios";
-import dummyMatches from "./dummyMatches";
 import "./TournamentBracket.css";
 import { useAuth } from "../../AuthProvider";
+import { apiFetch } from "../../api";
 
 export interface Match {
   match_id: number;
@@ -32,19 +31,22 @@ const TournamentBracket = () => {
   );
 
   useEffect(() => {
-    // Replace this later with real API call
-    // const fetchMatches = async () => {
-    //   const res = await axios.get("/api/matches");
-    //   setMatches(res.data);
-    // };
-    // fetchMatches();
-
-    setMatches(dummyMatches);
+    const fetchMatches = async () => {
+      try {
+        const data = await apiFetch("/tournaments/9/matches");
+        setMatches(data);
+      } catch (error) {
+        console.error("Failed to fetch matches:", error);
+      }
+    };
+    fetchMatches();
   }, []);
 
   const handleOpenMatchModal = (match: Match) => {
     if (isPrivileged) setSelectedMatch(match);
   };
+  console.log("User role:", user?.role);
+  console.log("Is privileged?", isPrivileged);
 
   const handleCloseModal = () => setSelectedMatch(null);
 
@@ -54,17 +56,11 @@ const TournamentBracket = () => {
     );
   };
 
-  const round1Matches = matches.filter((m) => m.match_id <= 16);
-  const round2Matches = matches.filter(
-    (m) => m.match_id > 16 && m.match_id <= 24
-  );
-  const round3Matches = matches.filter(
-    (m) => m.match_id > 24 && m.match_id <= 28
-  );
-  const round4Matches = matches.filter(
-    (m) => m.match_id > 28 && m.match_id <= 30
-  );
-  const round5Matches = matches.filter((m) => m.match_id === 31);
+  const round1Matches = matches.filter((m, i) => i < 16);
+  const round2Matches = matches.filter((m, i) => i >= 16 && i < 24);
+  const round3Matches = matches.filter((m, i) => i >= 24 && i < 28);
+  const round4Matches = matches.filter((m, i) => i >= 28 && i < 30);
+  const round5Matches = matches.filter((m, i) => i === 30);
 
   const renderMatch = (match: Match) => {
     const winner = match.winner_id;
@@ -76,7 +72,6 @@ const TournamentBracket = () => {
 
     return (
       <Box key={match.match_id} className="matchup">
-        {/* Team 1 */}
         <Card
           className={`match-card ${team1Class}`}
           onClick={() => handleOpenMatchModal(match)}
@@ -97,7 +92,6 @@ const TournamentBracket = () => {
           </CardContent>
         </Card>
 
-        {/* Team 2 */}
         <Card
           className={`match-card match-card-bottom ${team2Class}`}
           onClick={() => handleOpenMatchModal(match)}
@@ -120,6 +114,7 @@ const TournamentBracket = () => {
       </Box>
     );
   };
+
   return (
     <Box className="bracket-container">
       <Typography variant="h3" className="bracket-title">
@@ -129,7 +124,6 @@ const TournamentBracket = () => {
         Who will reign champion?
       </Typography>
       <Grid container spacing={4} className="bracket-grid">
-        {/* LEFT SIDE */}
         <Grid container className="bracket-side">
           <Grid container className="column round1">
             {round1Matches.slice(0, 8).map(renderMatch)}
@@ -148,7 +142,6 @@ const TournamentBracket = () => {
           </Grid>
         </Grid>
 
-        {/* RIGHT SIDE */}
         <Grid container className="bracket-side">
           <Grid container className="column round4">
             {round4Matches.slice(1).map(renderMatch)}

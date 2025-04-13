@@ -320,6 +320,12 @@ def get_matches_by_tournament(tournament_id):
 
     match_data = []
     for match in matches:
+        team1 = Team.query.get(match.team1_id)
+        team2 = Team.query.get(match.team2_id)
+
+        uni1 = University.query.get(team1.university_id) if team1 else None
+        uni2 = University.query.get(team2.university_id) if team2 else None
+
         match_data.append({
             "match_id": match.match_id,
             "tournament_id": match.tournament_id,
@@ -330,7 +336,11 @@ def get_matches_by_tournament(tournament_id):
             "score_team1": match.score_team1,
             "score_team2": match.score_team2,
             "status": "Completed" if match.status == 1 else "Scheduled",
-            "winner_id": match.winner_id
+            "winner_id": match.winner_id,
+            "team1_name": team1.team_name if team1 else "Unknown",
+            "team2_name": team2.team_name if team2 else "Unknown",
+            "team1_university": uni1.university_name if uni1 else "Unknown",
+            "team2_university": uni2.university_name if uni2 else "Unknown"
         })
 
     return jsonify(match_data), 200

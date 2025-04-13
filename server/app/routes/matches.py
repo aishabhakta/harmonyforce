@@ -43,3 +43,22 @@ def get_matches_by_tournament(tournament_id):
             "team2_university": "School"
         })
     return jsonify(match_list)
+
+@matches_bp.route('/updateMatch', methods=['POST'])
+def update_match():
+    data = request.get_json()
+    match = Match.query.get(data['match_id'])
+
+    if not match:
+        return jsonify({"error": "Match not found"}), 404
+
+    match.team1_id = data['team1_id']
+    match.team2_id = data['team2_id']
+    match.score_team1 = data['score_team1']
+    match.score_team2 = data['score_team2']
+    match.winner_id = data['winner_id']
+    match.start_time = data['start_time']
+    db.session.commit()
+
+    return jsonify({"message": "Match updated successfully!"}), 200
+
