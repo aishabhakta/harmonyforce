@@ -133,8 +133,8 @@ const MatchEditModal: React.FC<MatchEditModalProps> = ({
     };
 
     try {
-      const response = await apiFetch("/matches/updateMatch", {
-        method: "POST",
+      const response = await apiFetch(`/matches/${match.match_id}`, {
+        method: "PUT",
         body: JSON.stringify(updatedMatch),
       });
 
