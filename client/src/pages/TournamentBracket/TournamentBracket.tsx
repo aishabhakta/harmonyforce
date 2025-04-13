@@ -56,11 +56,57 @@ const TournamentBracket = () => {
     );
   };
 
-  const round1Matches = matches.filter((_, i) => i < 16);
-  const round2Matches = matches.filter((_, i) => i >= 16 && i < 24);
-  const round3Matches = matches.filter((_, i) => i >= 24 && i < 28);
-  const round4Matches = matches.filter((_, i) => i >= 28 && i < 30);
-  const round5Matches = matches.filter((_, i) => i === 30);
+  function fillPlaceholders(
+    matches: Match[],
+    totalNeeded: number,
+    roundOffset = 0
+  ): Match[] {
+    const placeholders: Match[] = [];
+    for (let i = 0; i < totalNeeded - matches.length; i++) {
+      placeholders.push({
+        match_id: -1 * (roundOffset + i + 1), // unique negative ID
+        tournament_id: -1,
+        team1_id: 0,
+        team2_id: 0,
+        score_team1: null,
+        score_team2: null,
+        winner_id: null,
+        start_time: null,
+        status: 0,
+        team1_name: "TBD",
+        team2_name: "TBD",
+        team1_university: "",
+        team2_university: "",
+      });
+    }
+    return [...matches, ...placeholders];
+  }
+
+  const round1Matches = fillPlaceholders(
+    matches.filter((_, i) => i < 16),
+    16,
+    0
+  );
+  const round2Matches = fillPlaceholders(
+    matches.filter((_, i) => i >= 16 && i < 24),
+    8,
+    16
+  );
+  const round3Matches = fillPlaceholders(
+    matches.filter((_, i) => i >= 24 && i < 28),
+    4,
+    24
+  );
+  const round4Matches = fillPlaceholders(
+    matches.filter((_, i) => i >= 28 && i < 30),
+    2,
+    28
+  );
+  const round5Matches = fillPlaceholders(
+    matches.filter((_, i) => i === 30),
+    1,
+    30
+  );
 
   const renderMatch = (match: Match) => {
     const winner = match.winner_id;
