@@ -56,11 +56,11 @@ const TournamentBracket = () => {
     );
   };
 
-  const round1Matches = matches.filter((m, i) => i < 16);
-  const round2Matches = matches.filter((m, i) => i >= 16 && i < 24);
-  const round3Matches = matches.filter((m, i) => i >= 24 && i < 28);
-  const round4Matches = matches.filter((m, i) => i >= 28 && i < 30);
-  const round5Matches = matches.filter((m, i) => i === 30);
+  const round1Matches = matches.filter((_, i) => i < 16);
+  const round2Matches = matches.filter((_, i) => i >= 16 && i < 24);
+  const round3Matches = matches.filter((_, i) => i >= 24 && i < 28);
+  const round4Matches = matches.filter((_, i) => i >= 28 && i < 30);
+  const round5Matches = matches.filter((_, i) => i === 30);
 
   const renderMatch = (match: Match) => {
     const winner = match.winner_id;
