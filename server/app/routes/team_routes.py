@@ -8,6 +8,7 @@ from werkzeug.utils import secure_filename # luke add
 from PIL import Image    # luke add
 import base64 
 import traceback
+from app.utils.s3_upload import upload_file_to_s3
 
 team_bp = Blueprint('team', __name__)
 
@@ -246,31 +247,28 @@ def get_member(user_id):
 @team_bp.route('/upload_profile_image', methods=['POST'])
 def upload_profile_image():
     if 'user_id' not in session:
-        return jsonify({"error": "User not logged in"}), 401  # Ensure user is logged in
-   
+        return jsonify({"error": "User not logged in"}), 401
+
     if 'image' not in request.files:
         return jsonify({"error": "No file uploaded"}), 400
-   
+
     file = request.files['image']
-    filename = secure_filename(file.filename)  # Sanitize filename
-   
-    if len(filename) > 100:
-        return jsonify({"error": "Filename too long"}), 400
-   
-    filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
-    file.save(filepath)  # Save file to upload folder
-   
-    # Validate image dimensions
-    with Image.open(filepath) as img:
-        if img.width != img.height:  # Ensure image is a perfect square
-            os.remove(filepath)
-            return jsonify({"error": "Image must be a perfect square"}), 400
-   
-    user = User.query.get(session['user_id'])
-    user.profile_image = filepath  # Store file path in database
-    db.session.commit()
-   
-    return jsonify({"message": "Profile image uploaded successfully!"}), 200
+    if not file:
+        return jsonify({"error": "Invalid file"}), 400
+
+    try:
+        # Upload to S3
+        image_url = upload_file_to_s3(file, folder="profile_images")
+
+        # Update DB
+        user = User.query.get(session['user_id'])
+        user.profile_image = image_url
+        db.session.commit()
+
+        return jsonify({"message": "Profile image uploaded", "image_url": image_url}), 200
+    except Exception as e:
+        print("S3 upload failed:", e)
+        return jsonify({"error": "Upload failed", "details": str(e)}), 500
 
 @team_bp.route('/requestAddMember', methods=['POST'])
 def request_add_member():

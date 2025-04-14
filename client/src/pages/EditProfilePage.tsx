@@ -50,13 +50,41 @@ const EditProfilePage: React.FC = () => {
       return;
     }
 
+    let imageUrl = undefined;
+
     try {
+      // 1. Upload profile image if selected
+      if (profilePic) {
+        const formData = new FormData();
+        formData.append("image", profilePic);
+
+        const res = await fetch(
+          "http://18.218.163.17:5000/teams/upload_profile_image",
+          {
+            method: "POST",
+            body: formData,
+            credentials: "include",
+          }
+        );
+
+        const result = await res.json();
+        if (res.ok) {
+          imageUrl = result.image_url;
+        } else {
+          console.error("Upload failed:", result);
+          alert("Image upload failed: " + result.error);
+          return;
+        }
+      }
+
+      // 2. Send other profile updates
       const payload = {
         first_name: firstName,
         last_name: lastName,
         bio: bio,
         username: username,
         password: password || undefined,
+        ...(imageUrl && { profile_image: imageUrl }),
       };
 
       await apiFetch(`/auth/update-profile/${user.user_id}`, {
