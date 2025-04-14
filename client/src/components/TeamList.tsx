@@ -68,7 +68,7 @@ const UserList: React.FC = () => {
         if (USE_DUMMY_DATA) {
           setUsers(dummyUsers);
         } else {
-          const data = await apiFetch("/team/user/participants-and-captains");
+          const data = await apiFetch("/teams/user/participants-and-captains");
 
           if (!data || data.error) {
             throw new Error(data?.error || "Failed to fetch users");

@@ -385,6 +385,7 @@ def remove_member(user_id):
 #return all participants and captains
 @team_bp.route('/user/participants-and-captains', methods=['GET'])
 def get_participants_and_captains():
+    print("✅ Hit the participants-and-captains route")
     users = User.query.filter(User.user_type.in_(['participant', 'captain'])).all()
 
     result = []
