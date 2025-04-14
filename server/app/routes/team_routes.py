@@ -8,7 +8,7 @@ from werkzeug.utils import secure_filename # luke add
 from PIL import Image    # luke add
 import base64 
 import traceback
-from app.utils.s3_upload import upload_file_to_s3
+from app.s3_utils.s3_upload import upload_file_to_s3
 
 team_bp = Blueprint('team', __name__)
 
