@@ -245,9 +245,12 @@ def get_member(user_id):
 
 
 # Route to upload a profile image
-@team_bp.route('/upload_profile_image', methods=['POST'])
-@verify_jwt
-def upload_profile_image():
+@team_bp.route('/upload_profile_image/<int:user_id>', methods=['POST'])
+def upload_profile_image(user_id):
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
     if 'image' not in request.files:
         return jsonify({"error": "No file uploaded"}), 400
 
@@ -256,23 +259,15 @@ def upload_profile_image():
         return jsonify({"error": "Invalid file"}), 400
 
     try:
-        # Upload to S3
         image_url = upload_file_to_s3(file, folder="profile_images")
-
-        # Update DB
-        user_id = request.user_id
-        user = User.query.get(user_id)
-        if not user:
-            return jsonify({"error": "User not found"}), 404
-
         user.profile_image = image_url
         db.session.commit()
 
         return jsonify({"message": "Profile image uploaded", "image_url": image_url}), 200
-
     except Exception as e:
         print("S3 upload failed:", e)
         return jsonify({"error": "Upload failed", "details": str(e)}), 500
+
 
 @team_bp.route('/requestAddMember', methods=['POST'])
 def request_add_member():

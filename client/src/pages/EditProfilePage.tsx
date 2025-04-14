@@ -53,20 +53,27 @@ const EditProfilePage: React.FC = () => {
     let imageUrl = undefined;
 
     try {
-      // Upload profile image to S3 if one is selected
+      // 1. Upload profile image to S3 if one is selected
       if (profilePic) {
         const formData = new FormData();
         formData.append("image", profilePic);
 
-        const result = await apiFetch("/teams/upload_profile_image", {
-          method: "POST",
-          body: formData,
-        });
+        const result = await apiFetch(
+          `/teams/upload_profile_image/${user.user_id}`,
+          {
+            method: "POST",
+            body: formData,
+          }
+        );
+
+        if (!result.image_url) {
+          throw new Error("Image upload failed");
+        }
 
         imageUrl = result.image_url;
       }
 
-      // Update user profile
+      // 2. Send profile data to backend
       const payload = {
         first_name: firstName,
         last_name: lastName,
@@ -84,7 +91,7 @@ const EditProfilePage: React.FC = () => {
       alert("Profile updated!");
     } catch (error: any) {
       console.error("Update failed:", error);
-      alert("Something went wrong updating your profile.");
+      alert(error.message || "Something went wrong updating your profile.");
     }
   };
 
