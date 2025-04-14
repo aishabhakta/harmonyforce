@@ -27,7 +27,7 @@ const EditProfilePage: React.FC = () => {
         const data = await apiFetch(`/teams/getPlayer/${user.user_id}`);
         setFirstName(data.first_name || "");
         setLastName(data.last_name || "");
-        setUsername(data.name || ""); // 'name' is actually the username in the playerPage response
+        setUsername(data.name || "");
         setBio(data.about || "");
       } catch (err: any) {
         console.error("Failed to load user profile:", err);
@@ -53,36 +53,25 @@ const EditProfilePage: React.FC = () => {
     let imageUrl = undefined;
 
     try {
-      // 1. Upload profile image if selected
+      // Upload profile image to S3 if one is selected
       if (profilePic) {
         const formData = new FormData();
         formData.append("image", profilePic);
 
-        const res = await fetch(
-          "http://18.218.163.17:5000/teams/upload_profile_image",
-          {
-            method: "POST",
-            body: formData,
-            credentials: "include",
-          }
-        );
+        const result = await apiFetch("/teams/upload_profile_image", {
+          method: "POST",
+          body: formData,
+        });
 
-        const result = await res.json();
-        if (res.ok) {
-          imageUrl = result.image_url;
-        } else {
-          console.error("Upload failed:", result);
-          alert("Image upload failed: " + result.error);
-          return;
-        }
+        imageUrl = result.image_url;
       }
 
-      // 2. Send other profile updates
+      // Update user profile
       const payload = {
         first_name: firstName,
         last_name: lastName,
-        bio: bio,
-        username: username,
+        bio,
+        username,
         password: password || undefined,
         ...(imageUrl && { profile_image: imageUrl }),
       };

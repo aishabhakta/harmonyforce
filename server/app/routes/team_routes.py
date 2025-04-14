@@ -9,6 +9,7 @@ from PIL import Image    # luke add
 import base64 
 import traceback
 from app.s3_utils.s3_upload import upload_file_to_s3
+from app.utils import verify_jwt
 
 team_bp = Blueprint('team', __name__)
 
@@ -245,10 +246,8 @@ def get_member(user_id):
 
 # Route to upload a profile image
 @team_bp.route('/upload_profile_image', methods=['POST'])
+@verify_jwt
 def upload_profile_image():
-    if 'user_id' not in session:
-        return jsonify({"error": "User not logged in"}), 401
-
     if 'image' not in request.files:
         return jsonify({"error": "No file uploaded"}), 400
 
@@ -261,11 +260,16 @@ def upload_profile_image():
         image_url = upload_file_to_s3(file, folder="profile_images")
 
         # Update DB
-        user = User.query.get(session['user_id'])
+        user_id = request.user_id
+        user = User.query.get(user_id)
+        if not user:
+            return jsonify({"error": "User not found"}), 404
+
         user.profile_image = image_url
         db.session.commit()
 
         return jsonify({"message": "Profile image uploaded", "image_url": image_url}), 200
+
     except Exception as e:
         print("S3 upload failed:", e)
         return jsonify({"error": "Upload failed", "details": str(e)}), 500
