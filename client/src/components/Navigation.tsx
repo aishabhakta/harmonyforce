@@ -35,6 +35,10 @@ const NavigationBar: React.FC<NavigationProps> = ({ links }) => {
   console.log("📦 localStorage user_id:", localStorage.getItem("user_id"));
   console.log("📧 localStorage email:", localStorage.getItem("user_email"));
   console.log("🔑 localStorage token:", localStorage.getItem("session_token"));
+  console.log(
+    "🔑 localStorage university_id:",
+    localStorage.getItem("university_id")
+  );
   console.log("🔍 Auth Context User:", user);
 
   console.log("user.photoURL in NavigationBar:", user?.photoURL);

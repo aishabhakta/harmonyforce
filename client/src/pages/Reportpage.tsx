@@ -9,7 +9,6 @@ import {
   TableBody,
   TableCell,
   TableRow,
-  TableFooter,
   Paper,
 } from "@mui/material";
 import { useAuth } from "../AuthProvider";
@@ -47,13 +46,13 @@ const Reports = () => {
     []
   );
 
-  const [collegeTotals, setCollegeTotals] = useState({
+  const [, setCollegeTotals] = useState({
     colleges: 0,
     teams: 0,
     members: 0,
   });
 
-  const [tournamentTotals, setTournamentTotals] = useState({
+  const [, setTournamentTotals] = useState({
     colleges: 0,
     matchesPlanned: 0,
     matchesCompleted: 0,
@@ -167,18 +166,6 @@ const Reports = () => {
               </TableRow>
             ))}
           </TableBody>
-          <TableFooter>
-            <TableRow>
-              <TableCell colSpan={3}>
-                <strong>Totals</strong>
-              </TableCell>
-              <TableCell>{collegeTotals.teams}</TableCell>
-              <TableCell>{collegeTotals.members}</TableCell>
-              <TableCell colSpan={2}>
-                Colleges: {collegeTotals.colleges}
-              </TableCell>
-            </TableRow>
-          </TableFooter>
         </Table>
       </Paper>
 
@@ -212,16 +199,6 @@ const Reports = () => {
               </TableRow>
             ))}
           </TableBody>
-          <TableFooter>
-            <TableRow>
-              <TableCell colSpan={3}>
-                <strong>Totals</strong>
-              </TableCell>
-              <TableCell>{tournamentTotals.matchesPlanned}</TableCell>
-              <TableCell>{tournamentTotals.matchesCompleted}</TableCell>
-              <TableCell>Colleges: {tournamentTotals.colleges}</TableCell>
-            </TableRow>
-          </TableFooter>
         </Table>
       </Paper>
     </Box>
