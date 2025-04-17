@@ -6,6 +6,10 @@ from sqlalchemy import LargeBinary
 from flask import send_file
 from io import BytesIO
 from sqlalchemy import or_
+import boto3
+import os
+import uuid
+
 
 
 university_bp = Blueprint('university', __name__)
@@ -38,6 +42,28 @@ def register_university():
         }), 201
 
 # Function to update university details
+# @university_bp.route('/update', methods=['POST'])
+# def update_university():
+#     university_id = int(request.form.get('university_id', 0))
+#     university = University.query.get(university_id)
+
+#     if not university:
+#         return jsonify({"error": "University not found"}), 404
+
+#     university.university_name = request.form.get('university_name', university.university_name)
+#     university.description = request.form.get('description', university.description)
+#     university.universitylink = request.form.get('universitylink', university.universitylink)
+#     university.country = request.form.get('country', university.country)
+
+
+#     university_image = request.files.get('university_image')
+#     if university_image:
+#         university.university_image = university_image.read()
+#         university.image_mime_type = university_image.content_type
+
+#     db.session.commit()
+#     return jsonify({"message": "University updated successfully!"}), 200
+
 @university_bp.route('/update', methods=['POST'])
 def update_university():
     university_id = int(request.form.get('university_id', 0))
@@ -46,32 +72,66 @@ def update_university():
     if not university:
         return jsonify({"error": "University not found"}), 404
 
+    # Update fields if provided
     university.university_name = request.form.get('university_name', university.university_name)
     university.description = request.form.get('description', university.description)
     university.universitylink = request.form.get('universitylink', university.universitylink)
     university.country = request.form.get('country', university.country)
 
-
+    # Handle new image upload
     university_image = request.files.get('university_image')
     if university_image:
-        university.university_image = university_image.read()
-        university.image_mime_type = university_image.content_type
+        filename = f"universities/{uuid.uuid4()}_{university_image.filename}"
+
+        s3 = boto3.client(
+            's3',
+            aws_access_key_id=os.environ.get("AWS_ACCESS_KEY_ID"),
+            aws_secret_access_key=os.environ.get("AWS_SECRET_ACCESS_KEY"),
+            region_name=os.environ.get("AWS_S3_REGION")
+        )
+
+        try:
+            s3.upload_fileobj(
+                university_image,
+                os.environ.get("AWS_S3_BUCKET"),
+                filename,
+                ExtraArgs={"ACL": "public-read", "ContentType": university_image.content_type}
+            )
+
+            bucket_name = os.environ.get("AWS_S3_BUCKET")
+            region = os.environ.get("AWS_S3_REGION")
+            image_url = f"https://{bucket_name}.s3.{region}.amazonaws.com/{filename}"
+            university.university_image = image_url
+
+        except Exception as e:
+            return jsonify({"error": "Failed to upload image to S3", "details": str(e)}), 500
 
     db.session.commit()
     return jsonify({"message": "University updated successfully!"}), 200
 
 
+# @university_bp.route('/<int:university_id>/image', methods=['GET'])
+# def get_university_image(university_id):
+#     university = University.query.get(university_id)
+#     if not university or not university.university_image:
+#         return jsonify({"error": "Image not found"}), 404
+
+#     return send_file(
+#         BytesIO(university.university_image),
+#         mimetype=university.image_mime_type,
+#         as_attachment=False
+#     )
+
 @university_bp.route('/<int:university_id>/image', methods=['GET'])
 def get_university_image(university_id):
     university = University.query.get(university_id)
+
     if not university or not university.university_image:
         return jsonify({"error": "Image not found"}), 404
 
-    return send_file(
-        BytesIO(university.university_image),
-        mimetype=university.image_mime_type,
-        as_attachment=False
-    )
+    # Redirect to the S3 image URL
+    return redirect(university.university_image)
+
 
 # Function to get all teams for a given university
 @university_bp.route('/<int:university_id>/teams', methods=['GET'])
