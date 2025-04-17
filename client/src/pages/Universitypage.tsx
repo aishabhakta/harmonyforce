@@ -41,7 +41,7 @@ interface Match {
   start_time: string;
   end_time: string;
   winner_id: number | null;
-  status: string;
+  status: number;
 }
 
 const UniversityPage: React.FC = () => {
@@ -102,7 +102,7 @@ const UniversityPage: React.FC = () => {
           : matchFormData.team2Score > matchFormData.team1Score
           ? selectedMatch.team2_id
           : null,
-      status: "Completed",
+      status: 1,
     };
 
     try {
